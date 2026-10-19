@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21679"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="EHf-IW-A2E">
+            <objects>
+                <viewController id="01J-lp-oVM" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="Ydg-fD-yQy"/>
+                        <viewControllerLayoutGuide type="bottom" id="xbc-2k-c8Z"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <!-- Background View -->
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bgView">
+                                <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                                <color key="backgroundColor" name="LaunchScreenBackground"/>
+                            </view>
+                            
+                            <!-- App Logo/Icon -->
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="logoImage">
+                                <rect key="frame" x="126.66666666666669" y="236" width="140" height="140"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="140" id="widthConstraint"/>
+                                    <constraint firstAttribute="height" constant="140" id="heightConstraint"/>
+                                </constraints>
+                                <imageReference key="image" image="LaunchImage" catalog="system" renderingMode="template"/>
+                            </imageView>
+                            
+                            <!-- App Name -->
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Milien" textAlignment="center" lineBreakMode="middleTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="appNameLabel">
+                                <rect key="frame" x="20" y="404" width="353" height="38"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="32"/>
+                                <color key="textColor" name="LaunchScreenTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            
+                            <!-- Subtitle -->
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Trading" textAlignment="center" lineBreakMode="middleTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="subtitleLabel">
+                                <rect key="frame" x="20" y="450" width="353" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" name="LaunchScreenTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            
+                            <!-- Loading Indicator -->
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="NO" animating="YES" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="loadingIndicator">
+                                <rect key="frame" x="186.66666666666666" y="499" width="20" height="20"/>
+                                <color key="color" name="LaunchScreenAccentColor"/>
+                            </activityIndicatorView>
+                            
+                            <!-- Version Label -->
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="v1.0.0" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="versionLabel">
+                                <rect key="frame" x="20" y="798" width="353" height="14"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                <color key="textColor" name="LaunchScreenTextColor" alpha="0.5"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" name="LaunchScreenBackground"/>
+                        <constraints>
+                            <constraint firstItem="logoImage" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="logoX"/>
+                            <constraint firstItem="logoImage" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" constant="-120" id="logoY"/>
+                            <constraint firstItem="appNameLabel" firstAttribute="top" secondItem="logoImage" secondAttribute="bottom" constant="28" id="appNameTop"/>
+                            <constraint firstItem="appNameLabel" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" constant="20" id="appNameLeading"/>
+                            <constraint firstItem="appNameLabel" firstAttribute="trailing" secondItem="Ze5-6b-2t3" secondAttribute="trailing" constant="-20" id="appNameTrailing"/>
+                            <constraint firstItem="subtitleLabel" firstAttribute="top" secondItem="appNameLabel" secondAttribute="bottom" constant="8" id="subtitleTop"/>
+                            <constraint firstItem="subtitleLabel" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" constant="20" id="subtitleLeading"/>
+                            <constraint firstItem="subtitleLabel" firstAttribute="trailing" secondItem="Ze5-6b-2t3" secondAttribute="trailing" constant="-20" id="subtitleTrailing"/>
+                            <constraint firstItem="loadingIndicator" firstAttribute="top" secondItem="subtitleLabel" secondAttribute="bottom" constant="28" id="loadingTop"/>
+                            <constraint firstItem="loadingIndicator" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="loadingX"/>
+                            <constraint firstItem="versionLabel" firstAttribute="bottom" secondItem="xbc-2k-c8Z" secondAttribute="top" constant="-20" id="versionBottom"/>
+                            <constraint firstItem="versionLabel" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" constant="20" id="versionLeading"/>
+                            <constraint firstItem="versionLabel" firstAttribute="trailing" secondItem="Ze5-6b-2t3" secondAttribute="trailing" constant="-20" id="versionTrailing"/>
+                            <constraint firstItem="bgView" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="bgTop"/>
+                            <constraint firstItem="bgView" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="bgLeading"/>
+                            <constraint firstAttribute="trailing" secondItem="bgView" secondAttribute="trailing" id="bgTrailing"/>
+                            <constraint firstAttribute="bottom" secondItem="bgView" secondAttribute="bottom" id="bgBottom"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="52" y="374.99999999999994"/>
+        </scene>
+    </scenes>
+    <resources>
+        <namedColor name="LaunchScreenBackground">
+            <color red="0.98039215686274506" green="0.97254901960784312" blue="1.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="LaunchScreenTextColor">
+            <color red="0.0" green="0.29019607843137252" blue="0.77647058823529413" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="LaunchScreenAccentColor">
+            <color red="0.0" green="0.29019607843137252" blue="0.77647058823529413" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <image name="LaunchImage" width="512" height="512"/>
+    </resources>
+</document>
