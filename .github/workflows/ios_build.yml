@@ -1,0 +1,47 @@
+name: iOS Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch: # Allows manual trigger from GitHub Actions tab
+
+jobs:
+  build:
+    name: Build iOS (macOS Runner)
+    runs-on: macos-latest
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: 📦 Install Flutter Dependencies
+        run: flutter pub get
+
+      - name: 🔨 Build iOS Release App (Unsigned)
+        run: flutter build ios --release --no-codesign
+
+      - name: 📦 Package into IPA and ZIP
+        run: |
+          mkdir -p Payload
+          cp -r build/ios/iphoneos/Runner.app Payload/
+          zip -r Milen_Trading_iOS_Unsigned.ipa Payload
+          cd build/ios/iphoneos
+          zip -r -X Milen_Trading_Runner.app.zip Runner.app
+          mv Milen_Trading_Runner.app.zip ../../../
+
+      - name: 🚀 Upload iOS Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Milen-Trading-iOS-Release
+          path: |
+            Milen_Trading_iOS_Unsigned.ipa
+            Milen_Trading_Runner.app.zip
+          retention-days: 14
