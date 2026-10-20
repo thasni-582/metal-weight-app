@@ -849,50 +849,84 @@ class PdfExportService {
         break;
 
       case 'tube':
-        final match = RegExp(r'(\d+)\s*[xX*×]\s*(\d+)(?:\s*[xX*×]\s*(\d+(?:\.\d+)?))?').firstMatch(combined);
-        if (match != null) {
-          hStr = match.group(1)!;
-          bStr = match.group(2)!;
-          tStr = match.group(3) ?? '3.0';
+        final rawSize = item?.details['size']?.toString().trim() ?? '';
+        final rawThick = item?.details['thickness']?.toString().trim() ?? '';
+        final fullDimStr = '$dims $subtitle $title';
+        final match3 = RegExp(r'(\d+)\s*[xX*×]\s*(\d+)\s*[xX*×]\s*(\d+(?:\.\d+)?)').firstMatch(fullDimStr);
+        final match2 = RegExp(r'(\d+)\s*[xX*×]\s*(\d+)').firstMatch(rawSize.isNotEmpty ? rawSize : fullDimStr);
+        if (match3 != null) {
+          hStr = match3.group(1)!;
+          bStr = match3.group(2)!;
+          tStr = match3.group(3)!;
+        } else if (match2 != null) {
+          hStr = match2.group(1)!;
+          bStr = match2.group(2)!;
+          tStr = rawThick.isNotEmpty ? rawThick : '1.2';
         } else {
           hStr = '50';
           bStr = '50';
-          tStr = '3.0';
+          tStr = rawThick.isNotEmpty ? rawThick : '1.2';
         }
         break;
 
       case 'pipe':
-        final match = RegExp(r'(\d+(?:\.\d+)?)\s*[xX*×]\s*(\d+(?:\.\d+)?)').firstMatch(combined);
-        if (match != null) {
-          dStr = match.group(1)!;
-          tStr = match.group(2)!;
+        final rawSize = item?.details['size']?.toString().trim() ?? '';
+        final rawThick = item?.details['thickness']?.toString().trim() ?? '';
+
+        if (rawSize.contains('(') && rawSize.contains('mm')) {
+          final start = rawSize.indexOf('(') + 1;
+          final end = rawSize.indexOf('mm');
+          dStr = rawSize.substring(start, end).trim();
         } else {
-          final mDia = RegExp(r'(\d+(?:\.\d+)?)\s*(?:mm|inch|in|"|\b)').firstMatch(combined);
+          final mDia = RegExp(r'(\d+(?:\.\d+)?)\s*mm').firstMatch('$rawSize $dims $subtitle');
           dStr = mDia != null ? mDia.group(1)! : '60.3';
-          tStr = '3.2';
+        }
+
+        if (rawThick.contains('(') && rawThick.contains('mm')) {
+          final start = rawThick.indexOf('(') + 1;
+          final end = rawThick.indexOf('mm');
+          tStr = rawThick.substring(start, end).trim();
+        } else {
+          final mThick = RegExp(r'(\d+(?:\.\d+)?)\s*mm').firstMatch('$rawThick $dims $subtitle');
+          tStr = mThick != null ? mThick.group(1)! : '3.91';
         }
         break;
 
       case 'sheet':
-        final mThick = RegExp(r'(\d+(?:\.\d+)?)\s*(?:mm|\b)').firstMatch(subtitle.isNotEmpty ? subtitle : title);
+        final rawSize = item?.details['size']?.toString().trim() ?? '';
+        final rawThick = item?.details['thickness']?.toString().trim() ?? '';
+        final mDim = RegExp(r'(\d+)\s*[xX*×]\s*(\d+)').firstMatch(rawThick.isNotEmpty ? rawThick : dims);
+        bStr = mDim != null ? mDim.group(1)! : '1000';
+        final mThick = RegExp(r'(\d+(?:\.\d+)?)').firstMatch(rawSize.isNotEmpty ? rawSize : subtitle);
         tStr = mThick != null ? mThick.group(1)! : '2.0';
-        bStr = '1000';
         break;
 
       case 'flat_bar':
-        final match = RegExp(r'(\d+)\s*[xX*×]\s*(\d+(?:\.\d+)?)').firstMatch(combined);
-        if (match != null) {
-          bStr = match.group(1)!;
-          tStr = match.group(2)!;
+        final rawSize = item?.details['size']?.toString().trim() ?? '';
+        final rawThick = item?.details['thickness']?.toString().trim() ?? '';
+        if (rawSize.isNotEmpty && rawThick.isNotEmpty) {
+          bStr = rawSize;
+          tStr = rawThick;
         } else {
-          bStr = '50';
-          tStr = '6';
+          final match = RegExp(r'(\d+)\s*[xX*×]\s*(\d+(?:\.\d+)?)').firstMatch('$dims $subtitle $title');
+          if (match != null) {
+            bStr = match.group(1)!;
+            tStr = match.group(2)!;
+          } else {
+            bStr = '50';
+            tStr = '6';
+          }
         }
         break;
 
       case 'round_bar':
-        final match = RegExp(r'(\d+(?:\.\d+)?)\s*(?:mm|\b)').firstMatch(combined);
-        dStr = match != null ? match.group(1)! : '25';
+        final rawSize = item?.details['size']?.toString().trim() ?? '';
+        if (rawSize.isNotEmpty) {
+          dStr = rawSize;
+        } else {
+          final match = RegExp(r'(\d+(?:\.\d+)?)').firstMatch('$dims $subtitle $title');
+          dStr = match != null ? match.group(1)! : '25';
+        }
         break;
     }
 
@@ -1125,12 +1159,12 @@ class PdfExportService {
         variantStr = 'BEAM';
       }
     } else if (shapeCategory == 'channel') {
-      if (shape.contains('UPN')) {
-        variantStr = 'UPN';
+      if (shape.contains('JIS')) {
+        variantStr = 'JIS';
       } else if (shape.contains('UPE')) {
         variantStr = 'UPE';
       } else {
-        variantStr = 'CHANNEL';
+        variantStr = 'UPN';
       }
     } else if (shapeCategory == 'angle') {
       variantStr = 'ANGLE';

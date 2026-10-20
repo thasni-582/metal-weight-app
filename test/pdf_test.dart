@@ -89,8 +89,13 @@ void main() {
       {'title': 'UC (Universal Columns) 203 x 203 x 46', 'shape': 'Universal Beams & Columns (UB / UC)', 'icon': 'beam', 'variant': 'UC', 'size': '203 x 203 x 46'},
       {'title': 'W-Beam (Wide Flange) W 12x40', 'shape': 'W-Beam (Wide Flange)', 'icon': 'beam', 'variant': 'W-Beam', 'size': 'W 12x40'},
       {'title': 'IPE-AA Beam 140', 'shape': 'Beams (IPE / IPE-AA / HEA / HEB)', 'icon': 'beam', 'variant': 'IPE-AA', 'size': '140'},
+      {'title': 'HEA Beam 140', 'shape': 'Beams (IPE / IPE-AA / HEA / HEB)', 'icon': 'beam', 'variant': 'HEA', 'size': '140'},
+      {'title': 'HEB Beam 140', 'shape': 'Beams (IPE / IPE-AA / HEA / HEB)', 'icon': 'beam', 'variant': 'HEB', 'size': '140'},
+      {'title': 'H-Beam (JIS) 150', 'shape': 'Beams (IPE / IPE-AA / HEA / HEB)', 'icon': 'beam', 'variant': 'JIS', 'size': '150'},
       {'title': 'UPE Channel 80', 'shape': 'Channels (UPN / UPE)', 'icon': 'channel', 'variant': 'UPE', 'size': '80'},
+      {'title': 'U-Channel (JIS) 150', 'shape': 'Channels (UPN / UPE)', 'icon': 'channel', 'variant': 'JIS', 'size': '150'},
       {'title': 'Unequal Angle 30x20', 'shape': 'Unequal Angle', 'icon': 'angle', 'size': '30x20', 'thickness': '3'},
+      {'title': 'Rectangular Tube (RHS) 60x40', 'shape': 'Rectangular Tube (RHS)', 'icon': 'tube', 'size': '60x40', 'thickness': '1.2'},
     ];
 
     for (final p in testProfiles) {
