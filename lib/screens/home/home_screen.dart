@@ -239,9 +239,9 @@ class _HomeScreenState extends State<HomeScreen> {
     } else if (_selectedShape == 'Unequal Angle' || _selectedShape == 'Angle Unequal') {
       return StandardData.unequalAngles[_selectedSize]?.keys.toList() ?? ['5'];
     } else if (_selectedShape.contains('Square Tube') || _selectedShape.contains('SHS')) {
-      return StandardData.squareTubes[_selectedSize]?.keys.toList() ?? ['2.0'];
+      return StandardData.squareTubes[_selectedSize]?.keys.toList() ?? ['1.2'];
     } else if (_selectedShape.contains('Rectangular Tube') || _selectedShape.contains('RHS')) {
-      return StandardData.rectangularTubes[_selectedSize]?.keys.toList() ?? ['2.0'];
+      return StandardData.rectangularTubes[_selectedSize]?.keys.toList() ?? ['1.2'];
     } else if (_selectedShape.contains('Pipe')) {
       return StandardData.steelPipes[_selectedSize]?.keys.toList() ?? ['Sch 40 (3.91mm)'];
     } else if (_selectedShape.contains('Flat')) {

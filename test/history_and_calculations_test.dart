@@ -22,6 +22,12 @@ void main() {
       expect(StandardData.upnChannels['100']?.weight, equals(10.60));
       expect(StandardData.ipeBeams['200']?.weight, equals(22.40));
       expect(StandardData.ipeAaBeams['100']?.weight, equals(6.70));
+      // IPE-AA only 80 to 200
+      expect(StandardData.ipeAaBeams.keys.toList(), equals(['80', '100', '120', '140', '160', '180', '200']));
+      expect(StandardData.ipeAaBeams.containsKey('220'), isFalse);
+      // Square & Rectangular Tubes start at 1.2 mm
+      expect(StandardData.squareTubes['20x20']?['1.2'], equals(0.71));
+      expect(StandardData.rectangularTubes['40x20']?['1.2'], equals(1.09));
       expect(StandardData.ubBeams['203 x 133 x 25']?.weight, equals(25.10));
       expect(StandardData.ubBeams['457 x 191 x 67']?.weight, equals(67.10));
       expect(StandardData.ucBeams['203 x 203 x 46']?.weight, equals(46.10));
