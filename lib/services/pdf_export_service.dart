@@ -838,6 +838,45 @@ class PdfExportService {
 
     switch (shapeCategory) {
       case 'beam':
+        final isHBeam = item != null &&
+            RegExp(r'\b(hea|heb|uc|w-beam|jis|h-beam|wide flange)\b',
+                    caseSensitive: false)
+                .hasMatch('${item.title} ${item.subtitle} ${item.iconName}');
+        String beamVariant = 'IPE';
+        final titleUpper = '${item?.title ?? ''} ${item?.subtitle ?? ''}'.toUpperCase();
+        if (titleUpper.contains('HEA')) {
+          beamVariant = 'HEA';
+        } else if (titleUpper.contains('HEB')) {
+          beamVariant = 'HEB';
+        } else if (titleUpper.contains('IPE-AA')) {
+          beamVariant = 'IPE-AA';
+        } else if (titleUpper.contains('IPE')) {
+          beamVariant = 'IPE';
+        } else if (titleUpper.contains('UC')) {
+          beamVariant = 'UC';
+        } else if (titleUpper.contains('UB')) {
+          beamVariant = 'UB';
+        } else if (titleUpper.contains('W-BEAM')) {
+          beamVariant = 'W-BEAM';
+        }
+
+        // Profile label inside left pocket (matching App 2D blueprint)
+        final double pocketX = isHBeam ? 104.0 : 108.0;
+        badges.add(
+          pw.Positioned(
+            left: pocketX,
+            top: 72.0,
+            child: pw.Text(
+              beamVariant,
+              style: pw.TextStyle(
+                fontSize: 13.0,
+                fontWeight: pw.FontWeight.bold,
+                color: PdfColor.fromHex('1E293B'),
+              ),
+            ),
+          ),
+        );
+
         if (dims['h']!.isNotEmpty) {
           badges.add(pw.Positioned(left: 198.0, top: 73.0, child: _buildPdfDimBadge(dims['h']!)));
         }
@@ -973,8 +1012,17 @@ class PdfExportService {
     }
 
     final dimStr = details['dimensions']?.toString() ?? item.subtitle;
-    String sizeStr = dimStr.split('x').first.trim();
-    if (sizeStr.contains('(')) sizeStr = sizeStr.split('(').first.trim();
+    // Extract size: take the primary segment before '|' (which separates length/pieces)
+    final String primaryPart = dimStr.split('|').first.trim();
+    String sizeStr = primaryPart;
+    if (sizeStr.contains('(')) {
+      sizeStr = sizeStr.split('(').first.trim();
+    } else if (sizeStr.contains('x') &&
+        !shapeCategory.contains('tube') &&
+        !shapeCategory.contains('angle') &&
+        !shapeCategory.contains('flat')) {
+      sizeStr = sizeStr.split('x').first.trim();
+    }
     if (sizeStr.isEmpty) sizeStr = 'STD';
 
     double wVal = 0.0;
@@ -988,7 +1036,18 @@ class PdfExportService {
     }
     final String weightStr = wVal.toStringAsFixed(2);
     final String weightUnit = shapeCategory == 'sheet' ? 'Kg/m²' : 'Kg/m';
-    final String sectionAreaStr = (wVal * 1.27).toStringAsFixed(2);
+
+    // Section area cm² - extract direct catalog specification from details first to match app exactly
+    String sectionAreaStr = '';
+    if (details['sectionArea'] != null) {
+      final m = RegExp(r'(\d+(?:\.\d+)?)').firstMatch(details['sectionArea'].toString());
+      if (m != null) {
+        sectionAreaStr = double.tryParse(m.group(1)!)?.toStringAsFixed(2) ?? '';
+      }
+    }
+    if (sectionAreaStr.isEmpty) {
+      sectionAreaStr = (wVal * 1.27).toStringAsFixed(2);
+    }
 
     return pw.Container(
       padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 5),
