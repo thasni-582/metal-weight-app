@@ -510,22 +510,28 @@ class DiagramData {
         shapeType.contains('UC')) {
       category = 'BEAM';
       String effVariant = 'IPE';
-      if (shapeType.contains('IPE-AA')) {
+      if (shapeType.contains('Universal') || shapeType.contains('UB / UC')) {
+        effVariant = (variant == 'UC') ? 'UC' : 'UB';
+      } else if (shapeType.contains('HEA / HEB / JIS / IPE') ||
+          shapeType.contains('HEA / HEB / IPE') ||
+          shapeType.contains('Beams (IPE / IPE-AA / HEA / HEB)')) {
+        effVariant = variant.isNotEmpty ? variant : 'IPE';
+      } else if (shapeType.contains('IPE-AA')) {
         effVariant = 'IPE-AA';
-      } else if (shapeType.contains('IPE')) {
-        effVariant = 'IPE';
       } else if (shapeType.contains('HEA')) {
         effVariant = 'HEA';
       } else if (shapeType.contains('HEB')) {
         effVariant = 'HEB';
       } else if (shapeType.contains('JIS')) {
         effVariant = 'JIS';
-      } else if (shapeType.contains('UB') || shapeType.contains('Universal Beam')) {
-        effVariant = 'UB';
       } else if (shapeType.contains('UC') || shapeType.contains('Universal Column')) {
         effVariant = 'UC';
-      } else if (shapeType.contains('W-Beam')) {
+      } else if (shapeType.contains('UB') || shapeType.contains('Universal Beam')) {
+        effVariant = 'UB';
+      } else if (shapeType.contains('W-Beam') || shapeType.contains('Wide Flange')) {
         effVariant = 'W-Beam';
+      } else if (shapeType.contains('IPE')) {
+        effVariant = 'IPE';
       } else {
         effVariant = variant.isNotEmpty ? variant : 'HEA';
       }
@@ -552,6 +558,15 @@ class DiagramData {
       } else if (effVariant == 'W-Beam') {
         spec = StandardData.wBeams[sizeStr];
       }
+
+      // Catalog cross-fallback if variant wasn't strictly resolved
+      spec ??= StandardData.ubBeams[sizeStr] ??
+          StandardData.ucBeams[sizeStr] ??
+          StandardData.wBeams[sizeStr] ??
+          StandardData.ipeBeams[sizeStr] ??
+          StandardData.heaBeams[sizeStr] ??
+          StandardData.hebBeams[sizeStr] ??
+          StandardData.jisBeams[sizeStr];
 
       if (spec != null) {
         h = spec.h;

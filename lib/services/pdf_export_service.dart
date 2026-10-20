@@ -10,6 +10,7 @@ import 'package:metal_weight/core/constants/app_colors.dart';
 import 'package:metal_weight/core/constants/company_data.dart';
 import 'package:metal_weight/core/constants/standard_data.dart';
 import 'package:metal_weight/models/calculation_model.dart';
+import 'package:metal_weight/models/profile_spec.dart';
 
 class PdfExportService {
   PdfExportService._();
@@ -692,39 +693,101 @@ class PdfExportService {
 
     switch (shapeCategory) {
       case 'beam':
-        final matchSize = RegExp(r'\b(80|100|120|140|160|180|200|220|240|270|300|330|360|400|450|500|550|600)\b')
-            .firstMatch(combined);
-        final sizeKey = matchSize != null ? matchSize.group(1)! : '140';
+        final rawSize = item?.details['size']?.toString().trim() ?? '';
+        final rawVariant = item?.details['variant']?.toString().trim().toUpperCase() ?? '';
 
-        if (combined.toLowerCase().contains('ipe-aa') && StandardData.ipeAaBeams.containsKey(sizeKey)) {
-          final s = StandardData.ipeAaBeams[sizeKey]!;
-          hStr = s.h.toStringAsFixed(0);
-          bStr = s.b.toStringAsFixed(0);
-          twStr = s.tw.toStringAsFixed(1);
-          tfStr = s.tf.toStringAsFixed(1);
-        } else if (combined.toLowerCase().contains('hea') && StandardData.heaBeams.containsKey(sizeKey)) {
-          final s = StandardData.heaBeams[sizeKey]!;
-          hStr = s.h.toStringAsFixed(0);
-          bStr = s.b.toStringAsFixed(0);
-          twStr = s.tw.toStringAsFixed(1);
-          tfStr = s.tf.toStringAsFixed(1);
-        } else if (combined.toLowerCase().contains('heb') && StandardData.hebBeams.containsKey(sizeKey)) {
-          final s = StandardData.hebBeams[sizeKey]!;
-          hStr = s.h.toStringAsFixed(0);
-          bStr = s.b.toStringAsFixed(0);
-          twStr = s.tw.toStringAsFixed(1);
-          tfStr = s.tf.toStringAsFixed(1);
-        } else if (StandardData.ipeBeams.containsKey(sizeKey)) {
-          final s = StandardData.ipeBeams[sizeKey]!;
-          hStr = s.h.toStringAsFixed(0);
-          bStr = s.b.toStringAsFixed(0);
-          twStr = s.tw.toStringAsFixed(1);
-          tfStr = s.tf.toStringAsFixed(1);
+        StandardProfileSpec? spec;
+        if (rawVariant == 'UC' && StandardData.ucBeams.containsKey(rawSize)) {
+          spec = StandardData.ucBeams[rawSize];
+        } else if (rawVariant == 'UB' && StandardData.ubBeams.containsKey(rawSize)) {
+          spec = StandardData.ubBeams[rawSize];
+        } else if (StandardData.wBeams.containsKey(rawSize)) {
+          spec = StandardData.wBeams[rawSize];
+        } else if (StandardData.ucBeams.containsKey(rawSize)) {
+          spec = StandardData.ucBeams[rawSize];
+        } else if (StandardData.ubBeams.containsKey(rawSize)) {
+          spec = StandardData.ubBeams[rawSize];
+        } else if (StandardData.ipeAaBeams.containsKey(rawSize)) {
+          spec = StandardData.ipeAaBeams[rawSize];
+        } else if (StandardData.heaBeams.containsKey(rawSize)) {
+          spec = StandardData.heaBeams[rawSize];
+        } else if (StandardData.hebBeams.containsKey(rawSize)) {
+          spec = StandardData.hebBeams[rawSize];
+        } else if (StandardData.ipeBeams.containsKey(rawSize)) {
+          spec = StandardData.ipeBeams[rawSize];
+        } else if (StandardData.jisBeams.containsKey(rawSize)) {
+          spec = StandardData.jisBeams[rawSize];
+        }
+
+        // Search in catalogs if not directly matched by rawSize
+        if (spec == null) {
+          final isUB = combined.toUpperCase().contains('UB') && !combined.toUpperCase().contains('UC');
+          final isUC = combined.toUpperCase().contains('UC') && !combined.toUpperCase().contains('UB');
+          if (isUC) {
+            for (final entry in StandardData.ucBeams.entries) {
+              if (combined.contains(entry.key)) {
+                spec = entry.value;
+                break;
+              }
+            }
+          } else if (isUB) {
+            for (final entry in StandardData.ubBeams.entries) {
+              if (combined.contains(entry.key)) {
+                spec = entry.value;
+                break;
+              }
+            }
+          }
+          if (spec == null) {
+            for (final entry in StandardData.wBeams.entries) {
+              if (combined.contains(entry.key)) {
+                spec = entry.value;
+                break;
+              }
+            }
+          }
+        }
+
+        if (spec != null) {
+          hStr = spec.h.toStringAsFixed(spec.h % 1 == 0 ? 0 : 1);
+          bStr = spec.b.toStringAsFixed(spec.b % 1 == 0 ? 0 : 1);
+          twStr = spec.tw.toStringAsFixed(1);
+          tfStr = spec.tf.toStringAsFixed(1);
         } else {
-          hStr = sizeKey;
-          bStr = '73';
-          twStr = '4.7';
-          tfStr = '6.9';
+          final matchSize = RegExp(r'\b(80|100|120|140|160|180|200|220|240|270|300|330|360|400|450|500|550|600)\b')
+              .firstMatch(combined);
+          final sizeKey = matchSize != null ? matchSize.group(1)! : '140';
+
+          if (combined.toLowerCase().contains('ipe-aa') && StandardData.ipeAaBeams.containsKey(sizeKey)) {
+            final s = StandardData.ipeAaBeams[sizeKey]!;
+            hStr = s.h.toStringAsFixed(0);
+            bStr = s.b.toStringAsFixed(0);
+            twStr = s.tw.toStringAsFixed(1);
+            tfStr = s.tf.toStringAsFixed(1);
+          } else if (combined.toLowerCase().contains('hea') && StandardData.heaBeams.containsKey(sizeKey)) {
+            final s = StandardData.heaBeams[sizeKey]!;
+            hStr = s.h.toStringAsFixed(0);
+            bStr = s.b.toStringAsFixed(0);
+            twStr = s.tw.toStringAsFixed(1);
+            tfStr = s.tf.toStringAsFixed(1);
+          } else if (combined.toLowerCase().contains('heb') && StandardData.hebBeams.containsKey(sizeKey)) {
+            final s = StandardData.hebBeams[sizeKey]!;
+            hStr = s.h.toStringAsFixed(0);
+            bStr = s.b.toStringAsFixed(0);
+            twStr = s.tw.toStringAsFixed(1);
+            tfStr = s.tf.toStringAsFixed(1);
+          } else if (StandardData.ipeBeams.containsKey(sizeKey)) {
+            final s = StandardData.ipeBeams[sizeKey]!;
+            hStr = s.h.toStringAsFixed(0);
+            bStr = s.b.toStringAsFixed(0);
+            twStr = s.tw.toStringAsFixed(1);
+            tfStr = s.tf.toStringAsFixed(1);
+          } else {
+            hStr = sizeKey;
+            bStr = '73';
+            twStr = '4.7';
+            tfStr = '6.9';
+          }
         }
         break;
 
@@ -838,13 +901,14 @@ class PdfExportService {
 
     switch (shapeCategory) {
       case 'beam':
-        final isHBeam = item != null &&
-            RegExp(r'\b(hea|heb|uc|w-beam|jis|h-beam|wide flange)\b',
-                    caseSensitive: false)
-                .hasMatch('${item.title} ${item.subtitle} ${item.iconName}');
-        String beamVariant = 'IPE';
+        final rawVar = item?.details['variant']?.toString().trim().toUpperCase() ?? '';
         final titleUpper = '${item?.title ?? ''} ${item?.subtitle ?? ''}'.toUpperCase();
-        if (titleUpper.contains('HEA')) {
+        String beamVariant = 'IPE';
+        if (rawVar == 'UC') {
+          beamVariant = 'UC';
+        } else if (rawVar == 'UB') {
+          beamVariant = 'UB';
+        } else if (titleUpper.contains('HEA')) {
           beamVariant = 'HEA';
         } else if (titleUpper.contains('HEB')) {
           beamVariant = 'HEB';
@@ -852,13 +916,20 @@ class PdfExportService {
           beamVariant = 'IPE-AA';
         } else if (titleUpper.contains('IPE')) {
           beamVariant = 'IPE';
-        } else if (titleUpper.contains('UC')) {
-          beamVariant = 'UC';
-        } else if (titleUpper.contains('UB')) {
-          beamVariant = 'UB';
-        } else if (titleUpper.contains('W-BEAM')) {
+        } else if (titleUpper.contains('W-BEAM') || titleUpper.contains('WIDE FLANGE')) {
           beamVariant = 'W-BEAM';
+        } else if (titleUpper.contains('UC') && !titleUpper.contains('UB')) {
+          beamVariant = 'UC';
+        } else if (titleUpper.contains('UB') && !titleUpper.contains('UC')) {
+          beamVariant = 'UB';
         }
+
+        final isHBeam = beamVariant == 'UC' ||
+            beamVariant == 'HEA' ||
+            beamVariant == 'HEB' ||
+            beamVariant == 'W-BEAM' ||
+            titleUpper.contains('JIS') ||
+            titleUpper.contains('WIDE FLANGE');
 
         // Profile label inside left pocket (matching App 2D blueprint)
         final double pocketX = isHBeam ? 104.0 : 108.0;
@@ -976,7 +1047,12 @@ class PdfExportService {
     if (shapeCategory == 'pipe') {
       variantStr = 'PIPE';
     } else if (shapeCategory == 'beam') {
-      if (shape.contains('HEA')) {
+      final rawVar = details['variant']?.toString().trim().toUpperCase() ?? '';
+      if (rawVar == 'UC') {
+        variantStr = 'UC';
+      } else if (rawVar == 'UB') {
+        variantStr = 'UB';
+      } else if (shape.contains('HEA')) {
         variantStr = 'HEA';
       } else if (shape.contains('HEB')) {
         variantStr = 'HEB';
@@ -984,9 +1060,11 @@ class PdfExportService {
         variantStr = 'IPE-AA';
       } else if (shape.contains('IPE')) {
         variantStr = 'IPE';
-      } else if (shape.contains('UC')) {
+      } else if (shape.contains('W-BEAM') || shape.contains('WIDE FLANGE')) {
+        variantStr = 'W-BEAM';
+      } else if (shape.contains('UC') && !shape.contains('UB')) {
         variantStr = 'UC';
-      } else if (shape.contains('UB')) {
+      } else if (shape.contains('UB') && !shape.contains('UC')) {
         variantStr = 'UB';
       } else {
         variantStr = 'BEAM';
@@ -1429,10 +1507,13 @@ class PdfExportService {
 
     switch (category) {
       case 'beam':
-        final isHBeam = item != null &&
-            RegExp(r'\b(hea|heb|uc|w-beam|jis|h-beam|wide flange)\b',
-                    caseSensitive: false)
-                .hasMatch('${item.title} ${item.subtitle} ${item.iconName}');
+        final rawVar = item?.details['variant']?.toString().trim().toUpperCase() ?? '';
+        final titleUpper = '${item?.title ?? ''} ${item?.subtitle ?? ''} ${item?.iconName ?? ''}'.toUpperCase();
+        final isHBeam = rawVar == 'UC' ||
+            (rawVar != 'UB' &&
+                RegExp(r'\b(hea|heb|uc|w-beam|jis|h-beam|wide flange)\b',
+                        caseSensitive: false)
+                    .hasMatch(titleUpper));
         final double w = isHBeam ? 100.0 : 76.0;
         final double h = isHBeam ? 100.0 : 110.0;
         final double tf = isHBeam ? 14.0 : 12.0;

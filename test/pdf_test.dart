@@ -85,12 +85,15 @@ void main() {
       {'title': 'HR Checkered Sheet 6mm', 'shape': 'HR Checkered Sheet', 'icon': 'sheet'},
       {'title': 'Round Bar 25mm', 'shape': 'Round Bar', 'icon': 'round_bar'},
       {'title': 'Flat Bar 50x6mm', 'shape': 'Flat Bar', 'icon': 'flat_bar'},
+      {'title': 'UB (Universal Beam) 203 x 133 x 25', 'shape': 'Universal Beams & Columns (UB / UC)', 'icon': 'beam', 'variant': 'UB', 'size': '203 x 133 x 25'},
+      {'title': 'UC (Universal Columns) 203 x 203 x 46', 'shape': 'Universal Beams & Columns (UB / UC)', 'icon': 'beam', 'variant': 'UC', 'size': '203 x 203 x 46'},
+      {'title': 'W-Beam (Wide Flange) W 12x40', 'shape': 'W-Beam (Wide Flange)', 'icon': 'beam', 'variant': 'W-Beam', 'size': 'W 12x40'},
     ];
 
     for (final p in testProfiles) {
       final item = CalculationModel(
         title: p['title']!,
-        subtitle: 'Standard | L=6.0m x 1 pcs',
+        subtitle: '${p['size'] ?? 'Standard'} | L=6.0m x 1 pcs',
         weight: '100.00 kg',
         time: '17/10/2026 22:00',
         iconName: p['icon']!,
@@ -100,7 +103,9 @@ void main() {
         details: {
           'material': 'Steel',
           'shape': p['shape']!,
-          'dimensions': 'Standard | L=6.0m x 1 pcs',
+          'size': p['size'] ?? 'Standard',
+          'variant': p['variant'] ?? '',
+          'dimensions': '${p['size'] ?? 'Standard'} | L=6.0m x 1 pcs',
           'quantity': '1',
           'weightPerPiece': '16.67 kg/m',
           'totalWeight': '100.00 kg',

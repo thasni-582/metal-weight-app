@@ -12,6 +12,8 @@ void main() {
       expect(StandardData.upnChannels.isNotEmpty, isTrue);
       expect(StandardData.ipeBeams.isNotEmpty, isTrue);
       expect(StandardData.ipeAaBeams.isNotEmpty, isTrue);
+      expect(StandardData.ubBeams.isNotEmpty, isTrue);
+      expect(StandardData.ucBeams.isNotEmpty, isTrue);
       expect(StandardData.wBeams.isNotEmpty, isTrue);
       expect(StandardData.aluminumCheckeredWeights.isNotEmpty, isTrue);
 
@@ -20,7 +22,12 @@ void main() {
       expect(StandardData.upnChannels['100']?.weight, equals(10.60));
       expect(StandardData.ipeBeams['200']?.weight, equals(22.40));
       expect(StandardData.ipeAaBeams['100']?.weight, equals(6.70));
+      expect(StandardData.ubBeams['203 x 133 x 25']?.weight, equals(25.10));
+      expect(StandardData.ubBeams['457 x 191 x 67']?.weight, equals(67.10));
+      expect(StandardData.ucBeams['203 x 203 x 46']?.weight, equals(46.10));
+      expect(StandardData.ucBeams['254 x 254 x 73']?.weight, equals(73.10));
       expect(StandardData.wBeams['W 8x10']?.weight, equals(14.90));
+      expect(StandardData.wBeams['W 12x40']?.weight, equals(59.50));
       expect(StandardData.aluminumCheckeredWeights['3.0'], equals(9.80));
       expect(StandardData.densities['Galvanized Sheet'], equals(8.10));
       expect(StandardData.densities['HR Chequered Sheet'], equals(8.50));

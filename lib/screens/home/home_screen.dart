@@ -622,6 +622,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         ? 'Stainless Steel'
                         : 'Steel'))),
         'shape': _selectedShape,
+        'size': _selectedSize,
+        'variant': _activeVariant,
         'dimensions': dimStr,
         'quantity': '$_quantity',
         'weightPerPiece': _selectedShape.contains('Sheet')
