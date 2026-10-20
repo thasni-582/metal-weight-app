@@ -110,6 +110,11 @@ void main() {
       final bytes = await PdfExportService.generatePdfBytes(item);
       expect(bytes, isNotEmpty);
       expect(String.fromCharCodes(bytes.sublist(0, 5)), equals('%PDF-'));
+
+      // Ensure the PDF remains strictly 1 single page without spilling onto page 2
+      final pdfText = String.fromCharCodes(bytes);
+      final pageMatches = RegExp(r'/Type\s*/Page\b').allMatches(pdfText).length;
+      expect(pageMatches, equals(1));
     }
   });
 }

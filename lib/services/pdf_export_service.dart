@@ -658,13 +658,13 @@ class PdfExportService {
     );
   }
 
-  static pw.Widget _buildPdfDimBadge(String text, {double fontSize = 6.0}) {
+  static pw.Widget _buildPdfDimBadge(String text, {double fontSize = 7.5}) {
     return pw.Container(
-      padding: const pw.EdgeInsets.symmetric(horizontal: 2.5, vertical: 1.0),
+      padding: const pw.EdgeInsets.symmetric(horizontal: 4.0, vertical: 1.5),
       decoration: pw.BoxDecoration(
         color: PdfColors.white,
-        borderRadius: const pw.BorderRadius.all(pw.Radius.circular(2)),
-        border: pw.Border.all(color: PdfColor.fromHex('0D5C9D'), width: 0.7),
+        borderRadius: const pw.BorderRadius.all(pw.Radius.circular(3)),
+        border: pw.Border.all(color: PdfColor.fromHex('0D5C9D'), width: 0.8),
       ),
       child: pw.Text(
         text,
@@ -839,93 +839,216 @@ class PdfExportService {
     switch (shapeCategory) {
       case 'beam':
         if (dims['h']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 122.0, top: 46.5, child: _buildPdfDimBadge(dims['h']!)));
+          badges.add(pw.Positioned(left: 198.0, top: 73.0, child: _buildPdfDimBadge(dims['h']!)));
         }
         if (dims['b']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 81.0, top: 90.0, child: _buildPdfDimBadge(dims['b']!)));
+          badges.add(pw.Positioned(left: 120.0, top: 137.0, child: _buildPdfDimBadge(dims['b']!)));
         }
         if (dims['tf']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 31.0, top: 13.0, child: _buildPdfDimBadge(dims['tf']!)));
+          badges.add(pw.Positioned(left: 46.0, top: 27.0, child: _buildPdfDimBadge(dims['tf']!)));
         }
         if (dims['tw']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 98.0, top: 29.0, child: _buildPdfDimBadge(dims['tw']!)));
+          badges.add(pw.Positioned(left: 154.0, top: 51.0, child: _buildPdfDimBadge(dims['tw']!)));
         }
         break;
 
       case 'channel':
         if (dims['h']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 48.0, top: 46.5, child: _buildPdfDimBadge(dims['h']!)));
+          badges.add(pw.Positioned(left: 58.0, top: 73.0, child: _buildPdfDimBadge(dims['h']!)));
         }
         if (dims['b']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 81.0, top: 90.0, child: _buildPdfDimBadge(dims['b']!)));
+          badges.add(pw.Positioned(left: 120.0, top: 140.0, child: _buildPdfDimBadge(dims['b']!)));
         }
         if (dims['tf']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 96.0, top: 13.0, child: _buildPdfDimBadge(dims['tf']!)));
+          badges.add(pw.Positioned(left: 184.0, top: 24.0, child: _buildPdfDimBadge(dims['tf']!)));
         }
         if (dims['tw']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 86.0, top: 34.0, child: _buildPdfDimBadge(dims['tw']!)));
+          badges.add(pw.Positioned(left: 128.0, top: 59.0, child: _buildPdfDimBadge(dims['tw']!)));
         }
         break;
 
       case 'angle':
         if (dims['h']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 36.0, top: 46.5, child: _buildPdfDimBadge(dims['h']!)));
+          badges.add(pw.Positioned(left: 46.0, top: 73.0, child: _buildPdfDimBadge(dims['h']!)));
         }
         if (dims['b']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 80.0, top: 88.0, child: _buildPdfDimBadge(dims['b']!)));
+          badges.add(pw.Positioned(left: 120.0, top: 130.0, child: _buildPdfDimBadge(dims['b']!)));
         }
         if (dims['t']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 78.0, top: 36.0, child: _buildPdfDimBadge(dims['t']!)));
+          badges.add(pw.Positioned(left: 118.0, top: 77.0, child: _buildPdfDimBadge(dims['t']!)));
         }
         break;
 
       case 'tube':
         if (dims['h']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 125.0, top: 46.5, child: _buildPdfDimBadge(dims['h']!)));
+          badges.add(pw.Positioned(left: 194.0, top: 73.0, child: _buildPdfDimBadge(dims['h']!)));
         }
         if (dims['b']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 80.0, top: 88.0, child: _buildPdfDimBadge(dims['b']!)));
+          badges.add(pw.Positioned(left: 120.0, top: 138.0, child: _buildPdfDimBadge(dims['b']!)));
         }
         if (dims['t']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 34.0, top: 46.5, child: _buildPdfDimBadge('t=${dims['t']}')));
+          badges.add(pw.Positioned(left: 46.0, top: 73.0, child: _buildPdfDimBadge('t=${dims['t']}')));
         }
         break;
 
       case 'pipe':
         if (dims['d']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 68.0, top: 89.0, child: _buildPdfDimBadge('OD ${dims['d']}')));
+          badges.add(pw.Positioned(left: 114.0, top: 133.0, child: _buildPdfDimBadge('OD ${dims['d']}')));
         }
         if (dims['t']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 28.0, top: 46.5, child: _buildPdfDimBadge('t=${dims['t']}')));
+          badges.add(pw.Positioned(left: 36.0, top: 73.0, child: _buildPdfDimBadge('t=${dims['t']}')));
         }
         break;
 
       case 'sheet':
         if (dims['b']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 74.0, top: 70.0, child: _buildPdfDimBadge('${dims['b']} mm')));
+          badges.add(pw.Positioned(left: 120.0, top: 98.0, child: _buildPdfDimBadge('${dims['b']} mm')));
         }
         if (dims['t']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 146.0, top: 46.5, child: _buildPdfDimBadge('t=${dims['t']} mm')));
+          badges.add(pw.Positioned(left: 228.0, top: 73.0, child: _buildPdfDimBadge('t=${dims['t']} mm')));
         }
         break;
 
       case 'flat_bar':
         if (dims['b']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 78.0, top: 70.0, child: _buildPdfDimBadge('${dims['b']} mm')));
+          badges.add(pw.Positioned(left: 120.0, top: 101.0, child: _buildPdfDimBadge('${dims['b']} mm')));
         }
         if (dims['t']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 138.0, top: 46.5, child: _buildPdfDimBadge('t=${dims['t']} mm')));
+          badges.add(pw.Positioned(left: 216.0, top: 73.0, child: _buildPdfDimBadge('t=${dims['t']} mm')));
         }
         break;
 
       case 'round_bar':
         if (dims['d']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 70.0, top: 88.0, child: _buildPdfDimBadge('DIA ${dims['d']} mm')));
+          badges.add(pw.Positioned(left: 114.0, top: 129.0, child: _buildPdfDimBadge('DIA ${dims['d']} mm')));
         }
         break;
     }
 
     return badges;
+  }
+
+  static pw.Widget _buildPdfEngineeringSpecTable(CalculationModel? item, String shapeCategory) {
+    if (item == null) return pw.SizedBox();
+
+    final details = item.details;
+    final String shape = (details['shape']?.toString() ?? item.title).toUpperCase();
+    String variantStr = 'PROFILE';
+    if (shapeCategory == 'pipe') {
+      variantStr = 'PIPE';
+    } else if (shapeCategory == 'beam') {
+      if (shape.contains('HEA')) {
+        variantStr = 'HEA';
+      } else if (shape.contains('HEB')) {
+        variantStr = 'HEB';
+      } else if (shape.contains('IPE-AA')) {
+        variantStr = 'IPE-AA';
+      } else if (shape.contains('IPE')) {
+        variantStr = 'IPE';
+      } else if (shape.contains('UC')) {
+        variantStr = 'UC';
+      } else if (shape.contains('UB')) {
+        variantStr = 'UB';
+      } else {
+        variantStr = 'BEAM';
+      }
+    } else if (shapeCategory == 'channel') {
+      if (shape.contains('UPN')) {
+        variantStr = 'UPN';
+      } else if (shape.contains('UPE')) {
+        variantStr = 'UPE';
+      } else {
+        variantStr = 'CHANNEL';
+      }
+    } else if (shapeCategory == 'angle') {
+      variantStr = 'ANGLE';
+    } else if (shapeCategory == 'tube') {
+      variantStr = shape.contains('RECTANGULAR') || shape.contains('RHS') ? 'RHS' : 'SHS';
+    } else if (shapeCategory == 'sheet') {
+      variantStr = 'SHEET';
+    } else if (shapeCategory == 'round_bar') {
+      variantStr = 'ROUND';
+    } else if (shapeCategory == 'flat_bar') {
+      variantStr = 'FLAT';
+    }
+
+    final dimStr = details['dimensions']?.toString() ?? item.subtitle;
+    String sizeStr = dimStr.split('x').first.trim();
+    if (sizeStr.contains('(')) sizeStr = sizeStr.split('(').first.trim();
+    if (sizeStr.isEmpty) sizeStr = 'STD';
+
+    double wVal = 0.0;
+    if (details['weightPerPiece'] != null) {
+      final m = RegExp(r'(\d+(?:\.\d+)?)').firstMatch(details['weightPerPiece'].toString());
+      if (m != null) wVal = double.tryParse(m.group(1)!) ?? 0.0;
+    }
+    if (wVal <= 0.0) {
+      final m = RegExp(r'(\d+(?:\.\d+)?)').firstMatch(item.weight);
+      if (m != null) wVal = double.tryParse(m.group(1)!) ?? 0.0;
+    }
+    final String weightStr = wVal.toStringAsFixed(2);
+    final String weightUnit = shapeCategory == 'sheet' ? 'Kg/m²' : 'Kg/m';
+    final String sectionAreaStr = (wVal * 1.27).toStringAsFixed(2);
+
+    return pw.Container(
+      padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      decoration: pw.BoxDecoration(
+        color: PdfColor.fromHex('F1F5F9'),
+        borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
+        border: pw.Border.all(color: PdfColor.fromHex('CBD5E1'), width: 0.8),
+      ),
+      child: pw.Column(
+        children: [
+          _buildSpecRow(variantStr, sizeStr, 'Standard'),
+          pw.SizedBox(height: 3),
+          _buildSpecRow('weight', weightStr, weightUnit),
+          pw.SizedBox(height: 3),
+          _buildSpecRow('section', sectionAreaStr, 'cm²'),
+        ],
+      ),
+    );
+  }
+
+  static pw.Widget _buildSpecRow(String label, String value, String unit) {
+    return pw.Row(
+      children: [
+        pw.SizedBox(
+          width: 48,
+          child: pw.Text(
+            label,
+            style: pw.TextStyle(
+              fontSize: 8.5,
+              fontWeight: pw.FontWeight.bold,
+              color: PdfColor.fromHex('1E293B'),
+            ),
+          ),
+        ),
+        pw.Container(
+          padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+          decoration: pw.BoxDecoration(
+            color: PdfColors.white,
+            borderRadius: const pw.BorderRadius.all(pw.Radius.circular(3)),
+            border: pw.Border.all(color: PdfColor.fromHex('0D5C9D'), width: 0.8),
+          ),
+          child: pw.Text(
+            value,
+            style: pw.TextStyle(
+              fontSize: 8.5,
+              fontWeight: pw.FontWeight.bold,
+              color: PdfColor.fromHex('0D5C9D'),
+            ),
+          ),
+        ),
+        pw.SizedBox(width: 6),
+        pw.Text(
+          unit,
+          style: const pw.TextStyle(
+            fontSize: 8.0,
+            color: PdfColors.grey700,
+          ),
+        ),
+      ],
+    );
   }
 
   static pw.Widget _buildShapeBlueprintCard(CalculationModel item) {
@@ -1039,34 +1162,11 @@ class PdfExportService {
 
           // Blueprint Drawing & Parameter Details
           pw.Padding(
-            padding: const pw.EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             child: pw.Row(
               crossAxisAlignment: pw.CrossAxisAlignment.center,
               children: [
-                // 2D Vector Drawing (Left)
-                pw.Container(
-                  width: 185,
-                  height: 105,
-                  decoration: pw.BoxDecoration(
-                    color: PdfColors.white,
-                    borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
-                    border: pw.Border.all(color: PdfColor.fromHex('E2E8F0'), width: 0.8),
-                  ),
-                  child: pw.Stack(
-                    children: [
-                      pw.CustomPaint(
-                        size: const PdfPoint(185, 105),
-                        painter: (PdfGraphics canvas, PdfPoint size) {
-                          _drawVectorCrossSection(canvas, size, shapeCategory, item: item);
-                        },
-                      ),
-                      ..._buildPdfDimensionBadges(shapeCategory, item),
-                    ],
-                  ),
-                ),
-                pw.SizedBox(width: 14),
-
-                // Technical Parameters & Notes (Right)
+                // Technical Parameters & Mini Spec Table (Left)
                 pw.Expanded(
                   child: pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -1075,30 +1175,35 @@ class PdfExportService {
                       pw.Text(
                         profileTypeDesc,
                         style: pw.TextStyle(
-                          fontSize: 9.5,
+                          fontSize: 10.0,
                           fontWeight: pw.FontWeight.bold,
                           color: PdfColor.fromHex('2C3E50'),
                         ),
                       ),
-                      pw.SizedBox(height: 4),
+                      pw.SizedBox(height: 3),
                       pw.Text(
                         'Spec: $dimSummary',
                         style: const pw.TextStyle(
-                          fontSize: 9,
+                          fontSize: 8.5,
                           color: PdfColors.grey800,
                         ),
                       ),
-                      pw.SizedBox(height: 4),
+                      pw.SizedBox(height: 3),
                       pw.Text(
                         'Dimension Keys: $dimParams',
                         style: const pw.TextStyle(
-                          fontSize: 8,
+                          fontSize: 7.5,
                           color: PdfColors.grey600,
                         ),
                       ),
                       pw.SizedBox(height: 6),
+
+                      // Technical Spec Table matching mobile app
+                      _buildPdfEngineeringSpecTable(item, shapeCategory),
+                      pw.SizedBox(height: 6),
+
                       pw.Container(
-                        padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                        padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
                         decoration: pw.BoxDecoration(
                           color: PdfColor.fromHex('EDF2F7'),
                           borderRadius: const pw.BorderRadius.all(pw.Radius.circular(4)),
@@ -1106,11 +1211,34 @@ class PdfExportService {
                         child: pw.Text(
                           '2D Cross-section for profile identification & engineering verification',
                           style: const pw.TextStyle(
-                            fontSize: 7.5,
+                            fontSize: 7.0,
                             color: PdfColors.grey700,
                           ),
                         ),
                       ),
+                    ],
+                  ),
+                ),
+                pw.SizedBox(width: 12),
+
+                // 2D Vector Drawing (Right - High-Resolution 275 x 160)
+                pw.Container(
+                  width: 275,
+                  height: 160,
+                  decoration: pw.BoxDecoration(
+                    color: PdfColors.white,
+                    borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
+                    border: pw.Border.all(color: PdfColor.fromHex('CBD5E1'), width: 0.8),
+                  ),
+                  child: pw.Stack(
+                    children: [
+                      pw.CustomPaint(
+                        size: const PdfPoint(275, 160),
+                        painter: (PdfGraphics canvas, PdfPoint size) {
+                          _drawVectorCrossSection(canvas, size, shapeCategory, item: item);
+                        },
+                      ),
+                      ..._buildPdfDimensionBadges(shapeCategory, item),
                     ],
                   ),
                 ),
@@ -1246,26 +1374,26 @@ class PdfExportService {
             RegExp(r'\b(hea|heb|uc|w-beam|jis|h-beam|wide flange)\b',
                     caseSensitive: false)
                 .hasMatch('${item.title} ${item.subtitle} ${item.iconName}');
-        final double w = isHBeam ? 72.0 : 54.0;
-        final double h = isHBeam ? 72.0 : 76.0;
-        final double tf = isHBeam ? 9.5 : 8.0;
-        final double tw = isHBeam ? 7.5 : 6.0;
+        final double w = isHBeam ? 100.0 : 76.0;
+        final double h = isHBeam ? 100.0 : 110.0;
+        final double tf = isHBeam ? 14.0 : 12.0;
+        final double tw = isHBeam ? 10.0 : 8.5;
         canvas.setFillColor(PdfColor.fromHex('0D5C9D'));
         // Top flange
-        canvas.drawRRect(cx - w / 2, cy + h / 2 - tf, w, tf, 1, 1);
+        canvas.drawRRect(cx - w / 2, cy + h / 2 - tf, w, tf, 2, 2);
         // Web
         canvas.drawRect(cx - tw / 2, cy - h / 2 + tf, tw, h - 2 * tf);
         // Bottom flange
-        canvas.drawRRect(cx - w / 2, cy - h / 2, w, tf, 1, 1);
+        canvas.drawRRect(cx - w / 2, cy - h / 2, w, tf, 2, 2);
         canvas.fillPath();
 
         // CAD stroke outlines
         canvas
           ..setStrokeColor(PdfColor.fromHex('BDC3C7'))
           ..setLineWidth(0.8)
-          ..drawRRect(cx - w / 2, cy + h / 2 - tf, w, tf, 1, 1)
+          ..drawRRect(cx - w / 2, cy + h / 2 - tf, w, tf, 2, 2)
           ..drawRect(cx - tw / 2, cy - h / 2 + tf, tw, h - 2 * tf)
-          ..drawRRect(cx - w / 2, cy - h / 2, w, tf, 1, 1)
+          ..drawRRect(cx - w / 2, cy - h / 2, w, tf, 2, 2)
           ..strokePath();
 
         // Dimension markings
@@ -1273,39 +1401,39 @@ class PdfExportService {
           ..setStrokeColor(accentColor)
           ..setLineWidth(0.8);
         // Height arrow on the right
-        _drawArrowV(canvas, cx + w / 2 + 10, cy - h / 2, cy + h / 2);
-        _drawWitnessH(canvas, cx + w / 2, cx + w / 2 + 14, cy - h / 2);
-        _drawWitnessH(canvas, cx + w / 2, cx + w / 2 + 14, cy + h / 2);
+        _drawArrowV(canvas, cx + w / 2 + 12, cy - h / 2, cy + h / 2);
+        _drawWitnessH(canvas, cx + w / 2, cx + w / 2 + 16, cy - h / 2);
+        _drawWitnessH(canvas, cx + w / 2, cx + w / 2 + 16, cy + h / 2);
 
         // Width arrow at the bottom
-        _drawArrowH(canvas, cx - w / 2, cx + w / 2, cy - h / 2 - 8);
-        _drawWitnessV(canvas, cx - w / 2, cy - h / 2 - 12, cy - h / 2);
-        _drawWitnessV(canvas, cx + w / 2, cy - h / 2 - 12, cy - h / 2);
+        _drawArrowH(canvas, cx - w / 2, cx + w / 2, cy - h / 2 - 12);
+        _drawWitnessV(canvas, cx - w / 2, cy - h / 2 - 16, cy - h / 2);
+        _drawWitnessV(canvas, cx + w / 2, cy - h / 2 - 16, cy - h / 2);
 
         // Flange thickness arrow on top-left
-        _drawArrowV(canvas, cx - w / 2 - 10, cy + h / 2 - tf, cy + h / 2);
-        _drawWitnessH(canvas, cx - w / 2 - 14, cx - w / 2, cy + h / 2 - tf);
-        _drawWitnessH(canvas, cx - w / 2 - 14, cx - w / 2, cy + h / 2);
+        _drawArrowV(canvas, cx - w / 2 - 12, cy + h / 2 - tf, cy + h / 2);
+        _drawWitnessH(canvas, cx - w / 2 - 16, cx - w / 2, cy + h / 2 - tf);
+        _drawWitnessH(canvas, cx - w / 2 - 16, cx - w / 2, cy + h / 2);
 
         // Web thickness pointer arrows (Upper web section, matching App 2D blueprint)
-        final double webArrowY = cy + 18.0;
-        _drawArrowH(canvas, cx - tw / 2 - 8, cx - tw / 2, webArrowY);
-        _drawArrowH(canvas, cx + tw / 2, cx + tw / 2 + 8, webArrowY);
+        final double webArrowY = cy + 22.0;
+        _drawArrowH(canvas, cx - tw / 2 - 10, cx - tw / 2, webArrowY);
+        _drawArrowH(canvas, cx + tw / 2, cx + tw / 2 + 10, webArrowY);
         break;
 
       case 'channel':
-        const w = 46.0;
-        const h = 76.0;
-        const tf = 8.0;
-        const tw = 6.5;
+        const w = 66.0;
+        const h = 110.0;
+        const tf = 12.0;
+        const tw = 9.0;
         final left = cx - w / 2;
         canvas.setFillColor(PdfColor.fromHex('0D5C9D'));
         // Back web
         canvas.drawRect(left, cy - h / 2, tw, h);
         // Top flange
-        canvas.drawRRect(left + tw, cy + h / 2 - tf, w - tw, tf, 1, 1);
+        canvas.drawRRect(left + tw, cy + h / 2 - tf, w - tw, tf, 2, 2);
         // Bottom flange
-        canvas.drawRRect(left + tw, cy - h / 2, w - tw, tf, 1, 1);
+        canvas.drawRRect(left + tw, cy - h / 2, w - tw, tf, 2, 2);
         canvas.fillPath();
 
         // CAD stroke outlines
@@ -1313,30 +1441,30 @@ class PdfExportService {
           ..setStrokeColor(PdfColor.fromHex('BDC3C7'))
           ..setLineWidth(0.8)
           ..drawRect(left, cy - h / 2, tw, h)
-          ..drawRRect(left + tw, cy + h / 2 - tf, w - tw, tf, 1, 1)
-          ..drawRRect(left + tw, cy - h / 2, w - tw, tf, 1, 1)
+          ..drawRRect(left + tw, cy + h / 2 - tf, w - tw, tf, 2, 2)
+          ..drawRRect(left + tw, cy - h / 2, w - tw, tf, 2, 2)
           ..strokePath();
 
         // Dimension markings
         canvas
           ..setStrokeColor(accentColor)
           ..setLineWidth(0.8);
-        _drawArrowV(canvas, left - 10, cy - h / 2, cy + h / 2);
-        _drawArrowH(canvas, left, left + w, cy - h / 2 - 8);
-        _drawWitnessV(canvas, left, cy - h / 2 - 12, cy - h / 2);
-        _drawWitnessV(canvas, left + w, cy - h / 2 - 12, cy - h / 2);
-        _drawWitnessH(canvas, left - 14, left, cy - h / 2);
-        _drawWitnessH(canvas, left - 14, left, cy + h / 2);
+        _drawArrowV(canvas, left - 12, cy - h / 2, cy + h / 2);
+        _drawArrowH(canvas, left, left + w, cy - h / 2 - 12);
+        _drawWitnessV(canvas, left, cy - h / 2 - 16, cy - h / 2);
+        _drawWitnessV(canvas, left + w, cy - h / 2 - 16, cy - h / 2);
+        _drawWitnessH(canvas, left - 16, left, cy - h / 2);
+        _drawWitnessH(canvas, left - 16, left, cy + h / 2);
 
         // Web thickness pointer
-        _drawArrowH(canvas, left - 8, left, cy + 14.0);
-        _drawArrowH(canvas, left + tw, left + tw + 8, cy + 14.0);
+        _drawArrowH(canvas, left - 10, left, cy + 18.0);
+        _drawArrowH(canvas, left + tw, left + tw + 10, cy + 18.0);
         break;
 
       case 'angle':
-        const legA = 64.0;
-        const legB = 64.0;
-        const t = 8.5;
+        const legA = 90.0;
+        const legB = 90.0;
+        const t = 12.0;
         final left = cx - legB / 2;
         final bottom = cy - legA / 2;
         canvas.setFillColor(PdfColor.fromHex('0D5C9D'));
@@ -1361,15 +1489,15 @@ class PdfExportService {
         canvas
           ..setStrokeColor(accentColor)
           ..setLineWidth(0.8);
-        _drawArrowV(canvas, left - 10, bottom, bottom + legA);
-        _drawArrowH(canvas, left, left + legB, bottom - 8);
-        _drawWitnessH(canvas, left - 14, left, bottom);
-        _drawWitnessH(canvas, left - 14, left, bottom + legA);
-        _drawWitnessV(canvas, left, bottom - 12, bottom);
-        _drawWitnessV(canvas, left + legB, bottom - 12, bottom);
+        _drawArrowV(canvas, left - 12, bottom, bottom + legA);
+        _drawArrowH(canvas, left, left + legB, bottom - 12);
+        _drawWitnessH(canvas, left - 16, left, bottom);
+        _drawWitnessH(canvas, left - 16, left, bottom + legA);
+        _drawWitnessV(canvas, left, bottom - 16, bottom);
+        _drawWitnessV(canvas, left + legB, bottom - 16, bottom);
 
         // Thickness callout
-        _drawArrowH(canvas, left + t / 2, left + t + 12, bottom + legA * 0.45);
+        _drawArrowH(canvas, left + t / 2, left + t + 16, bottom + legA * 0.45);
         break;
 
       case 'tube':
@@ -1395,60 +1523,60 @@ class PdfExportService {
         double h;
         if (isRectangular) {
           if (dimH >= dimW) {
-            h = 72.0;
-            w = (h * (dimW / dimH)).clamp(34.0, 52.0);
+            h = 100.0;
+            w = (h * (dimW / dimH)).clamp(48.0, 75.0);
           } else {
-            w = 72.0;
-            h = (w * (dimH / dimW)).clamp(34.0, 52.0);
+            w = 100.0;
+            h = (w * (dimH / dimW)).clamp(48.0, 75.0);
           }
         } else {
-          w = 56.0;
-          h = 56.0;
+          w = 80.0;
+          h = 80.0;
         }
 
-        const double t = 6.0;
+        const double t = 8.5;
         // Blueprint Fill (#0D5C9D)
         canvas.setFillColor(PdfColor.fromHex('0D5C9D'));
-        canvas.drawRRect(cx - w / 2, cy - h / 2, w, h, 3, 3);
+        canvas.drawRRect(cx - w / 2, cy - h / 2, w, h, 4, 4);
         canvas.fillPath();
 
         // Inner cut
         canvas.setFillColor(PdfColors.white);
         canvas.drawRRect(
-            cx - w / 2 + t, cy - h / 2 + t, w - 2 * t, h - 2 * t, 2, 2);
+            cx - w / 2 + t, cy - h / 2 + t, w - 2 * t, h - 2 * t, 3, 3);
         canvas.fillPath();
 
         // CAD stroke outlines
         canvas
           ..setStrokeColor(PdfColor.fromHex('BDC3C7'))
           ..setLineWidth(0.8)
-          ..drawRRect(cx - w / 2, cy - h / 2, w, h, 3, 3)
-          ..drawRRect(cx - w / 2 + t, cy - h / 2 + t, w - 2 * t, h - 2 * t, 2, 2)
+          ..drawRRect(cx - w / 2, cy - h / 2, w, h, 4, 4)
+          ..drawRRect(cx - w / 2 + t, cy - h / 2 + t, w - 2 * t, h - 2 * t, 3, 3)
           ..strokePath();
 
         // Dimension markings matching App:
         canvas
           ..setStrokeColor(accentColor)
           ..setLineWidth(0.8);
-        _drawArrowV(canvas, cx + w / 2 + 10, cy - h / 2, cy + h / 2);
-        _drawWitnessH(canvas, cx + w / 2, cx + w / 2 + 14, cy - h / 2);
-        _drawWitnessH(canvas, cx + w / 2, cx + w / 2 + 14, cy + h / 2);
+        _drawArrowV(canvas, cx + w / 2 + 12, cy - h / 2, cy + h / 2);
+        _drawWitnessH(canvas, cx + w / 2, cx + w / 2 + 16, cy - h / 2);
+        _drawWitnessH(canvas, cx + w / 2, cx + w / 2 + 16, cy + h / 2);
 
-        _drawArrowH(canvas, cx - w / 2, cx + w / 2, cy - h / 2 - 8);
-        _drawWitnessV(canvas, cx - w / 2, cy - h / 2 - 12, cy - h / 2);
-        _drawWitnessV(canvas, cx + w / 2, cy - h / 2 - 12, cy - h / 2);
+        _drawArrowH(canvas, cx - w / 2, cx + w / 2, cy - h / 2 - 12);
+        _drawWitnessV(canvas, cx - w / 2, cy - h / 2 - 16, cy - h / 2);
+        _drawWitnessV(canvas, cx + w / 2, cy - h / 2 - 16, cy - h / 2);
 
         // Thickness callout on the left
         canvas
           ..moveTo(cx - w / 2 + t / 2, cy)
-          ..lineTo(cx - w / 2 - 12, cy)
+          ..lineTo(cx - w / 2 - 16, cy)
           ..strokePath();
-        _drawArrowH(canvas, cx - w / 2 - 12, cx - w / 2 + t / 2, cy);
+        _drawArrowH(canvas, cx - w / 2 - 16, cx - w / 2 + t / 2, cy);
         break;
 
       case 'pipe':
-        const rOuter = 34.0;
-        const rInner = 24.0;
+        const rOuter = 48.0;
+        const rInner = 35.0;
         canvas.setFillColor(PdfColor.fromHex('0D5C9D'));
         canvas.drawEllipse(cx, cy, rOuter, rOuter);
         canvas.fillPath();
@@ -1468,32 +1596,32 @@ class PdfExportService {
         canvas
           ..setStrokeColor(centerlineColor)
           ..setLineWidth(0.6)
-          ..moveTo(cx - rOuter - 8, cy)
-          ..lineTo(cx + rOuter + 8, cy)
-          ..moveTo(cx, cy - rOuter - 8)
-          ..lineTo(cx, cy + rOuter + 8)
+          ..moveTo(cx - rOuter - 12, cy)
+          ..lineTo(cx + rOuter + 12, cy)
+          ..moveTo(cx, cy - rOuter - 12)
+          ..lineTo(cx, cy + rOuter + 12)
           ..strokePath();
 
         // Diameter arrow at bottom
         canvas
           ..setStrokeColor(accentColor)
           ..setLineWidth(0.8);
-        _drawArrowH(canvas, cx - rOuter, cx + rOuter, cy - rOuter - 8);
-        _drawWitnessV(canvas, cx - rOuter, cy - rOuter - 12, cy - rOuter);
-        _drawWitnessV(canvas, cx + rOuter, cy - rOuter - 12, cy - rOuter);
+        _drawArrowH(canvas, cx - rOuter, cx + rOuter, cy - rOuter - 12);
+        _drawWitnessV(canvas, cx - rOuter, cy - rOuter - 16, cy - rOuter);
+        _drawWitnessV(canvas, cx + rOuter, cy - rOuter - 16, cy - rOuter);
 
         // Wall thickness callout on left
         canvas
           ..moveTo(cx - (rOuter + rInner) / 2, cy)
-          ..lineTo(cx - rOuter - 12, cy)
+          ..lineTo(cx - rOuter - 18, cy)
           ..strokePath();
-        _drawArrowH(canvas, cx - rOuter - 12, cx - (rOuter + rInner) / 2, cy);
+        _drawArrowH(canvas, cx - rOuter - 18, cx - (rOuter + rInner) / 2, cy);
         break;
 
       case 'sheet':
         // 2D Cross-section for Sheets and Plates of ALL materials, matching App 2D blueprint exactly
-        const w = 110.0;
-        const h = 22.0;
+        const w = 150.0;
+        const h = 26.0;
         canvas.setFillColor(PdfColor.fromHex('0D5C9D'));
         canvas.drawRect(cx - w / 2, cy - h / 2, w, h);
         canvas.fillPath();
@@ -1511,18 +1639,18 @@ class PdfExportService {
           ..setLineWidth(0.8);
 
         // Thickness dimension on the right
-        _drawArrowV(canvas, cx + w / 2 + 10, cy - h / 2, cy + h / 2);
-        _drawWitnessH(canvas, cx + w / 2, cx + w / 2 + 14, cy - h / 2);
-        _drawWitnessH(canvas, cx + w / 2, cx + w / 2 + 14, cy + h / 2);
+        _drawArrowV(canvas, cx + w / 2 + 12, cy - h / 2, cy + h / 2);
+        _drawWitnessH(canvas, cx + w / 2, cx + w / 2 + 16, cy - h / 2);
+        _drawWitnessH(canvas, cx + w / 2, cx + w / 2 + 16, cy + h / 2);
 
         // Width dimension at the bottom
-        _drawArrowH(canvas, cx - w / 2, cx + w / 2, cy - h / 2 - 8);
-        _drawWitnessV(canvas, cx - w / 2, cy - h / 2 - 12, cy - h / 2);
-        _drawWitnessV(canvas, cx + w / 2, cy - h / 2 - 12, cy - h / 2);
+        _drawArrowH(canvas, cx - w / 2, cx + w / 2, cy - h / 2 - 12);
+        _drawWitnessV(canvas, cx - w / 2, cy - h / 2 - 16, cy - h / 2);
+        _drawWitnessV(canvas, cx + w / 2, cy - h / 2 - 16, cy - h / 2);
         break;
 
       case 'round_bar':
-        const r = 32.0;
+        const r = 44.0;
         canvas.setFillColor(PdfColor.fromHex('0D5C9D'));
         canvas.drawEllipse(cx, cy, r, r);
         canvas.fillPath();
@@ -1537,25 +1665,25 @@ class PdfExportService {
         canvas
           ..setStrokeColor(centerlineColor)
           ..setLineWidth(0.6)
-          ..moveTo(cx - r - 8, cy)
-          ..lineTo(cx + r + 8, cy)
-          ..moveTo(cx, cy - r - 8)
-          ..lineTo(cx, cy + r + 8)
+          ..moveTo(cx - r - 12, cy)
+          ..lineTo(cx + r + 12, cy)
+          ..moveTo(cx, cy - r - 12)
+          ..lineTo(cx, cy + r + 12)
           ..strokePath();
 
         // Diameter arrow at bottom
         canvas
           ..setStrokeColor(accentColor)
           ..setLineWidth(0.8);
-        _drawArrowH(canvas, cx - r, cx + r, cy - r - 8);
-        _drawWitnessV(canvas, cx - r, cy - r - 12, cy - r);
-        _drawWitnessV(canvas, cx + r, cy - r - 12, cy - r);
+        _drawArrowH(canvas, cx - r, cx + r, cy - r - 12);
+        _drawWitnessV(canvas, cx - r, cy - r - 16, cy - r);
+        _drawWitnessV(canvas, cx + r, cy - r - 16, cy - r);
         break;
 
       default:
         // Flat Bar - 2D Cross-section
-        const w = 90.0;
-        const h = 24.0;
+        const w = 130.0;
+        const h = 32.0;
         canvas.setFillColor(PdfColor.fromHex('0D5C9D'));
         canvas.drawRect(cx - w / 2, cy - h / 2, w, h);
         canvas.fillPath();
@@ -1570,13 +1698,13 @@ class PdfExportService {
         canvas
           ..setStrokeColor(accentColor)
           ..setLineWidth(0.8);
-        _drawArrowH(canvas, cx - w / 2, cx + w / 2, cy - h / 2 - 8);
-        _drawWitnessV(canvas, cx - w / 2, cy - h / 2 - 12, cy - h / 2);
-        _drawWitnessV(canvas, cx + w / 2, cy - h / 2 - 12, cy - h / 2);
+        _drawArrowH(canvas, cx - w / 2, cx + w / 2, cy - h / 2 - 12);
+        _drawWitnessV(canvas, cx - w / 2, cy - h / 2 - 16, cy - h / 2);
+        _drawWitnessV(canvas, cx + w / 2, cy - h / 2 - 16, cy - h / 2);
 
-        _drawArrowV(canvas, cx + w / 2 + 10, cy - h / 2, cy + h / 2);
-        _drawWitnessH(canvas, cx + w / 2, cx + w / 2 + 14, cy - h / 2);
-        _drawWitnessH(canvas, cx + w / 2, cx + w / 2 + 14, cy + h / 2);
+        _drawArrowV(canvas, cx + w / 2 + 12, cy - h / 2, cy + h / 2);
+        _drawWitnessH(canvas, cx + w / 2, cx + w / 2 + 16, cy - h / 2);
+        _drawWitnessH(canvas, cx + w / 2, cx + w / 2 + 16, cy + h / 2);
         break;
     }
   }
