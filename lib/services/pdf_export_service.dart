@@ -40,7 +40,11 @@ class PdfExportService {
 
   /// Generates the raw PDF bytes for a given CalculationModel.
   static Future<Uint8List> generatePdfBytes(CalculationModel item) async {
-    final doc = pw.Document();
+    final doc = pw.Document(
+      title: 'Milen Trading - ${_cleanText(item.title)}',
+      author: CompanyData.companyName,
+      creator: 'Milen Trading App',
+    );
     final details = item.details;
     final now = DateTime.now();
     final dateStr = '${now.day}/${now.month}/${now.year}';
@@ -314,7 +318,7 @@ class PdfExportService {
   }) async {
     try {
       final bytes = await generatePdfBytes(item);
-      final fileName = 'milan_steel_quotation_${DateTime.now().millisecondsSinceEpoch}.pdf';
+      final fileName = 'Milen_Trading_Quotation_${DateTime.now().millisecondsSinceEpoch}.pdf';
       return await Printing.layoutPdf(
         onLayout: (PdfPageFormat format) async => bytes,
         name: fileName,
@@ -338,7 +342,7 @@ class PdfExportService {
       final cleanTitle = _cleanText(item.title)
           .replaceAll(RegExp(r'[^a-zA-Z0-9_\-]'), '_')
           .replaceAll(RegExp(r'_+'), '_');
-      final fileName = 'Milan_Steel_${cleanTitle}_${now.millisecondsSinceEpoch}.pdf';
+      final fileName = 'Milen_Trading_${cleanTitle}_${now.millisecondsSinceEpoch}.pdf';
 
       Rect? sharePositionOrigin;
       if (context != null && context.mounted) {
