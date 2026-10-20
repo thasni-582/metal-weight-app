@@ -932,13 +932,14 @@ class PdfExportService {
             titleUpper.contains('WIDE FLANGE');
 
         // Profile label inside left pocket (matching App 2D blueprint)
-        final double pocketX = isHBeam ? 104.0 : 108.0;
+        final String pocketBadgeText = (beamVariant == 'W-BEAM' || beamVariant == 'W-Beam') ? 'W' : beamVariant;
+        final double pocketX = isHBeam ? (pocketBadgeText == 'W' ? 112.0 : 104.0) : 108.0;
         badges.add(
           pw.Positioned(
             left: pocketX,
             top: 72.0,
             child: pw.Text(
-              beamVariant,
+              pocketBadgeText,
               style: pw.TextStyle(
                 fontSize: 13.0,
                 fontWeight: pw.FontWeight.bold,

@@ -1195,25 +1195,48 @@ class Section2DPainter extends CustomPainter {
         ..strokeWidth = 1.0,
     );
 
-    // 5. Large profile designation text (e.g. "HEA", "HEB", "UC", "UB") situated in the left pocket
-    final String profileLabel = data.variantTag.isNotEmpty ? data.variantTag : 'IPE';
-    final TextPainter lp = TextPainter(
+    // 5. Large profile designation text (e.g. "HEA", "HEB", "UC", "UB", "W") situated in the left pocket
+    String profileLabel = data.variantTag.isNotEmpty ? data.variantTag : 'IPE';
+    if (profileLabel.toUpperCase().contains('W-BEAM') || profileLabel.toUpperCase() == 'W') {
+      profileLabel = 'W';
+    }
+
+    final double pocketLeft = centerX - b / 2 + 4.0;
+    final double pocketRight = centerX - tw / 2 - 4.0;
+    final double pocketWidth = (pocketRight - pocketLeft).clamp(10.0, 100.0);
+
+    double fSize = 18.0;
+    TextPainter lp = TextPainter(
       text: TextSpan(
         text: profileLabel,
-        style: const TextStyle(
-          fontSize: 19.0,
+        style: TextStyle(
+          fontSize: fSize,
           fontWeight: FontWeight.w900,
-          color: Color(0xFF1E293B),
+          color: const Color(0xFF1E293B),
           letterSpacing: 0.5,
         ),
       ),
       textDirection: TextDirection.ltr,
     )..layout();
-    final double pocketLeft = centerX - b / 2;
-    final double pocketRight = centerX - tw / 2;
-    final double labelX = isHBeam
-        ? (pocketLeft + pocketRight - lp.width) / 2
-        : (pocketRight - lp.width - 12.0);
+
+    // Dynamically scale down font if text is too wide for the pocket
+    while (lp.width > pocketWidth && fSize > 8.0) {
+      fSize -= 1.0;
+      lp = TextPainter(
+        text: TextSpan(
+          text: profileLabel,
+          style: TextStyle(
+            fontSize: fSize,
+            fontWeight: FontWeight.w900,
+            color: const Color(0xFF1E293B),
+            letterSpacing: 0.5,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+    }
+
+    final double labelX = pocketLeft + (pocketWidth - lp.width) / 2;
     final double labelY = topY + (h - lp.height) / 2;
     lp.paint(canvas, Offset(labelX, labelY));
 
