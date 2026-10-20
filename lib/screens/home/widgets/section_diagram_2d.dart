@@ -838,13 +838,16 @@ class Section2DPainter extends CustomPainter {
     const double rowHeight = 25.0;
 
     final String variantStr = data.variantTag.isNotEmpty ? data.variantTag : 'IPE';
-    final String sizeStr = data.sizeTag.isNotEmpty ? data.sizeTag : data.heightVal.toStringAsFixed(0);
+    final String rawSize = data.sizeTag.isNotEmpty ? data.sizeTag : data.heightVal.toStringAsFixed(0);
+    final String sizeStr = rawSize.contains('(') ? rawSize.split('(').first.trim() : rawSize;
     final String stdStr = data.standardTag.isNotEmpty ? data.standardTag : 'Standard';
 
-    final String weightStr = data.weightVal.toStringAsFixed(1);
+    final String weightStr = (data.weightVal == data.weightVal.roundToDouble() && data.weightVal >= 100)
+        ? data.weightVal.toStringAsFixed(1)
+        : data.weightVal.toStringAsFixed(2);
     final String weightUnitStr = data.shapeCategory == 'SHEET' ? 'Kg/m²' : 'Kg/m';
 
-    final String sectionStr = data.sectionAreaVal.toStringAsFixed(1);
+    final String sectionStr = data.sectionAreaVal.toStringAsFixed(2);
     const String sectionUnitStr = 'cm2';
 
     final List<List<String>> rows = [
@@ -852,6 +855,27 @@ class Section2DPainter extends CustomPainter {
       ['weight', weightStr, weightUnitStr],
       ['section', sectionStr, sectionUnitStr],
     ];
+
+    // Compute uniform box width dynamically so values never overflow or collide
+    double maxValW = 36.0;
+    for (final row in rows) {
+      final tp = TextPainter(
+        text: TextSpan(
+          text: row[1],
+          style: const TextStyle(
+            fontSize: 11.0,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      if (tp.width > maxValW) {
+        maxValW = tp.width;
+      }
+    }
+    final double boxW = math.max(48.0, maxValW + 12.0);
+    const double boxH = 20.0;
+    final double boxStartX = startX + 50.0;
 
     for (int i = 0; i < rows.length; i++) {
       final double rowY = startY + (i * rowHeight);
@@ -878,7 +902,7 @@ class Section2DPainter extends CustomPainter {
         text: TextSpan(
           text: col2,
           style: const TextStyle(
-            fontSize: 11.5,
+            fontSize: 11.0,
             fontWeight: FontWeight.bold,
             color: Color(0xFF0D5C9D),
           ),
@@ -886,9 +910,7 @@ class Section2DPainter extends CustomPainter {
         textDirection: TextDirection.ltr,
       )..layout();
 
-      const double boxW = 44.0;
-      const double boxH = 20.0;
-      final Rect boxRect = Rect.fromLTWH(startX + 48.0, rowY + 1.0, boxW, boxH);
+      final Rect boxRect = Rect.fromLTWH(boxStartX, rowY + 1.0, boxW, boxH);
       canvas.drawRect(boxRect, Paint()..color = Colors.white);
       canvas.drawRect(
         boxRect,
@@ -902,7 +924,7 @@ class Section2DPainter extends CustomPainter {
         Offset(boxRect.left + (boxW - p2.width) / 2, boxRect.top + (boxH - p2.height) / 2),
       );
 
-      // Col 3: Unit / Standard text
+      // Col 3: Unit / Standard text positioned safely to the right of box
       final TextPainter p3 = TextPainter(
         text: TextSpan(
           text: col3,
@@ -914,7 +936,7 @@ class Section2DPainter extends CustomPainter {
         ),
         textDirection: TextDirection.ltr,
       )..layout();
-      p3.paint(canvas, Offset(startX + 98.0, rowY + 4.0));
+      p3.paint(canvas, Offset(boxRect.right + 8.0, rowY + 4.0));
     }
   }
 
@@ -1077,24 +1099,40 @@ class Section2DPainter extends CustomPainter {
 
   void _drawBeam2D(Canvas canvas, Size size) {
     // 1. Draw Specification Table at bottom-left
-    _drawSpecTable(canvas, const Offset(12.0, 172.0), data);
+    _drawSpecTable(canvas, const Offset(12.0, 168.0), data);
 
-    // 2. Beam geometry
-    const double h = 138.0;
-    const double tf = 13.0;
-    const double tw = 9.5;
-    const double r = 7.0; // root fillet radius
-    const double topY = 18.0;
+    // 2. Identify if this profile is an H-Beam / Wide Flange profile (HEA, HEB, UC, JIS H-Beam, W-Beam)
+    final double rawAspect = data.widthVal / (data.heightVal > 0 ? data.heightVal : 140.0);
+    final String combinedName = '${data.variantTag} ${data.headerTitle} ${data.displayName}'.toUpperCase();
+    final bool isHBeam = combinedName.contains('HEA') ||
+        combinedName.contains('HEB') ||
+        combinedName.contains('UC') ||
+        combinedName.contains('JIS') ||
+        combinedName.contains('W-BEAM') ||
+        rawAspect >= 0.75;
 
-    // Flange width scaled proportionally based on widthVal/heightVal
-    final double aspect = (data.widthVal / (data.heightVal > 0 ? data.heightVal : 140)).clamp(0.48, 1.0);
-    final double b = (h * aspect * 0.52).clamp(52.0, 78.0);
+    // 3. Beam geometry:
+    // Wide-Flange H-Beams (HEA, HEB, UC, JIS, W-Beam) have equal or near-equal width & height (b ≈ h)
+    // Universal Beams (UB, IPE, IPE-AA) are deep and narrow (h > b)
+    final double h = isHBeam ? 126.0 : 138.0;
+    final double b = isHBeam
+        ? (h * rawAspect.clamp(0.85, 1.15)).clamp(112.0, 128.0)
+        : (h * rawAspect.clamp(0.45, 0.65)).clamp(56.0, 78.0);
 
-    final double diagramRight = size.width - 12.0;
-    const double rightDimReserve = 46.0;
+    final double tf = isHBeam
+        ? (11.0 + (data.flangeThickVal / 25.0 * 5.0)).clamp(12.0, 16.0)
+        : (10.0 + (data.flangeThickVal / 25.0 * 4.0)).clamp(11.0, 14.0);
+    final double tw = isHBeam
+        ? (8.0 + (data.webThickVal / 15.0 * 4.0)).clamp(9.0, 12.0)
+        : (7.0 + (data.webThickVal / 15.0 * 3.0)).clamp(8.0, 10.5);
+    final double r = isHBeam ? 8.0 : 6.5; // root fillet radius
+    final double topY = isHBeam ? 18.0 : 16.0;
+
+    final double diagramRight = size.width - 10.0;
+    const double rightDimReserve = 44.0;
     final double centerX = diagramRight - rightDimReserve - (b / 2);
 
-    // 3. I-Beam Vector Path with smooth inner root fillets
+    // 4. I/H-Beam Vector Path with smooth inner root fillets
     final Path path = Path();
     path.moveTo(centerX - b / 2, topY);
     path.lineTo(centerX + b / 2, topY);
@@ -1102,13 +1140,13 @@ class Section2DPainter extends CustomPainter {
     path.lineTo(centerX + tw / 2 + r, topY + tf);
     path.arcToPoint(
       Offset(centerX + tw / 2, topY + tf + r),
-      radius: const Radius.circular(r),
+      radius: Radius.circular(r),
       clockwise: false,
     );
     path.lineTo(centerX + tw / 2, topY + h - tf - r);
     path.arcToPoint(
       Offset(centerX + tw / 2 + r, topY + h - tf),
-      radius: const Radius.circular(r),
+      radius: Radius.circular(r),
       clockwise: false,
     );
     path.lineTo(centerX + b / 2, topY + h - tf);
@@ -1118,13 +1156,13 @@ class Section2DPainter extends CustomPainter {
     path.lineTo(centerX - tw / 2 - r, topY + h - tf);
     path.arcToPoint(
       Offset(centerX - tw / 2, topY + h - tf - r),
-      radius: const Radius.circular(r),
+      radius: Radius.circular(r),
       clockwise: false,
     );
     path.lineTo(centerX - tw / 2, topY + tf + r);
     path.arcToPoint(
       Offset(centerX - tw / 2 - r, topY + tf),
-      radius: const Radius.circular(r),
+      radius: Radius.circular(r),
       clockwise: false,
     );
     path.lineTo(centerX - b / 2, topY + tf);
@@ -1142,13 +1180,13 @@ class Section2DPainter extends CustomPainter {
         ..strokeWidth = 1.0,
     );
 
-    // 4. Large profile designation text (e.g. "IPE") beside the web
+    // 5. Large profile designation text (e.g. "HEA", "HEB", "UC", "UB") situated in the left pocket
     final String profileLabel = data.variantTag.isNotEmpty ? data.variantTag : 'IPE';
     final TextPainter lp = TextPainter(
       text: TextSpan(
         text: profileLabel,
         style: const TextStyle(
-          fontSize: 20.0,
+          fontSize: 19.0,
           fontWeight: FontWeight.w900,
           color: Color(0xFF1E293B),
           letterSpacing: 0.5,
@@ -1156,11 +1194,15 @@ class Section2DPainter extends CustomPainter {
       ),
       textDirection: TextDirection.ltr,
     )..layout();
-    final double labelX = centerX - tw / 2 - lp.width - 12.0;
+    final double pocketLeft = centerX - b / 2;
+    final double pocketRight = centerX - tw / 2;
+    final double labelX = isHBeam
+        ? (pocketLeft + pocketRight - lp.width) / 2
+        : (pocketRight - lp.width - 12.0);
     final double labelY = topY + (h - lp.height) / 2;
     lp.paint(canvas, Offset(labelX, labelY));
 
-    // 5. Flange thickness tf callout (Top-Left)
+    // 6. Flange thickness tf callout (Top-Left)
     _drawFlangeThickCallout(
       canvas: canvas,
       flangeLeft: centerX - b / 2,
@@ -1169,7 +1211,7 @@ class Section2DPainter extends CustomPainter {
       valStr: data.flangeThickVal.toStringAsFixed(1),
     );
 
-    // 6. Web thickness tw callout (Upper-Right) - set to upper zone to match reference blueprint
+    // 7. Web thickness tw callout (Upper-Right)
     _drawWebThickCallout(
       canvas: canvas,
       webLeft: centerX - tw / 2,
@@ -1178,8 +1220,8 @@ class Section2DPainter extends CustomPainter {
       valStr: data.webThickVal.toStringAsFixed(1),
     );
 
-    // 7. Height H Dimension (Right) - vertical line with centered boxed number
-    final double hDimX = centerX + b / 2 + 22.0;
+    // 8. Height H Dimension (Right) - vertical line with centered boxed number
+    final double hDimX = centerX + b / 2 + 18.0;
     final Paint extPaint = Paint()
       ..color = const Color(0xFF7F8C8D)
       ..strokeWidth = 0.8;
@@ -1194,8 +1236,8 @@ class Section2DPainter extends CustomPainter {
     _drawArrowHead(canvas, Offset(hDimX, topY + h), -math.pi / 2, size: 5.5);
     _drawBoxedDimension(canvas, Offset(hDimX, topY + h * 0.48), data.heightVal.toStringAsFixed(0));
 
-    // 8. Flange Width B Dimension (Bottom)
-    const double bDimY = topY + h + 22.0;
+    // 9. Flange Width B Dimension (Bottom)
+    final double bDimY = topY + h + 20.0;
     canvas.drawLine(Offset(centerX - b / 2, topY + h), Offset(centerX - b / 2, bDimY + 8.0), extPaint);
     canvas.drawLine(Offset(centerX + b / 2, topY + h), Offset(centerX + b / 2, bDimY + 8.0), extPaint);
 

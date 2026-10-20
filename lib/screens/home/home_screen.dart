@@ -1213,16 +1213,19 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
-                child: Text(
-                  _selectedShape.contains('Sheet')
-                      ? '${settings.strings.get('weight_per_m2')}: ${_weightController.text} kg/m²'
-                      : '${settings.strings.get('weight_per_m')}: ${_weightController.text} kg/m',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white : AppColors.primaryDark,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    _selectedShape.contains('Sheet')
+                        ? '${settings.strings.get('weight_per_m2')}: ${_weightController.text} kg/m²'
+                        : '${settings.strings.get('weight_per_m')}: ${_weightController.text} kg/m',
+                    maxLines: 1,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white : AppColors.primaryDark,
+                    ),
                   ),
                 ),
               ),
@@ -1235,6 +1238,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 child: Text(
                   '${settings.strings.get('total_weight')}: ${totalKg.toStringAsFixed(2)} kg',
+                  maxLines: 1,
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.bold,

@@ -449,9 +449,10 @@ class _CalculationScreenState extends State<CalculationScreen> {
   @override
   Widget build(BuildContext context) {
     final settings = Provider.of<AppSettingsProvider>(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: isDark ? const Color(0xFF0F172A) : AppColors.backgroundLight,
       appBar: AppBar(
         title: Text(settings.strings.get('calculator')),
       ),
@@ -541,14 +542,16 @@ class _CalculationScreenState extends State<CalculationScreen> {
   }
 
   Widget _buildMaterialAndUnitCard() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2)),
         ],
@@ -558,7 +561,7 @@ class _CalculationScreenState extends State<CalculationScreen> {
         children: [
           Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Text(
                   'Unit System',
                   maxLines: 1,
@@ -566,17 +569,17 @@ class _CalculationScreenState extends State<CalculationScreen> {
                   style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.primaryDark),
+                      color: isDark ? Colors.white : AppColors.primaryDark),
                 ),
               ),
               const SizedBox(width: 8),
               Container(
                 height: 36,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEDF2F7),
+                  color: isDark ? const Color(0xFF0F172A) : const Color(0xFFEDF2F7),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: AppColors.borderLight,
+                    color: isDark ? Colors.white12 : AppColors.borderLight,
                     width: 1.0,
                   ),
                 ),
@@ -599,26 +602,42 @@ class _CalculationScreenState extends State<CalculationScreen> {
               ),
             ],
           ),
-          const Divider(height: 24),
+          Divider(height: 24, color: isDark ? Colors.white12 : Colors.grey.shade200),
           Row(
             children: [
-              const Text(
+              Text(
                 'Material',
                 style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.primaryDark),
+                    color: isDark ? Colors.white : AppColors.primaryDark),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: DropdownButtonFormField<String>(
                   isExpanded: true,
                   initialValue: _selectedMetal,
+                  dropdownColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+                  style: TextStyle(
+                    color: isDark ? Colors.white : AppColors.primaryDark,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
                   decoration: InputDecoration(
                     contentPadding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(
+                        color: isDark ? Colors.white24 : Colors.grey.shade400,
+                      ),
+                    ),
                     border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8)),
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(
+                        color: isDark ? Colors.white24 : Colors.grey.shade400,
+                      ),
+                    ),
                   ),
                   items: _metalDensities.keys.map((String metal) {
                     return DropdownMenuItem<String>(
@@ -629,8 +648,10 @@ class _CalculationScreenState extends State<CalculationScreen> {
                             : '$metal (${_metalDensities[metal]} g/cm³)',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.w500),
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: isDark ? Colors.white : AppColors.primaryDark),
                       ),
                     );
                   }).toList(),
@@ -652,10 +673,32 @@ class _CalculationScreenState extends State<CalculationScreen> {
               controller: _customDensityController,
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(
+              style: TextStyle(
+                color: isDark ? Colors.white : AppColors.primaryDark,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+              decoration: InputDecoration(
                 labelText: 'Custom Density (g/cm³)',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.fitness_center),
+                labelStyle: TextStyle(
+                  color: isDark ? Colors.white70 : Colors.blueGrey.shade700,
+                ),
+                prefixIcon: Icon(
+                  Icons.fitness_center,
+                  color: isDark ? const Color(0xFF38BDF8) : AppColors.primaryDark,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(
+                    color: isDark ? Colors.white24 : Colors.grey.shade400,
+                  ),
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(
+                    color: isDark ? Colors.white24 : Colors.grey.shade400,
+                  ),
+                ),
               ),
               onChanged: (_) => _performCalculation(),
             ),
@@ -670,6 +713,8 @@ class _CalculationScreenState extends State<CalculationScreen> {
     required bool isSelected,
     required VoidCallback onTap,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -695,7 +740,7 @@ class _CalculationScreenState extends State<CalculationScreen> {
             style: TextStyle(
               fontSize: 12,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-              color: isSelected ? Colors.white : AppColors.textMuted,
+              color: isSelected ? Colors.white : (isDark ? Colors.white60 : AppColors.textMuted),
             ),
           ),
         ),
@@ -704,14 +749,16 @@ class _CalculationScreenState extends State<CalculationScreen> {
   }
 
   Widget _buildShapeSelectorCard() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2)),
         ],
@@ -719,22 +766,38 @@ class _CalculationScreenState extends State<CalculationScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Select Shape / Profile',
             style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
-                color: AppColors.primaryDark),
+                color: isDark ? Colors.white : AppColors.primaryDark),
           ),
           const SizedBox(height: 8),
           DropdownButtonFormField<String>(
             isExpanded: true,
             initialValue: _selectedShape,
+            dropdownColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+            style: TextStyle(
+              color: isDark ? Colors.white : AppColors.primaryDark,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
             decoration: InputDecoration(
               contentPadding:
                   const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              border:
-                  OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  color: isDark ? Colors.white24 : Colors.grey.shade400,
+                ),
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  color: isDark ? Colors.white24 : Colors.grey.shade400,
+                ),
+              ),
             ),
             items: _shapes.map((String shape) {
               return DropdownMenuItem<String>(
@@ -749,8 +812,10 @@ class _CalculationScreenState extends State<CalculationScreen> {
                         shape,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.white : AppColors.primaryDark),
                       ),
                     ),
                   ],
@@ -974,7 +1039,9 @@ class _CalculationScreenState extends State<CalculationScreen> {
             icon: Icons.line_weight));
     }
 
-    fields.add(const Divider(height: 24));
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    fields.add(Divider(height: 24, color: isDark ? Colors.white12 : Colors.grey.shade200));
     fields.add(
       Row(
         children: [
@@ -1003,11 +1070,11 @@ class _CalculationScreenState extends State<CalculationScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2)),
         ],
@@ -1015,12 +1082,12 @@ class _CalculationScreenState extends State<CalculationScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Dimensions & Parameters',
             style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
-                color: AppColors.primaryDark),
+                color: isDark ? Colors.white : AppColors.primaryDark),
           ),
           const SizedBox(height: 12),
           ...fields,
@@ -1036,21 +1103,61 @@ class _CalculationScreenState extends State<CalculationScreen> {
     required IconData icon,
     bool isInteger = false,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return TextField(
       controller: controller,
       keyboardType: TextInputType.numberWithOptions(decimal: !isInteger),
+      style: TextStyle(
+        color: isDark ? Colors.white : AppColors.primaryDark,
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+      ),
       decoration: InputDecoration(
         labelText: label,
+        labelStyle: TextStyle(
+          color: isDark ? Colors.white70 : Colors.blueGrey.shade700,
+          fontSize: 13,
+        ),
+        floatingLabelStyle: const TextStyle(
+          color: AppColors.secondaryOrange,
+          fontWeight: FontWeight.bold,
+        ),
         suffixText: suffix,
+        suffixStyle: TextStyle(
+          color: isDark ? Colors.white60 : Colors.blueGrey.shade600,
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+        ),
         isDense: true,
-        prefixIcon: Icon(icon, color: AppColors.primaryDark, size: 20),
+        filled: true,
+        fillColor: isDark
+            ? const Color(0xFF0F172A).withValues(alpha: 0.6)
+            : Colors.grey.shade50,
+        prefixIcon: Icon(
+          icon,
+          color: isDark ? const Color(0xFF38BDF8) : AppColors.primaryDark,
+          size: 20,
+        ),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(
+            color: isDark ? Colors.white24 : Colors.grey.shade400,
+            width: 1.0,
+          ),
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(
+            color: isDark ? Colors.white24 : Colors.grey.shade400,
+          ),
+        ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide:
-              const BorderSide(color: AppColors.secondaryOrange, width: 1.5),
+              const BorderSide(color: AppColors.secondaryOrange, width: 1.8),
         ),
       ),
       onChanged: (_) => _performCalculation(),

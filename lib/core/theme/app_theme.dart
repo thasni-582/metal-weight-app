@@ -52,6 +52,26 @@ class AppTheme {
           return IconThemeData(color: Colors.blueGrey.shade400, size: 25);
         }),
       ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: Colors.grey.shade50,
+        labelStyle: TextStyle(color: Colors.blueGrey.shade700, fontSize: 13),
+        floatingLabelStyle: const TextStyle(color: AppColors.secondaryOrange, fontWeight: FontWeight.bold),
+        prefixIconColor: AppColors.primaryDark,
+        suffixStyle: TextStyle(color: Colors.blueGrey.shade600, fontSize: 12, fontWeight: FontWeight.w500),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: Colors.grey.shade400, width: 1.0),
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: Colors.grey.shade400),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: AppColors.secondaryOrange, width: 1.8),
+        ),
+      ),
     );
   }
 
@@ -102,6 +122,26 @@ class AppTheme {
           }
           return const IconThemeData(color: Colors.white60, size: 25);
         }),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: const Color(0xFF0F172A).withValues(alpha: 0.5),
+        labelStyle: const TextStyle(color: Colors.white70, fontSize: 13),
+        floatingLabelStyle: const TextStyle(color: AppColors.secondaryOrange, fontWeight: FontWeight.bold),
+        prefixIconColor: const Color(0xFF38BDF8),
+        suffixStyle: const TextStyle(color: Colors.white60, fontSize: 12, fontWeight: FontWeight.w500),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Colors.white24, width: 1.0),
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Colors.white24),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: AppColors.secondaryOrange, width: 1.8),
+        ),
       ),
     );
   }

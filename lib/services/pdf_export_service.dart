@@ -1238,10 +1238,14 @@ class PdfExportService {
 
     switch (category) {
       case 'beam':
-        const w = 58.0;
-        const h = 76.0;
-        const tf = 8.0;
-        const tw = 6.0;
+        final isHBeam = item != null &&
+            RegExp(r'\b(hea|heb|uc|w-beam|jis|h-beam|wide flange)\b',
+                    caseSensitive: false)
+                .hasMatch('${item.title} ${item.subtitle} ${item.iconName}');
+        final double w = isHBeam ? 72.0 : 54.0;
+        final double h = isHBeam ? 72.0 : 76.0;
+        final double tf = isHBeam ? 9.5 : 8.0;
+        final double tw = isHBeam ? 7.5 : 6.0;
         canvas.setFillColor(PdfColor.fromHex('0D5C9D'));
         // Top flange
         canvas.drawRRect(cx - w / 2, cy + h / 2 - tf, w, tf, 1, 1);

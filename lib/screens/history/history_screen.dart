@@ -68,6 +68,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final filteredItems = _historyItems.where((item) {
       final title = item.title.toLowerCase();
       final subtitle = item.subtitle.toLowerCase();
@@ -76,7 +77,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     }).toList();
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: isDark ? const Color(0xFF0F172A) : AppColors.backgroundLight,
       appBar: AppBar(
         title: const Text('Calculation History'),
         actions: [
@@ -100,6 +101,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
               // Search Input Field
               TextField(
                 controller: _searchController,
+                style: TextStyle(
+                  color: isDark ? Colors.white : AppColors.textDark,
+                  fontSize: 14,
+                ),
                 onChanged: (value) {
                   setState(() {
                     _searchQuery = value;
@@ -107,22 +112,36 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 },
                 decoration: InputDecoration(
                   hintText: 'Search material, shape, or dimensions...',
-                  hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 14),
-                  prefixIcon: const Icon(Icons.search, color: AppColors.primaryDark),
+                  hintStyle: TextStyle(
+                    color: isDark ? Colors.white38 : AppColors.textMuted,
+                    fontSize: 14,
+                  ),
+                  prefixIcon: Icon(
+                    Icons.search,
+                    color: isDark ? const Color(0xFF38BDF8) : AppColors.primaryDark,
+                  ),
                   filled: true,
-                  fillColor: Colors.white,
+                  fillColor: isDark ? const Color(0xFF1E293B) : Colors.white,
                   contentPadding: const EdgeInsets.symmetric(vertical: 14.0),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
+                    borderSide: BorderSide(
+                      color: isDark ? Colors.white12 : Colors.transparent,
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: isDark ? Colors.white12 : Colors.transparent,
+                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.primaryDark, width: 1.5),
+                    borderSide: const BorderSide(color: AppColors.secondaryOrange, width: 1.5),
                   ),
                   suffixIcon: _searchQuery.isNotEmpty
                       ? IconButton(
-                          icon: const Icon(Icons.clear, color: AppColors.textMuted),
+                          icon: Icon(Icons.clear, color: isDark ? Colors.white54 : AppColors.textMuted),
                           onPressed: () {
                             setState(() {
                               _searchQuery = '';
@@ -141,10 +160,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 children: [
                   Text(
                     'Saved Calculations (${filteredItems.length})',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.primaryDark,
+                      color: isDark ? Colors.white : AppColors.primaryDark,
                     ),
                   ),
                   if (_historyItems.isNotEmpty)
@@ -227,13 +246,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   Widget _buildHistoryCard(CalculationModel item) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -265,10 +286,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     children: [
                       Text(
                         item.title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.primaryDark,
+                          color: isDark ? Colors.white : AppColors.primaryDark,
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -276,7 +297,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         item.subtitle,
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.grey.shade700,
+                          color: isDark ? Colors.white70 : Colors.grey.shade700,
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -284,7 +305,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         item.time,
                         style: TextStyle(
                           fontSize: 10,
-                          color: Colors.grey.shade500,
+                          color: isDark ? Colors.white38 : Colors.grey.shade500,
                         ),
                       ),
                     ],
