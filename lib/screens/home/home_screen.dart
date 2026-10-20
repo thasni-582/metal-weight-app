@@ -638,6 +638,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         : 'Steel'))),
         'shape': _selectedShape,
         'size': _selectedSize,
+        'thickness': _selectedThickness,
         'variant': _activeVariant,
         'dimensions': dimStr,
         'quantity': '$_quantity',

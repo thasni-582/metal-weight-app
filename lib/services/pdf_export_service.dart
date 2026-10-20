@@ -823,17 +823,28 @@ class PdfExportService {
         break;
 
       case 'angle':
-        final match = RegExp(r'(\d+)\s*[xX*×]\s*(\d+)(?:\s*[xX*×]\s*(\d+(?:\.\d+)?))?').firstMatch(combined);
-        if (match != null) {
-          bStr = match.group(1)!;
-          hStr = match.group(2)!;
-          tStr = match.group(3) ?? '5.0';
+        final rawSize = item?.details['size']?.toString().trim() ?? '';
+        final rawThick = item?.details['thickness']?.toString().trim() ?? '';
+        final fullDimStr = '$dims $subtitle $title';
+
+        // Check for 3-part dimensions (e.g. "30x20 x 3" or "50x50x5")
+        final match3 = RegExp(r'(\d+)\s*[xX*×]\s*(\d+)\s*[xX*×]\s*(\d+(?:\.\d+)?)').firstMatch(fullDimStr);
+        final match2 = RegExp(r'(\d+)\s*[xX*×]\s*(\d+)').firstMatch(rawSize.isNotEmpty ? rawSize : fullDimStr);
+
+        if (match3 != null) {
+          hStr = match3.group(1)!;
+          bStr = match3.group(2)!;
+          tStr = match3.group(3)!;
+        } else if (match2 != null) {
+          hStr = match2.group(1)!;
+          bStr = match2.group(2)!;
+          tStr = rawThick.isNotEmpty ? rawThick : '5.0';
         } else {
-          final mSingle = RegExp(r'\b(\d+)\b').firstMatch(combined);
+          final mSingle = RegExp(r'\b(\d+)\b').firstMatch(rawSize.isNotEmpty ? rawSize : combined);
           final val = mSingle != null ? mSingle.group(1)! : '50';
-          bStr = val;
           hStr = val;
-          tStr = '5.0';
+          bStr = val;
+          tStr = rawThick.isNotEmpty ? rawThick : '5.0';
         }
         break;
 
@@ -1650,8 +1661,14 @@ class PdfExportService {
       case 'angle':
         final itemStr = '${item?.title ?? ''} ${item?.details['shape'] ?? ''}'.toLowerCase();
         final bool isUnequal = itemStr.contains('unequal');
-        const legA = 90.0;
-        const legB = 90.0;
+        final angleDims = _extractProfileDimensions(item, 'angle');
+        final double hVal = double.tryParse(angleDims['h'] ?? '30') ?? 30.0;
+        final double bVal = double.tryParse(angleDims['b'] ?? '20') ?? 20.0;
+        final double rawAspect = bVal / (hVal > 0 ? hVal : 30.0);
+        final double legA = isUnequal ? 104.0 : 90.0;
+        final double legB = isUnequal
+            ? (legA * rawAspect.clamp(0.40, 0.90)).clamp(48.0, 80.0)
+            : 90.0;
         const t = 12.0;
         final left = cx - legB / 2;
         final bottom = cy - legA / 2;
