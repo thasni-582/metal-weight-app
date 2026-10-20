@@ -1011,7 +1011,7 @@ class Section2DPainter extends CustomPainter {
         ..strokeWidth = 1.0,
     );
 
-    // Profile designation text (e.g. "UPN")
+    // Profile designation text (e.g. "UPN", "UPE", "JIS")
     final String profileLabel = data.variantTag.isNotEmpty ? data.variantTag : 'UPN';
     final TextPainter lp = TextPainter(
       text: TextSpan(
@@ -1025,7 +1025,10 @@ class Section2DPainter extends CustomPainter {
       ),
       textDirection: TextDirection.ltr,
     )..layout();
-    lp.paint(canvas, Offset(startX + tw + 10.0, topY + (h - lp.height) / 2));
+    final double pocketW = b - tw;
+    final double labelX = startX + tw + (pocketW - lp.width) / 2;
+    final double labelY = topY + (h - lp.height) / 2;
+    lp.paint(canvas, Offset(labelX, labelY));
 
     // Height Dim (Left)
     final double hDimX = startX - 22.0;
@@ -1052,7 +1055,7 @@ class Section2DPainter extends CustomPainter {
     _drawArrowHead(canvas, Offset(startX + b, bDimY), math.pi, size: 5.5);
     _drawBoxedDimension(canvas, Offset(startX + b / 2, bDimY), data.widthVal.toStringAsFixed(0));
 
-    // tf & tw callouts
+    // tf & tw callouts (tw placed comfortably in lower region of pocket to prevent collision with profile label)
     _drawCalloutArrow(
       canvas,
       Offset(startX + b * 0.65, topY + tf / 2),
@@ -1061,8 +1064,8 @@ class Section2DPainter extends CustomPainter {
     );
     _drawCalloutArrow(
       canvas,
-      Offset(startX + tw / 2, topY + h * 0.44),
-      Offset(startX + tw + 28.0, topY + h * 0.44 + 20.0),
+      Offset(startX + tw / 2, topY + h * 0.72),
+      Offset(startX + tw + 26.0, topY + h * 0.76),
       data.webThickVal.toStringAsFixed(1),
     );
   }

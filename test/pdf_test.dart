@@ -88,6 +88,8 @@ void main() {
       {'title': 'UB (Universal Beam) 203 x 133 x 25', 'shape': 'Universal Beams & Columns (UB / UC)', 'icon': 'beam', 'variant': 'UB', 'size': '203 x 133 x 25'},
       {'title': 'UC (Universal Columns) 203 x 203 x 46', 'shape': 'Universal Beams & Columns (UB / UC)', 'icon': 'beam', 'variant': 'UC', 'size': '203 x 203 x 46'},
       {'title': 'W-Beam (Wide Flange) W 12x40', 'shape': 'W-Beam (Wide Flange)', 'icon': 'beam', 'variant': 'W-Beam', 'size': 'W 12x40'},
+      {'title': 'IPE-AA Beam 140', 'shape': 'Beams (IPE / IPE-AA / HEA / HEB)', 'icon': 'beam', 'variant': 'IPE-AA', 'size': '140'},
+      {'title': 'UPE Channel 80', 'shape': 'Channels (UPN / UPE)', 'icon': 'channel', 'variant': 'UPE', 'size': '80'},
     ];
 
     for (final p in testProfiles) {

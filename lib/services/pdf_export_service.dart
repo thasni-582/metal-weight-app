@@ -933,24 +933,38 @@ class PdfExportService {
 
         // Profile label inside left pocket (matching App 2D blueprint)
         final String pocketBadgeText = (beamVariant == 'W-BEAM' || beamVariant == 'W-Beam') ? 'W' : beamVariant;
-        final double pocketX = isHBeam ? (pocketBadgeText == 'W' ? 112.0 : 104.0) : 108.0;
+        final double pocketLeft = isHBeam ? 88.0 : 100.0;
+        final double pocketWidth = isHBeam ? 44.0 : 33.0;
+        final double pocketFontSize = pocketBadgeText == 'W'
+            ? 14.0
+            : (pocketBadgeText.length <= 2
+                ? 12.0
+                : (pocketBadgeText.length <= 3
+                    ? (isHBeam ? 12.0 : 10.5)
+                    : 8.0));
         badges.add(
           pw.Positioned(
-            left: pocketX,
+            left: pocketLeft,
             top: 72.0,
-            child: pw.Text(
-              pocketBadgeText,
-              style: pw.TextStyle(
-                fontSize: 13.0,
-                fontWeight: pw.FontWeight.bold,
-                color: PdfColor.fromHex('1E293B'),
+            child: pw.Container(
+              width: pocketWidth,
+              alignment: pw.Alignment.center,
+              child: pw.Text(
+                pocketBadgeText,
+                maxLines: 1,
+                style: pw.TextStyle(
+                  fontSize: pocketFontSize,
+                  fontWeight: pw.FontWeight.bold,
+                  color: PdfColor.fromHex('1E293B'),
+                ),
               ),
             ),
           ),
         );
 
+        final double hBadgeX = isHBeam ? 212.0 : 200.0;
         if (dims['h']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 198.0, top: 73.0, child: _buildPdfDimBadge(dims['h']!)));
+          badges.add(pw.Positioned(left: hBadgeX, top: 73.0, child: _buildPdfDimBadge(dims['h']!)));
         }
         if (dims['b']!.isNotEmpty) {
           badges.add(pw.Positioned(left: 120.0, top: 137.0, child: _buildPdfDimBadge(dims['b']!)));
@@ -958,8 +972,9 @@ class PdfExportService {
         if (dims['tf']!.isNotEmpty) {
           badges.add(pw.Positioned(left: 46.0, top: 27.0, child: _buildPdfDimBadge(dims['tf']!)));
         }
+        final double twBadgeX = isHBeam ? 160.0 : 150.0;
         if (dims['tw']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 154.0, top: 51.0, child: _buildPdfDimBadge(dims['tw']!)));
+          badges.add(pw.Positioned(left: twBadgeX, top: 51.0, child: _buildPdfDimBadge(dims['tw']!)));
         }
         break;
 
@@ -1020,7 +1035,7 @@ class PdfExportService {
 
       case 'tube':
         if (dims['h']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 194.0, top: 73.0, child: _buildPdfDimBadge(dims['h']!)));
+          badges.add(pw.Positioned(left: 204.0, top: 73.0, child: _buildPdfDimBadge(dims['h']!)));
         }
         if (dims['b']!.isNotEmpty) {
           badges.add(pw.Positioned(left: 120.0, top: 138.0, child: _buildPdfDimBadge(dims['b']!)));
@@ -1142,9 +1157,9 @@ class PdfExportService {
       if (m != null) wVal = double.tryParse(m.group(1)!) ?? 0.0;
     }
     final String weightStr = wVal.toStringAsFixed(2);
-    final String weightUnit = shapeCategory == 'sheet' ? 'Kg/m²' : 'Kg/m';
+    final String weightUnit = shapeCategory == 'sheet' ? 'Kg/m2' : 'Kg/m';
 
-    // Section area cm² - extract direct catalog specification from details first to match app exactly
+    // Section area cm2 - extract direct catalog specification from details first to match app exactly
     String sectionAreaStr = '';
     if (details['sectionArea'] != null) {
       final m = RegExp(r'(\d+(?:\.\d+)?)').firstMatch(details['sectionArea'].toString());
@@ -1171,7 +1186,7 @@ class PdfExportService {
           ],
           _buildSpecRow('weight', weightStr, weightUnit),
           pw.SizedBox(height: 3),
-          _buildSpecRow('section', sectionAreaStr, 'cm²'),
+          _buildSpecRow('section', sectionAreaStr, 'cm2'),
         ],
       ),
     );
