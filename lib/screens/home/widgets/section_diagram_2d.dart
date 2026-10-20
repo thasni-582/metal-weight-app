@@ -71,6 +71,7 @@ class _Section2DDiagramWidgetState extends State<Section2DDiagramWidget> {
   }
 
   String _getDefaultVariant(String shape) {
+    if ((shape.contains('Equal Angle') || shape.contains('Angle Equal')) && !shape.contains('Unequal')) return '20 to 60';
     if (shape.contains('JIS') && (shape.contains('Beam') || shape.contains('H-Beam'))) return 'JIS';
     if (shape.contains('JIS') && shape.contains('Channel')) return 'JIS';
     if (shape.contains('UPE')) return 'UPE';
@@ -90,6 +91,9 @@ class _Section2DDiagramWidgetState extends State<Section2DDiagramWidget> {
   }
 
   List<String> _getAvailableVariants(String shape) {
+    if ((shape.contains('Equal Angle') || shape.contains('Angle Equal')) && !shape.contains('Unequal')) {
+      return ['20 to 60', '70 to 200'];
+    }
     if (shape.contains('(') && shape.contains('/')) {
       if (shape.contains('Channel')) {
         return ['UPN', 'UPE', 'JIS'];
@@ -454,11 +458,9 @@ class DiagramData {
       }
     } else if (shapeType.contains('Angle')) {
       category = 'ANGLE';
-      variantTag = 'ANGLE';
-      sizeTag = sizeStr;
       final bool isSS = shapeType.contains('SS') || shapeType.contains('Stainless');
       final bool isAl = shapeType.contains('Aluminum');
-      final bool isUnequal = shapeType.contains('Unequal');
+      final bool isUnequal = shapeType.contains('Unequal') || shapeType.contains('Angle Unequal');
 
       if (isSS) {
         title = 'STAINLESS STEEL ANGLE';
@@ -470,9 +472,11 @@ class DiagramData {
         title = 'UNEQUAL ANGLE';
         dispName = 'L $sizeStr';
       } else {
-        title = 'EQUAL ANGLE';
+        title = 'ANGLE EQUAL';
         dispName = 'L $sizeStr';
       }
+      variantTag = variant.isNotEmpty ? variant : '20 to 60';
+      sizeTag = sizeStr;
 
       if (isUnequal && sizeStr.contains('x')) {
         final parts = sizeStr.split('x');
@@ -499,7 +503,7 @@ class DiagramData {
         area = w * 3.70;
       } else {
         w = baseSteelW;
-        area = w * 1.27;
+        area = isUnequal ? (w * 1.27) : (w * 1.28);
       }
     } else if (shapeType.contains('Beam') ||
         shapeType.contains('Universal') ||
@@ -865,11 +869,19 @@ class Section2DPainter extends CustomPainter {
     final String sectionStr = data.sectionAreaVal.toStringAsFixed(2);
     const String sectionUnitStr = 'cm2';
 
-    final List<List<String>> rows = [
-      [variantStr, sizeStr, stdStr],
-      ['weight', weightStr, weightUnitStr],
-      ['section', sectionStr, sectionUnitStr],
-    ];
+    final bool isEqualAngle = data.headerTitle == 'ANGLE EQUAL' ||
+        (data.shapeCategory == 'ANGLE' && !data.headerTitle.contains('UNEQUAL'));
+
+    final List<List<String>> rows = isEqualAngle
+        ? [
+            ['weight', weightStr, weightUnitStr],
+            ['section', sectionStr, sectionUnitStr],
+          ]
+        : [
+            [variantStr, sizeStr, stdStr],
+            ['weight', weightStr, weightUnitStr],
+            ['section', sectionStr, sectionUnitStr],
+          ];
 
     // Compute uniform box width dynamically so values never overflow or collide
     double maxValW = 36.0;
@@ -1056,13 +1068,132 @@ class Section2DPainter extends CustomPainter {
   }
 
   void _drawAngle2D(Canvas canvas, Size size) {
+    final bool isEqualAngle = data.headerTitle == 'ANGLE EQUAL' ||
+        (data.shapeCategory == 'ANGLE' && !data.headerTitle.contains('UNEQUAL'));
+
+    if (isEqualAngle) {
+      _drawEqualAngle2D(canvas, size);
+    } else {
+      _drawUnequalAngle2D(canvas, size);
+    }
+  }
+
+  void _drawEqualAngle2D(Canvas canvas, Size size) {
+    _drawSpecTable(canvas, const Offset(12.0, 186.0), data);
+
+    const double leg = 118.0;
+    const double legH = leg;
+    const double legB = leg;
+    final double thick = (10.0 + (data.webThickVal / 20.0 * 10.0)).clamp(12.0, 20.0);
+    const double r1 = 12.0; // concave inner root radius
+    const double r2 = 3.5;  // toe rounding radius
+    const double topY = 18.0;
+
+    // Position angle on the right side of the canvas
+    final double startX = (size.width - 56.0 - legB).clamp(120.0, 240.0);
+
+    // 1. Equal Angle Path with rounded toes and inner concave fillet
+    final Path path = Path();
+    path.moveTo(startX, topY + legH); // Outer heel
+    path.lineTo(startX, topY + r2); // Up left edge of vertical leg
+    path.arcToPoint(Offset(startX + r2, topY), radius: const Radius.circular(r2)); // Top-left toe
+    path.lineTo(startX + thick - r2, topY); // Across top tip
+    path.arcToPoint(Offset(startX + thick, topY + r2), radius: const Radius.circular(r2)); // Top-right toe
+    path.lineTo(startX + thick, topY + legH - thick - r1); // Down inside face of vertical leg
+    path.arcToPoint(
+      Offset(startX + thick + r1, topY + legH - thick),
+      radius: const Radius.circular(r1),
+      clockwise: false,
+    ); // Smooth concave root fillet
+    path.lineTo(startX + legB - r2, topY + legH - thick); // Across inside face of horizontal leg
+    path.arcToPoint(Offset(startX + legB, topY + legH - thick + r2), radius: const Radius.circular(r2)); // Upper-right toe
+    path.lineTo(startX + legB, topY + legH - r2); // Down toe edge
+    path.arcToPoint(Offset(startX + legB - r2, topY + legH), radius: const Radius.circular(r2)); // Lower-right toe
+    path.lineTo(startX, topY + legH); // Bottom edge back to heel
+    path.close();
+
+    // Solid Blueprint Fill
+    canvas.drawPath(path, Paint()..color = const Color(0xFF0D5C9D));
+
+    // Outer Crisp CAD Stroke
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = const Color(0xFFBDC3C7)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.0,
+    );
+
+    // 2. Left Height Dimension (Spanning full height on the left, matching Image 1)
+    final double hDimX = startX - 24.0;
+    _drawExtensionLine(canvas, Offset(startX, topY), Offset(hDimX - 8.0, topY));
+    _drawExtensionLine(canvas, Offset(startX, topY + legH), Offset(hDimX - 8.0, topY + legH));
+    _drawDoubleArrowLine(
+      canvas,
+      Offset(hDimX, topY),
+      Offset(hDimX, topY + legH),
+      data.heightVal.toStringAsFixed(0),
+    );
+
+    // 3. Center Size Range Text (e.g. "20 x 20 to 60 x 60" or "70 x 70 to 200 x 200")
+    final String rangeStr = (data.variantTag == '70 to 200' || data.heightVal >= 63)
+        ? '70 x 70 to 200 x 200'
+        : '20 x 20 to 60 x 60';
+    final TextPainter tpCenter = TextPainter(
+      text: TextSpan(
+        text: rangeStr,
+        style: const TextStyle(
+          fontSize: 14.5,
+          fontWeight: FontWeight.bold,
+          color: Color(0xFF1E293B),
+          letterSpacing: 0.3,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+
+    final double centerTextX = startX + thick + 12.0;
+    final double centerTextY = topY + (legH - thick) / 2 - tpCenter.height / 2;
+    tpCenter.paint(canvas, Offset(centerTextX, centerTextY));
+
+    // 4. Right Thickness Dimension (Inward-pointing arrows with boxed value, matching Image 1)
+    final double tArrowX = startX + legB + 16.0;
+    final double tTopY = topY + legH - thick;
+    final double tBottomY = topY + legH;
+
+    _drawExtensionLine(canvas, Offset(startX + legB, tTopY), Offset(tArrowX + 8.0, tTopY));
+    _drawExtensionLine(canvas, Offset(startX + legB, tBottomY), Offset(tArrowX + 8.0, tBottomY));
+
+    final Paint dimPaint = Paint()
+      ..color = const Color(0xFF1E293B)
+      ..strokeWidth = 1.1;
+
+    // Upper arrow pointing down into horizontal leg
+    canvas.drawLine(Offset(tArrowX, tTopY - 14.0), Offset(tArrowX, tTopY), dimPaint);
+    _drawArrowHead(canvas, Offset(tArrowX, tTopY), -math.pi / 2, size: 5.0);
+
+    // Lower arrow pointing up into horizontal leg
+    canvas.drawLine(Offset(tArrowX, tBottomY + 14.0), Offset(tArrowX, tBottomY), dimPaint);
+    _drawArrowHead(canvas, Offset(tArrowX, tBottomY), math.pi / 2, size: 5.0);
+
+    // Boxed Thickness Value to the right of arrows
+    final String tStr = data.webThickVal % 1 == 0
+        ? data.webThickVal.toInt().toString()
+        : data.webThickVal.toStringAsFixed(1);
+    final double tBoxX = tArrowX + 20.0;
+    final double tBoxY = (tTopY + tBottomY) / 2;
+    _drawBoxedDimension(canvas, Offset(tBoxX, tBoxY), tStr);
+  }
+
+  void _drawUnequalAngle2D(Canvas canvas, Size size) {
     _drawSpecTable(canvas, const Offset(12.0, 172.0), data);
 
     final double diagramZoneEnd = size.width - 12.0;
     const double dimRightReserve = 34.0;
+    final double rawAspect = data.widthVal / (data.heightVal > 0 ? data.heightVal : 100.0);
     const double legH = 136.0;
-    const double legB = 64.0;
-    const double thick = 12.0;
+    final double legB = (legH * rawAspect.clamp(0.40, 0.90)).clamp(56.0, 95.0);
+    final double thick = (10.0 + (data.webThickVal / 20.0 * 5.0)).clamp(11.0, 16.0);
     const double r = 6.0;
     const double topY = 18.0;
 

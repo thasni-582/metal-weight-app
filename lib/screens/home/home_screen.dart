@@ -49,7 +49,13 @@ class _HomeScreenState extends State<HomeScreen> {
     final sizes = _getAvailableSizes();
     if (sizes.isNotEmpty) {
       if (!sizes.contains(_selectedSize)) {
-        _selectedSize = sizes.first;
+        if (_selectedShape.contains('Angle') && !_selectedShape.contains('Unequal')) {
+          _selectedSize = (_activeVariant == '70 to 200')
+              ? (sizes.contains('70') ? '70' : sizes.first)
+              : (sizes.contains('30') ? '30' : sizes.first);
+        } else {
+          _selectedSize = sizes.first;
+        }
       }
     }
     final thicknesses = _getAvailableThicknesses();
@@ -106,6 +112,8 @@ class _HomeScreenState extends State<HomeScreen> {
         _activeVariant = 'UB';
       } else if (newShape.contains('Beam')) {
         _activeVariant = 'IPE';
+      } else if (newShape == 'Equal Angle' || newShape == 'Angle Equal') {
+        _activeVariant = '20 to 60';
       }
       _initForSelectedShape();
     });
@@ -118,7 +126,14 @@ class _HomeScreenState extends State<HomeScreen> {
       case 'Angle Equal':
       case 'SS Angle (Stainless Steel)':
       case 'Aluminum Angle':
-        return StandardData.equalAngles.keys.toList();
+        if (_activeVariant == '70 to 200') {
+          return StandardData.equalAngles.keys
+              .where((k) => (int.tryParse(k) ?? 0) >= 63)
+              .toList();
+        }
+        return StandardData.equalAngles.keys
+            .where((k) => (int.tryParse(k) ?? 0) <= 60)
+            .toList();
       case 'Unequal Angle':
       case 'Angle Unequal':
         return StandardData.unequalAngles.keys.toList();
@@ -244,8 +259,8 @@ class _HomeScreenState extends State<HomeScreen> {
       case 'Equal Angle':
       case 'Angle Equal':
         final double? w = StandardData.equalAngles[_selectedSize]?[_selectedThickness];
-        weightKgPerM = w ?? 3.77;
-        sectionAreaCm2 = weightKgPerM * 1.27;
+        weightKgPerM = w ?? 1.36;
+        sectionAreaCm2 = weightKgPerM * 1.28;
         break;
 
       case 'Unequal Angle':
@@ -1095,7 +1110,17 @@ class _HomeScreenState extends State<HomeScreen> {
           _activeVariant = variant;
           final sizes = _getAvailableSizes();
           if (sizes.isNotEmpty) {
-            _selectedSize = sizes.first;
+            if (_selectedShape.contains('Angle') && !_selectedShape.contains('Unequal')) {
+              _selectedSize = (variant == '70 to 200')
+                  ? (sizes.contains('70') ? '70' : sizes.first)
+                  : (sizes.contains('30') ? '30' : sizes.first);
+            } else {
+              _selectedSize = sizes.first;
+            }
+          }
+          final thicks = _getAvailableThicknesses();
+          if (thicks.isNotEmpty && !thicks.contains(_selectedThickness)) {
+            _selectedThickness = thicks.first;
           }
           _updateResults();
         });

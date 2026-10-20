@@ -979,14 +979,42 @@ class PdfExportService {
         break;
 
       case 'angle':
-        if (dims['h']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 46.0, top: 73.0, child: _buildPdfDimBadge(dims['h']!)));
-        }
-        if (dims['b']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 120.0, top: 130.0, child: _buildPdfDimBadge(dims['b']!)));
-        }
-        if (dims['t']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 118.0, top: 77.0, child: _buildPdfDimBadge(dims['t']!)));
+        final itemStr = (item?.title ?? '').toUpperCase();
+        final bool isUnequal = itemStr.contains('UNEQUAL');
+        if (isUnequal) {
+          if (dims['h']!.isNotEmpty) {
+            badges.add(pw.Positioned(left: 46.0, top: 73.0, child: _buildPdfDimBadge(dims['h']!)));
+          }
+          if (dims['b']!.isNotEmpty) {
+            badges.add(pw.Positioned(left: 120.0, top: 130.0, child: _buildPdfDimBadge(dims['b']!)));
+          }
+          if (dims['t']!.isNotEmpty) {
+            badges.add(pw.Positioned(left: 118.0, top: 77.0, child: _buildPdfDimBadge(dims['t']!)));
+          }
+        } else {
+          if (dims['h']!.isNotEmpty) {
+            badges.add(pw.Positioned(left: 46.0, top: 73.0, child: _buildPdfDimBadge(dims['h']!)));
+          }
+          final String hNum = dims['h'] ?? '30';
+          final int hVal = int.tryParse(hNum) ?? 30;
+          final String rangeStr = hVal >= 63 ? '70x70 to 200x200' : '20x20 to 60x60';
+          badges.add(
+            pw.Positioned(
+              left: 104.0,
+              top: 55.0,
+              child: pw.Text(
+                rangeStr,
+                style: pw.TextStyle(
+                  fontSize: 10.0,
+                  fontWeight: pw.FontWeight.bold,
+                  color: PdfColor.fromHex('1E293B'),
+                ),
+              ),
+            ),
+          );
+          if (dims['t']!.isNotEmpty) {
+            badges.add(pw.Positioned(left: 198.0, top: 98.0, child: _buildPdfDimBadge(dims['t']!)));
+          }
         }
         break;
 
@@ -1137,8 +1165,10 @@ class PdfExportService {
       ),
       child: pw.Column(
         children: [
-          _buildSpecRow(variantStr, sizeStr, 'Standard'),
-          pw.SizedBox(height: 3),
+          if (!(shapeCategory == 'angle' && !shape.contains('UNEQUAL'))) ...[
+            _buildSpecRow(variantStr, sizeStr, 'Standard'),
+            pw.SizedBox(height: 3),
+          ],
           _buildSpecRow('weight', weightStr, weightUnit),
           pw.SizedBox(height: 3),
           _buildSpecRow('section', sectionAreaStr, 'cm²'),
@@ -1603,6 +1633,8 @@ class PdfExportService {
         break;
 
       case 'angle':
+        final itemStr = '${item?.title ?? ''} ${item?.details['shape'] ?? ''}'.toLowerCase();
+        final bool isUnequal = itemStr.contains('unequal');
         const legA = 90.0;
         const legB = 90.0;
         const t = 12.0;
@@ -1631,14 +1663,21 @@ class PdfExportService {
           ..setStrokeColor(accentColor)
           ..setLineWidth(0.8);
         _drawArrowV(canvas, left - 12, bottom, bottom + legA);
-        _drawArrowH(canvas, left, left + legB, bottom - 12);
         _drawWitnessH(canvas, left - 16, left, bottom);
         _drawWitnessH(canvas, left - 16, left, bottom + legA);
-        _drawWitnessV(canvas, left, bottom - 16, bottom);
-        _drawWitnessV(canvas, left + legB, bottom - 16, bottom);
 
-        // Thickness callout
-        _drawArrowH(canvas, left + t / 2, left + t + 16, bottom + legA * 0.45);
+        if (isUnequal) {
+          _drawArrowH(canvas, left, left + legB, bottom - 12);
+          _drawWitnessV(canvas, left, bottom - 16, bottom);
+          _drawWitnessV(canvas, left + legB, bottom - 16, bottom);
+          _drawArrowH(canvas, left + t / 2, left + t + 16, bottom + legA * 0.45);
+        } else {
+          // Equal Angle: Right thickness inward-pointing arrows
+          _drawWitnessH(canvas, left + legB, left + legB + 16, bottom);
+          _drawWitnessH(canvas, left + legB, left + legB + 16, bottom + t);
+          _drawArrowV(canvas, left + legB + 10, bottom + t + 10, bottom + t);
+          _drawArrowV(canvas, left + legB + 10, bottom - 10, bottom);
+        }
         break;
 
       case 'tube':
