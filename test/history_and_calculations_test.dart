@@ -28,6 +28,38 @@ void main() {
       // Square & Rectangular Tubes start at 1.2 mm
       expect(StandardData.squareTubes['20x20']?['1.2'], equals(0.71));
       expect(StandardData.rectangularTubes['40x20']?['1.2'], equals(1.09));
+      // Steel Pipes Schedule 20 from 1/2" up to 12" and beyond
+      expect(StandardData.steelPipes['1/2" (21.3 mm)']?['Sch 20 (2.11mm)'], equals(1.00));
+      expect(StandardData.steelPipes['3/4" (26.7 mm)']?['Sch 20 (2.11mm)'], equals(1.28));
+      expect(StandardData.steelPipes['1" (33.4 mm)']?['Sch 20 (2.77mm)'], equals(2.09));
+      expect(StandardData.steelPipes['2" (60.3 mm)']?['Sch 20 (2.77mm)'], equals(3.93));
+      expect(StandardData.steelPipes['4" (114.3 mm)']?['Sch 20 (3.05mm)'], equals(8.36));
+      expect(StandardData.steelPipes['6" (168.3 mm)']?['Sch 20 (3.40mm)'], equals(13.83));
+      expect(StandardData.steelPipes['8" (219.1 mm)']?['Sch 20 (6.35mm)'], equals(33.32));
+      expect(StandardData.steelPipes['10" (273.0 mm)']?['Sch 20 (6.35mm)'], equals(41.76));
+      expect(StandardData.steelPipes['12" (323.8 mm)']?['Sch 20 (6.35mm)'], equals(49.71));
+      expect(StandardData.steelPipes['14" (355.6 mm)']?['Sch 20 (7.92mm)'], equals(67.90));
+      for (final size in [
+        '1/2" (21.3 mm)',
+        '3/4" (26.7 mm)',
+        '1" (33.4 mm)',
+        '1-1/4" (42.2 mm)',
+        '1-1/2" (48.3 mm)',
+        '2" (60.3 mm)',
+        '2-1/2" (73.0 mm)',
+        '3" (88.9 mm)',
+        '4" (114.3 mm)',
+        '5" (141.3 mm)',
+        '6" (168.3 mm)',
+        '8" (219.1 mm)',
+        '10" (273.0 mm)',
+        '12" (323.8 mm)',
+      ]) {
+        final schedules = StandardData.steelPipes[size]!.keys.toList();
+        expect(schedules.any((s) => s.startsWith('Sch 20')), isTrue, reason: '$size should have Sch 20');
+        expect(schedules.any((s) => s.startsWith('Sch 40')), isTrue, reason: '$size should have Sch 40');
+        expect(schedules.any((s) => s.startsWith('Sch 80')), isTrue, reason: '$size should have Sch 80');
+      }
       expect(StandardData.ubBeams['203 x 133 x 25']?.weight, equals(25.10));
       expect(StandardData.ubBeams['457 x 191 x 67']?.weight, equals(67.10));
       expect(StandardData.ucBeams['203 x 203 x 46']?.weight, equals(46.10));
