@@ -717,6 +717,8 @@ class PdfExportService {
             spec = StandardData.ubBeams[rawSize];
           } else if (StandardData.wBeams.containsKey(rawSize)) {
             spec = StandardData.wBeams[rawSize];
+          } else if (StandardData.findWBeam(rawSize) != null) {
+            spec = StandardData.findWBeam(rawSize);
           } else if (StandardData.ucBeams.containsKey(rawSize)) {
             spec = StandardData.ucBeams[rawSize];
           } else if (StandardData.ubBeams.containsKey(rawSize)) {
@@ -753,12 +755,7 @@ class PdfExportService {
               }
             }
             if (spec == null) {
-              for (final entry in StandardData.wBeams.entries) {
-                if (combined.contains(entry.key)) {
-                  spec = entry.value;
-                  break;
-                }
-              }
+              spec = StandardData.findWBeam(rawSize) ?? StandardData.findWBeam(combined);
             }
           }
 
@@ -1051,12 +1048,12 @@ class PdfExportService {
           beamVariant = 'UB';
         }
 
-        final isHBeam = beamVariant == 'UC' ||
-            beamVariant == 'HEA' ||
-            beamVariant == 'HEB' ||
-            beamVariant == 'W-BEAM' ||
-            titleUpper.contains('JIS') ||
-            titleUpper.contains('WIDE FLANGE');
+        final double hParsed = double.tryParse(dims['h'] ?? '') ?? 0.0;
+        final double bParsed = double.tryParse(dims['b'] ?? '') ?? 0.0;
+        final double beamAspect = (hParsed > 0 && bParsed > 0)
+            ? (bParsed / hParsed)
+            : ((beamVariant == 'UC' || beamVariant == 'HEA' || beamVariant == 'HEB') ? 1.0 : 0.55);
+        final isHBeam = beamAspect >= 0.70;
 
         // Profile label inside left pocket (matching App 2D blueprint)
         final String pocketBadgeText = (beamVariant == 'W-BEAM' || beamVariant == 'W-Beam') ? 'W' : beamVariant;
@@ -1700,11 +1697,16 @@ class PdfExportService {
       case 'beam':
         final rawVar = item?.details['variant']?.toString().trim().toUpperCase() ?? '';
         final titleUpper = '${item?.title ?? ''} ${item?.subtitle ?? ''} ${item?.iconName ?? ''}'.toUpperCase();
-        final isHBeam = rawVar == 'UC' ||
-            (rawVar != 'UB' &&
-                RegExp(r'\b(hea|heb|uc|w-beam|jis|h-beam|wide flange)\b',
-                        caseSensitive: false)
-                    .hasMatch(titleUpper));
+        final double hVal = (item?.details['height'] is num)
+            ? (item!.details['height'] as num).toDouble()
+            : (double.tryParse(item?.details['height']?.toString() ?? '') ?? 0.0);
+        final double bVal = (item?.details['width'] is num)
+            ? (item!.details['width'] as num).toDouble()
+            : (double.tryParse(item?.details['width']?.toString() ?? '') ?? 0.0);
+        final double rawAspect = (hVal > 0 && bVal > 0)
+            ? (bVal / hVal)
+            : ((rawVar == 'UC' || rawVar == 'HEA' || rawVar == 'HEB') ? 1.0 : 0.55);
+        final isHBeam = rawAspect >= 0.70;
         final double w = isHBeam ? 100.0 : 76.0;
         final double h = isHBeam ? 100.0 : 110.0;
         final double tf = isHBeam ? 14.0 : 12.0;

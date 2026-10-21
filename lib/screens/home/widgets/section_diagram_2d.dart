@@ -560,13 +560,14 @@ class DiagramData {
       } else if (effVariant == 'UC') {
         spec = StandardData.ucBeams[sizeStr];
       } else if (effVariant == 'W-Beam') {
-        spec = StandardData.wBeams[sizeStr];
+        spec = StandardData.wBeams[sizeStr] ?? StandardData.findWBeam(sizeStr);
       }
 
       // Catalog cross-fallback if variant wasn't strictly resolved
       spec ??= StandardData.ubBeams[sizeStr] ??
           StandardData.ucBeams[sizeStr] ??
           StandardData.wBeams[sizeStr] ??
+          StandardData.findWBeam(sizeStr) ??
           StandardData.ipeBeams[sizeStr] ??
           StandardData.heaBeams[sizeStr] ??
           StandardData.hebBeams[sizeStr] ??
@@ -1254,23 +1255,22 @@ class Section2DPainter extends CustomPainter {
     // 1. Draw Specification Table at bottom-left
     _drawSpecTable(canvas, const Offset(12.0, 168.0), data);
 
-    // 2. Identify if this profile is an H-Beam / Wide Flange profile (HEA, HEB, UC, JIS H-Beam, W-Beam)
+    // 2. Identify if this profile is an H-Beam / Wide Flange profile (b ≈ h) or Deep I-Beam (h >> b)
     final double rawAspect = data.widthVal / (data.heightVal > 0 ? data.heightVal : 140.0);
     final String combinedName = '${data.variantTag} ${data.headerTitle} ${data.displayName}'.toUpperCase();
     final bool isHBeam = combinedName.contains('HEA') ||
         combinedName.contains('HEB') ||
         combinedName.contains('UC') ||
         combinedName.contains('JIS') ||
-        combinedName.contains('W-BEAM') ||
-        rawAspect >= 0.75;
+        rawAspect >= 0.70;
 
     // 3. Beam geometry:
-    // Wide-Flange H-Beams (HEA, HEB, UC, JIS, W-Beam) have equal or near-equal width & height (b ≈ h)
-    // Universal Beams (UB, IPE, IPE-AA) are deep and narrow (h > b)
+    // Wide-Flange H-Beams / Columns (HEA, HEB, UC, square W-Beams) have equal or near-equal width & height (b ≈ h)
+    // Universal Beams and deep W-Beams (UB, IPE, IPE-AA, deep W-Beams) are deep and narrow (h > b)
     final double h = isHBeam ? 126.0 : 138.0;
     final double b = isHBeam
-        ? (h * rawAspect.clamp(0.85, 1.15)).clamp(112.0, 128.0)
-        : (h * rawAspect.clamp(0.45, 0.65)).clamp(56.0, 78.0);
+        ? (h * rawAspect.clamp(0.80, 1.15)).clamp(100.0, 128.0)
+        : (h * rawAspect.clamp(0.35, 0.65)).clamp(48.0, 82.0);
 
     final double tf = isHBeam
         ? (11.0 + (data.flangeThickVal / 25.0 * 5.0)).clamp(12.0, 16.0)

@@ -407,7 +407,7 @@ class _HomeScreenState extends State<HomeScreen> {
         break;
 
       case 'W-Beam (Wide Flange)':
-        final spec = StandardData.wBeams[_selectedSize];
+        final spec = StandardData.wBeams[_selectedSize] ?? StandardData.findWBeam(_selectedSize);
         if (spec != null) {
           weightKgPerM = spec.weight;
           sectionAreaCm2 = spec.area;
