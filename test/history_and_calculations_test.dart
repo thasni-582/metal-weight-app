@@ -25,9 +25,14 @@ void main() {
       // IPE-AA only 80 to 200
       expect(StandardData.ipeAaBeams.keys.toList(), equals(['80', '100', '120', '140', '160', '180', '200']));
       expect(StandardData.ipeAaBeams.containsKey('220'), isFalse);
-      // Square & Rectangular Tubes start at 1.2 mm
+      // Square & Rectangular Tubes start at 1.2 mm and include complete client catalog
+      expect(StandardData.squareTubes['19x19']?['1.2'], equals(0.67));
       expect(StandardData.squareTubes['20x20']?['1.2'], equals(0.71));
       expect(StandardData.rectangularTubes['40x20']?['1.2'], equals(1.09));
+      expect(StandardData.rectangularTubes['100x50']?['1.2'], equals(2.76));
+      expect(StandardData.rectangularTubes['100x50']?['1.5'], equals(3.43));
+      expect(StandardData.rectangularTubes['100x50']?['2.0'], equals(4.53));
+      expect(StandardData.rectangularTubes.containsKey('30x15'), isTrue);
       // Steel Pipes Schedule 20 from 1/2" up to 12" and beyond (ANSI B 36.10 Table)
       expect(StandardData.steelPipes.length, equals(35));
       expect(StandardData.steelPipes['1/4" (13.7 mm)']?['Sch 40 / STD (2.24mm)'], equals(0.63));
