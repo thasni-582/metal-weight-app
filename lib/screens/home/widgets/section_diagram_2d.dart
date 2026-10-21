@@ -983,7 +983,7 @@ class Section2DPainter extends CustomPainter {
     const double topY = 18.0;
 
     final double diagramRight = size.width - 12.0;
-    const double rightDimReserve = 38.0;
+    const double rightDimReserve = 48.0;
     final double startX = diagramRight - rightDimReserve - b;
 
     final Path path = Path();
@@ -1035,21 +1035,21 @@ class Section2DPainter extends CustomPainter {
     final double labelY = topY + (h - lp.height) / 2;
     lp.paint(canvas, Offset(labelX, labelY));
 
-    // Height Dim (Left)
-    final double hDimX = startX - 22.0;
     final Paint extPaint = Paint()
       ..color = const Color(0xFF7F8C8D)
       ..strokeWidth = 0.8;
-    canvas.drawLine(Offset(startX, topY), Offset(hDimX - 8.0, topY), extPaint);
-    canvas.drawLine(Offset(startX, topY + h), Offset(hDimX - 8.0, topY + h), extPaint);
-
     final Paint dimPaint = Paint()
       ..color = const Color(0xFF1E293B)
       ..strokeWidth = 1.1;
+
+    // Height Dim (Right) - vertical line with centered boxed dimension matching engineering slide rule standard
+    final double hDimX = startX + b + 20.0;
+    canvas.drawLine(Offset(startX + b, topY), Offset(hDimX + 8.0, topY), extPaint);
+    canvas.drawLine(Offset(startX + b, topY + h), Offset(hDimX + 8.0, topY + h), extPaint);
     canvas.drawLine(Offset(hDimX, topY), Offset(hDimX, topY + h), dimPaint);
-    _drawArrowHead(canvas, Offset(hDimX, topY), -math.pi / 2, size: 5.5);
-    _drawArrowHead(canvas, Offset(hDimX, topY + h), math.pi / 2, size: 5.5);
-    _drawBoxedDimension(canvas, Offset(hDimX - 18.0, topY + h / 2), data.heightVal.toStringAsFixed(0));
+    _drawArrowHead(canvas, Offset(hDimX, topY), math.pi / 2, size: 5.5);
+    _drawArrowHead(canvas, Offset(hDimX, topY + h), -math.pi / 2, size: 5.5);
+    _drawBoxedDimension(canvas, Offset(hDimX, topY + h / 2), data.heightVal.toStringAsFixed(0));
 
     // Width Dim (Bottom)
     const double bDimY = topY + h + 22.0;
@@ -1060,18 +1060,21 @@ class Section2DPainter extends CustomPainter {
     _drawArrowHead(canvas, Offset(startX + b, bDimY), math.pi, size: 5.5);
     _drawBoxedDimension(canvas, Offset(startX + b / 2, bDimY), data.widthVal.toStringAsFixed(0));
 
-    // tf & tw callouts (tw placed comfortably in lower region of pocket to prevent collision with profile label)
-    _drawCalloutArrow(
-      canvas,
-      Offset(startX + b * 0.65, topY + tf / 2),
-      Offset(startX + b * 0.65 + 18.0, topY - 10.0),
-      data.flangeThickVal.toStringAsFixed(1),
-    );
-    _drawCalloutArrow(
-      canvas,
-      Offset(startX + tw / 2, topY + h * 0.72),
-      Offset(startX + tw + 26.0, topY + h * 0.76),
-      data.webThickVal.toStringAsFixed(1),
+    // Flange thickness tf (Inward opposing vertical arrows, matching engineering slide rule standard)
+    final double flangeX = startX + tw + (b - tw) * 0.50;
+    canvas.drawLine(Offset(flangeX, topY - 14.0), Offset(flangeX, topY), dimPaint);
+    _drawArrowHead(canvas, Offset(flangeX, topY), -math.pi / 2, size: 4.8);
+    canvas.drawLine(Offset(flangeX, topY + tf + 12.0), Offset(flangeX, topY + tf), dimPaint);
+    _drawArrowHead(canvas, Offset(flangeX, topY + tf), math.pi / 2, size: 4.8);
+    _drawBoxedDimension(canvas, Offset(flangeX, topY + tf + 22.0), data.flangeThickVal.toStringAsFixed(1));
+
+    // Web thickness tw (Inward opposing horizontal arrows, matching engineering slide rule standard)
+    _drawWebThickCallout(
+      canvas: canvas,
+      webLeft: startX,
+      webRight: startX + tw,
+      centerY: topY + h * 0.72,
+      valStr: data.webThickVal.toStringAsFixed(1),
     );
   }
 

@@ -1104,16 +1104,16 @@ class PdfExportService {
 
       case 'channel':
         if (dims['h']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 58.0, top: 73.0, child: _buildPdfDimBadge(dims['h']!)));
+          badges.add(pw.Positioned(left: 170.0, top: 73.0, child: _buildPdfDimBadge(dims['h']!)));
         }
         if (dims['b']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 120.0, top: 140.0, child: _buildPdfDimBadge(dims['b']!)));
+          badges.add(pw.Positioned(left: 125.0, top: 140.0, child: _buildPdfDimBadge(dims['b']!)));
         }
         if (dims['tf']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 184.0, top: 24.0, child: _buildPdfDimBadge(dims['tf']!)));
+          badges.add(pw.Positioned(left: 130.0, top: 48.0, child: _buildPdfDimBadge(dims['tf']!)));
         }
         if (dims['tw']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 128.0, top: 59.0, child: _buildPdfDimBadge(dims['tw']!)));
+          badges.add(pw.Positioned(left: 128.0, top: 88.0, child: _buildPdfDimBadge(dims['tw']!)));
         }
         break;
 
@@ -1778,20 +1778,42 @@ class PdfExportService {
           ..drawRRect(left + tw, cy - h / 2, w - tw, tf, 2, 2)
           ..strokePath();
 
-        // Dimension markings
+        // Dimension markings matching engineering slide rule standard
         canvas
           ..setStrokeColor(accentColor)
           ..setLineWidth(0.8);
-        _drawArrowV(canvas, left - 12, cy - h / 2, cy + h / 2);
+
+        // Height arrow on the right
+        _drawArrowV(canvas, left + w + 12, cy - h / 2, cy + h / 2);
+        _drawWitnessH(canvas, left + w, left + w + 16, cy - h / 2);
+        _drawWitnessH(canvas, left + w, left + w + 16, cy + h / 2);
+
+        // Width arrow at the bottom
         _drawArrowH(canvas, left, left + w, cy - h / 2 - 12);
         _drawWitnessV(canvas, left, cy - h / 2 - 16, cy - h / 2);
         _drawWitnessV(canvas, left + w, cy - h / 2 - 16, cy - h / 2);
-        _drawWitnessH(canvas, left - 16, left, cy - h / 2);
-        _drawWitnessH(canvas, left - 16, left, cy + h / 2);
 
-        // Web thickness pointer
-        _drawArrowH(canvas, left - 10, left, cy + 18.0);
-        _drawArrowH(canvas, left + tw, left + tw + 10, cy + 18.0);
+        // Flange thickness opposing arrows (top flange)
+        final double flangeX = left + tw + (w - tw) * 0.55;
+        canvas
+          ..moveTo(flangeX, cy + h / 2 + 10)
+          ..lineTo(flangeX, cy + h / 2)
+          ..moveTo(flangeX - 2.5, cy + h / 2 + 3.5)
+          ..lineTo(flangeX, cy + h / 2)
+          ..lineTo(flangeX + 2.5, cy + h / 2 + 3.5)
+          ..strokePath();
+        canvas
+          ..moveTo(flangeX, cy + h / 2 - tf - 10)
+          ..lineTo(flangeX, cy + h / 2 - tf)
+          ..moveTo(flangeX - 2.5, cy + h / 2 - tf - 3.5)
+          ..lineTo(flangeX, cy + h / 2 - tf)
+          ..lineTo(flangeX + 2.5, cy + h / 2 - tf - 3.5)
+          ..strokePath();
+
+        // Web thickness pointer (inward horizontal arrows across web)
+        final double webY = cy - 14.0;
+        _drawArrowH(canvas, left - 10, left, webY);
+        _drawArrowH(canvas, left + tw + 10, left + tw, webY);
         break;
 
       case 'angle':
