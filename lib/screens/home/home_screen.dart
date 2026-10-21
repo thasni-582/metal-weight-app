@@ -53,6 +53,8 @@ class _HomeScreenState extends State<HomeScreen> {
           _selectedSize = (_activeVariant == '70 to 200')
               ? (sizes.contains('70') ? '70' : sizes.first)
               : (sizes.contains('30') ? '30' : sizes.first);
+        } else if (_selectedShape.contains('Pipe')) {
+          _selectedSize = sizes.contains('1/2" (21.3 mm)') ? '1/2" (21.3 mm)' : sizes.first;
         } else {
           _selectedSize = sizes.first;
         }

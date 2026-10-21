@@ -28,17 +28,19 @@ void main() {
       // Square & Rectangular Tubes start at 1.2 mm
       expect(StandardData.squareTubes['20x20']?['1.2'], equals(0.71));
       expect(StandardData.rectangularTubes['40x20']?['1.2'], equals(1.09));
-      // Steel Pipes Schedule 20 from 1/2" up to 12" and beyond
-      expect(StandardData.steelPipes['1/2" (21.3 mm)']?['Sch 20 (2.11mm)'], equals(1.00));
-      expect(StandardData.steelPipes['3/4" (26.7 mm)']?['Sch 20 (2.11mm)'], equals(1.28));
-      expect(StandardData.steelPipes['1" (33.4 mm)']?['Sch 20 (2.77mm)'], equals(2.09));
-      expect(StandardData.steelPipes['2" (60.3 mm)']?['Sch 20 (2.77mm)'], equals(3.93));
-      expect(StandardData.steelPipes['4" (114.3 mm)']?['Sch 20 (3.05mm)'], equals(8.36));
-      expect(StandardData.steelPipes['6" (168.3 mm)']?['Sch 20 (3.40mm)'], equals(13.83));
-      expect(StandardData.steelPipes['8" (219.1 mm)']?['Sch 20 (6.35mm)'], equals(33.32));
-      expect(StandardData.steelPipes['10" (273.0 mm)']?['Sch 20 (6.35mm)'], equals(41.76));
-      expect(StandardData.steelPipes['12" (323.8 mm)']?['Sch 20 (6.35mm)'], equals(49.71));
+      // Steel Pipes Schedule 20 from 1/2" up to 12" and beyond (ANSI B 36.10 Table)
+      expect(StandardData.steelPipes['1/4" (13.7 mm)']?['Sch 40 (2.24mm)'], equals(0.63));
+      expect(StandardData.steelPipes['1/2" (21.3 mm)']?['Sch 20 (2.60mm)'], equals(1.21));
+      expect(StandardData.steelPipes['3/4" (26.7 mm)']?['Sch 20 (2.60mm)'], equals(1.56));
+      expect(StandardData.steelPipes['1" (33.4 mm)']?['Sch 20 (3.20mm)'], equals(2.41));
+      expect(StandardData.steelPipes['2" (60.3 mm)']?['Sch 20 (3.60mm)'], equals(5.03));
+      expect(StandardData.steelPipes['4" (114.3 mm)']?['Sch 20 (4.50mm)'], equals(12.20));
+      expect(StandardData.steelPipes['6" (168.3 mm)']?['Sch 20 (5.00mm)'], equals(19.70));
+      expect(StandardData.steelPipes['8" (219.1 mm)']?['Sch 20 (6.35mm)'], equals(33.31));
+      expect(StandardData.steelPipes['10" (273.0 mm)']?['Sch 20 (6.35mm)'], equals(41.77));
+      expect(StandardData.steelPipes['12" (323.8 mm)']?['Sch 20 (6.35mm)'], equals(49.73));
       expect(StandardData.steelPipes['14" (355.6 mm)']?['Sch 20 (7.92mm)'], equals(67.90));
+      expect(StandardData.steelPipes['24" (609.6 mm)']?['Sch 80 (30.96mm)'], equals(442.00));
       for (final size in [
         '1/2" (21.3 mm)',
         '3/4" (26.7 mm)',
