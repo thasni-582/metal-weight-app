@@ -306,6 +306,13 @@ class _CalculationScreenState extends State<CalculationScreen> {
         'volume': _formatVolume(_calculatedVolume),
         'surfaceArea': _formatSurfaceArea(_calculatedSurfaceArea),
         'unitSystem': _isMetric ? 'Metric' : 'Imperial',
+        'width': _widthController.text.trim(),
+        'height': _heightController.text.trim(),
+        'thickness': _thicknessController.text.trim(),
+        'length': _lengthController.text.trim(),
+        'outerDia': _outerDiaController.text.trim(),
+        'webThickness': _webThicknessController.text.trim(),
+        'flangeThickness': _flangeThicknessController.text.trim(),
       },
     );
   }

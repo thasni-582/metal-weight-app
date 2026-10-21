@@ -336,8 +336,22 @@ class _ShapeDiagramPainter extends CustomPainter {
   }
 
   void _drawRectangularTube(Canvas canvas, Size size) {
-    const double outerW = 125.0;
-    const double outerH = 85.0;
+    final double wNum = double.tryParse(width) ?? 100.0;
+    final double hNum = double.tryParse(height) ?? 100.0;
+
+    double outerW;
+    double outerH;
+    if ((wNum - hNum).abs() <= 1.0) {
+      outerW = 96.0;
+      outerH = 96.0;
+    } else if (wNum > hNum) {
+      outerW = 125.0;
+      outerH = (outerW * (hNum / (wNum > 0 ? wNum : 1.0))).clamp(50.0, 85.0);
+    } else {
+      outerH = 110.0;
+      outerW = (outerH * (wNum / (hNum > 0 ? hNum : 1.0))).clamp(50.0, 85.0);
+    }
+
     const double t = 14.0;
     // Shift slightly right to balance left height dimension line
     final double startX = (size.width - outerW) / 2 + 10.0;

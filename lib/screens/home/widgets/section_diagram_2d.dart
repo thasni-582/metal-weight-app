@@ -730,6 +730,10 @@ class DiagramData {
           title = 'COPPER SHEET';
           dispName = '$sizeStr mm (Pure Copper)';
           density = 8.96;
+        } else if (shapeType.contains('HR') || shapeType.contains('Hot Rolled')) {
+          title = 'HR SHEET / PLATE';
+          dispName = '$sizeStr mm HR Sheet';
+          density = 7.85;
         } else {
           title = 'STEEL SHEET';
           dispName = '$sizeStr mm Sheet';
@@ -1581,11 +1585,13 @@ class Section2DPainter extends CustomPainter {
   void _drawSheetOrFlat2D(Canvas canvas, Size size) {
     _drawSpecTable(canvas, const Offset(12.0, 172.0), data);
 
-    const double topY = 56.0;
-    const double plateW = 100.0;
+    const double topY = 52.0;
+    const double plateW = 130.0;
     const double plateH = 26.0;
     final double diagramZoneEnd = size.width - 12.0;
-    final double startX = diagramZoneEnd - 18.0 - plateW;
+    // Ample reserve on the right so thickness dimension & badge never overlap plate or screen edge
+    const double rightReserve = 64.0;
+    final double startX = diagramZoneEnd - rightReserve - plateW;
 
     final Rect plateRect = Rect.fromLTWH(startX, topY, plateW, plateH);
     canvas.drawRect(plateRect, Paint()..color = const Color(0xFF0D5C9D));
@@ -1597,17 +1603,42 @@ class Section2DPainter extends CustomPainter {
         ..strokeWidth = 1.0,
     );
 
-    // Thickness dimension (Right)
-    final double dimX = startX + plateW + 16.0;
-    _drawExtensionLine(canvas, Offset(startX + plateW, topY), Offset(dimX + 8, topY));
-    _drawExtensionLine(canvas, Offset(startX + plateW, topY + plateH), Offset(dimX + 8, topY + plateH));
-    _drawDoubleArrowLine(canvas, Offset(dimX, topY), Offset(dimX, topY + plateH), 't=${data.webThickVal.toStringAsFixed(1)}');
+    // If Checkered / Tread sheet, render subtle CAD tread marks on the top surface
+    final bool isCheckered = data.headerTitle.contains('CHECKERED') ||
+        data.displayName.contains('Chequered') ||
+        data.displayName.contains('Tread');
+    if (isCheckered) {
+      final Paint patternPaint = Paint()
+        ..color = Colors.white.withValues(alpha: 0.5)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.2;
+      for (double px = startX + 14.0; px < startX + plateW - 10.0; px += 18.0) {
+        canvas.drawLine(Offset(px - 4, topY + 8), Offset(px + 4, topY + 16), patternPaint);
+        canvas.drawLine(Offset(px + 4, topY + 8), Offset(px - 4, topY + 16), patternPaint);
+      }
+    }
+
+    // Thickness dimension (Right) - placed with clean clearance from the plate
+    final double dimX = startX + plateW + 30.0;
+    _drawExtensionLine(canvas, Offset(startX + plateW, topY), Offset(dimX + 10, topY));
+    _drawExtensionLine(canvas, Offset(startX + plateW, topY + plateH), Offset(dimX + 10, topY + plateH));
+    _drawDoubleArrowLine(
+      canvas,
+      Offset(dimX, topY),
+      Offset(dimX, topY + plateH),
+      't=${data.webThickVal.toStringAsFixed(1)}',
+    );
 
     // Width dimension (Bottom)
-    const double dimY = topY + plateH + 22.0;
+    const double dimY = topY + plateH + 24.0;
     _drawExtensionLine(canvas, Offset(startX, topY + plateH), Offset(startX, dimY + 8));
     _drawExtensionLine(canvas, Offset(startX + plateW, topY + plateH), Offset(startX + plateW, dimY + 8));
-    _drawDoubleArrowLine(canvas, Offset(startX, dimY), Offset(startX + plateW, dimY), '${data.widthVal.toStringAsFixed(0)} mm');
+    _drawDoubleArrowLine(
+      canvas,
+      Offset(startX, dimY),
+      Offset(startX + plateW, dimY),
+      '${data.widthVal.toStringAsFixed(0)} mm',
+    );
   }
 
   void _drawFlangeThickCallout({

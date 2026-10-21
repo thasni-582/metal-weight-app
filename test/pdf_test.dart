@@ -96,6 +96,8 @@ void main() {
       {'title': 'U-Channel (JIS) 150', 'shape': 'Channels (UPN / UPE)', 'icon': 'channel', 'variant': 'JIS', 'size': '150'},
       {'title': 'Unequal Angle 30x20', 'shape': 'Unequal Angle', 'icon': 'angle', 'size': '30x20', 'thickness': '3'},
       {'title': 'Rectangular Tube (RHS) 60x40', 'shape': 'Rectangular Tube (RHS)', 'icon': 'tube', 'size': '60x40', 'thickness': '1.2'},
+      {'title': 'Galvanized Sheet Square / Rectangular Tube', 'shape': 'Square / Rectangular Tube', 'icon': 'tube', 'dimensions': '500 x 100 x t12 x L1000 mm', 'width': '500', 'height': '100', 'thickness': '12'},
+      {'title': 'Steel Round Tube / Pipe', 'shape': 'Round Tube / Pipe', 'icon': 'pipe', 'dimensions': 'Ø50 x t5 x L1000 mm', 'outerDia': '50', 'thickness': '5'},
     ];
 
     for (final p in testProfiles) {
@@ -113,10 +115,14 @@ void main() {
           'shape': p['shape']!,
           'size': p['size'] ?? 'Standard',
           'variant': p['variant'] ?? '',
-          'dimensions': '${p['size'] ?? 'Standard'} | L=6.0m x 1 pcs',
+          'dimensions': p['dimensions'] ?? '${p['size'] ?? 'Standard'} | L=6.0m x 1 pcs',
           'quantity': '1',
           'weightPerPiece': '16.67 kg/m',
           'totalWeight': '100.00 kg',
+          if (p['width'] != null) 'width': p['width']!,
+          if (p['height'] != null) 'height': p['height']!,
+          if (p['thickness'] != null) 'thickness': p['thickness']!,
+          if (p['outerDia'] != null) 'outerDia': p['outerDia']!,
         },
       );
 

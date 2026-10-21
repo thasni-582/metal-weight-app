@@ -684,6 +684,14 @@ class PdfExportService {
     final dims = item?.details['dimensions']?.toString() ?? '';
     final combined = '$title $subtitle $dims';
 
+    final details = item?.details ?? {};
+    final directW = details['width']?.toString().trim() ?? '';
+    final directH = details['height']?.toString().trim() ?? '';
+    final directT = details['thickness']?.toString().trim() ?? '';
+    final directD = details['outerDia']?.toString().trim() ?? '';
+    final directTw = details['webThickness']?.toString().trim() ?? '';
+    final directTf = details['flangeThickness']?.toString().trim() ?? '';
+
     String hStr = '';
     String bStr = '';
     String twStr = '';
@@ -693,239 +701,313 @@ class PdfExportService {
 
     switch (shapeCategory) {
       case 'beam':
-        final rawSize = item?.details['size']?.toString().trim() ?? '';
-        final rawVariant = item?.details['variant']?.toString().trim().toUpperCase() ?? '';
-
-        StandardProfileSpec? spec;
-        if (rawVariant == 'UC' && StandardData.ucBeams.containsKey(rawSize)) {
-          spec = StandardData.ucBeams[rawSize];
-        } else if (rawVariant == 'UB' && StandardData.ubBeams.containsKey(rawSize)) {
-          spec = StandardData.ubBeams[rawSize];
-        } else if (StandardData.wBeams.containsKey(rawSize)) {
-          spec = StandardData.wBeams[rawSize];
-        } else if (StandardData.ucBeams.containsKey(rawSize)) {
-          spec = StandardData.ucBeams[rawSize];
-        } else if (StandardData.ubBeams.containsKey(rawSize)) {
-          spec = StandardData.ubBeams[rawSize];
-        } else if (StandardData.ipeAaBeams.containsKey(rawSize)) {
-          spec = StandardData.ipeAaBeams[rawSize];
-        } else if (StandardData.heaBeams.containsKey(rawSize)) {
-          spec = StandardData.heaBeams[rawSize];
-        } else if (StandardData.hebBeams.containsKey(rawSize)) {
-          spec = StandardData.hebBeams[rawSize];
-        } else if (StandardData.ipeBeams.containsKey(rawSize)) {
-          spec = StandardData.ipeBeams[rawSize];
-        } else if (StandardData.jisBeams.containsKey(rawSize)) {
-          spec = StandardData.jisBeams[rawSize];
-        }
-
-        // Search in catalogs if not directly matched by rawSize
-        if (spec == null) {
-          final isUB = combined.toUpperCase().contains('UB') && !combined.toUpperCase().contains('UC');
-          final isUC = combined.toUpperCase().contains('UC') && !combined.toUpperCase().contains('UB');
-          if (isUC) {
-            for (final entry in StandardData.ucBeams.entries) {
-              if (combined.contains(entry.key)) {
-                spec = entry.value;
-                break;
-              }
-            }
-          } else if (isUB) {
-            for (final entry in StandardData.ubBeams.entries) {
-              if (combined.contains(entry.key)) {
-                spec = entry.value;
-                break;
-              }
-            }
-          }
-          if (spec == null) {
-            for (final entry in StandardData.wBeams.entries) {
-              if (combined.contains(entry.key)) {
-                spec = entry.value;
-                break;
-              }
-            }
-          }
-        }
-
-        if (spec != null) {
-          hStr = spec.h.toStringAsFixed(spec.h % 1 == 0 ? 0 : 1);
-          bStr = spec.b.toStringAsFixed(spec.b % 1 == 0 ? 0 : 1);
-          twStr = spec.tw.toStringAsFixed(1);
-          tfStr = spec.tf.toStringAsFixed(1);
+        if (directH.isNotEmpty && directW.isNotEmpty) {
+          hStr = directH;
+          bStr = directW;
+          twStr = directTw.isNotEmpty ? directTw : '6.0';
+          tfStr = directTf.isNotEmpty ? directTf : '10.0';
         } else {
-          final matchSize = RegExp(r'\b(80|100|120|140|160|180|200|220|240|270|300|330|360|400|450|500|550|600)\b')
+          final rawSize = item?.details['size']?.toString().trim() ?? '';
+          final rawVariant = item?.details['variant']?.toString().trim().toUpperCase() ?? '';
+
+          StandardProfileSpec? spec;
+          if (rawVariant == 'UC' && StandardData.ucBeams.containsKey(rawSize)) {
+            spec = StandardData.ucBeams[rawSize];
+          } else if (rawVariant == 'UB' && StandardData.ubBeams.containsKey(rawSize)) {
+            spec = StandardData.ubBeams[rawSize];
+          } else if (StandardData.wBeams.containsKey(rawSize)) {
+            spec = StandardData.wBeams[rawSize];
+          } else if (StandardData.ucBeams.containsKey(rawSize)) {
+            spec = StandardData.ucBeams[rawSize];
+          } else if (StandardData.ubBeams.containsKey(rawSize)) {
+            spec = StandardData.ubBeams[rawSize];
+          } else if (StandardData.ipeAaBeams.containsKey(rawSize)) {
+            spec = StandardData.ipeAaBeams[rawSize];
+          } else if (StandardData.heaBeams.containsKey(rawSize)) {
+            spec = StandardData.heaBeams[rawSize];
+          } else if (StandardData.hebBeams.containsKey(rawSize)) {
+            spec = StandardData.hebBeams[rawSize];
+          } else if (StandardData.ipeBeams.containsKey(rawSize)) {
+            spec = StandardData.ipeBeams[rawSize];
+          } else if (StandardData.jisBeams.containsKey(rawSize)) {
+            spec = StandardData.jisBeams[rawSize];
+          }
+
+          // Search in catalogs if not directly matched by rawSize
+          if (spec == null) {
+            final isUB = combined.toUpperCase().contains('UB') && !combined.toUpperCase().contains('UC');
+            final isUC = combined.toUpperCase().contains('UC') && !combined.toUpperCase().contains('UB');
+            if (isUC) {
+              for (final entry in StandardData.ucBeams.entries) {
+                if (combined.contains(entry.key)) {
+                  spec = entry.value;
+                  break;
+                }
+              }
+            } else if (isUB) {
+              for (final entry in StandardData.ubBeams.entries) {
+                if (combined.contains(entry.key)) {
+                  spec = entry.value;
+                  break;
+                }
+              }
+            }
+            if (spec == null) {
+              for (final entry in StandardData.wBeams.entries) {
+                if (combined.contains(entry.key)) {
+                  spec = entry.value;
+                  break;
+                }
+              }
+            }
+          }
+
+          if (spec != null) {
+            hStr = spec.h.toStringAsFixed(spec.h % 1 == 0 ? 0 : 1);
+            bStr = spec.b.toStringAsFixed(spec.b % 1 == 0 ? 0 : 1);
+            twStr = spec.tw.toStringAsFixed(1);
+            tfStr = spec.tf.toStringAsFixed(1);
+          } else {
+            final matchSize = RegExp(r'\b(80|100|120|140|160|180|200|220|240|270|300|330|360|400|450|500|550|600)\b')
+                .firstMatch(combined);
+            final sizeKey = matchSize != null ? matchSize.group(1)! : '140';
+
+            if (combined.toLowerCase().contains('ipe-aa') && StandardData.ipeAaBeams.containsKey(sizeKey)) {
+              final s = StandardData.ipeAaBeams[sizeKey]!;
+              hStr = s.h.toStringAsFixed(0);
+              bStr = s.b.toStringAsFixed(0);
+              twStr = s.tw.toStringAsFixed(1);
+              tfStr = s.tf.toStringAsFixed(1);
+            } else if (combined.toLowerCase().contains('hea') && StandardData.heaBeams.containsKey(sizeKey)) {
+              final s = StandardData.heaBeams[sizeKey]!;
+              hStr = s.h.toStringAsFixed(0);
+              bStr = s.b.toStringAsFixed(0);
+              twStr = s.tw.toStringAsFixed(1);
+              tfStr = s.tf.toStringAsFixed(1);
+            } else if (combined.toLowerCase().contains('heb') && StandardData.hebBeams.containsKey(sizeKey)) {
+              final s = StandardData.hebBeams[sizeKey]!;
+              hStr = s.h.toStringAsFixed(0);
+              bStr = s.b.toStringAsFixed(0);
+              twStr = s.tw.toStringAsFixed(1);
+              tfStr = s.tf.toStringAsFixed(1);
+            } else if (StandardData.ipeBeams.containsKey(sizeKey)) {
+              final s = StandardData.ipeBeams[sizeKey]!;
+              hStr = s.h.toStringAsFixed(0);
+              bStr = s.b.toStringAsFixed(0);
+              twStr = s.tw.toStringAsFixed(1);
+              tfStr = s.tf.toStringAsFixed(1);
+            } else {
+              hStr = sizeKey;
+              bStr = '73';
+              twStr = '4.7';
+              tfStr = '6.9';
+            }
+          }
+        }
+        break;
+
+      case 'channel':
+        if (directH.isNotEmpty && directW.isNotEmpty) {
+          hStr = directH;
+          bStr = directW;
+          twStr = directTw.isNotEmpty ? directTw : '6.0';
+          tfStr = directTf.isNotEmpty ? directTf : '10.0';
+        } else {
+          final matchSize = RegExp(r'\b(50|65|80|100|120|140|160|180|200|220|240|260|280|300|320|350|380|400)\b')
               .firstMatch(combined);
           final sizeKey = matchSize != null ? matchSize.group(1)! : '140';
 
-          if (combined.toLowerCase().contains('ipe-aa') && StandardData.ipeAaBeams.containsKey(sizeKey)) {
-            final s = StandardData.ipeAaBeams[sizeKey]!;
+          if (combined.toLowerCase().contains('upe') && StandardData.upeChannels.containsKey(sizeKey)) {
+            final s = StandardData.upeChannels[sizeKey]!;
             hStr = s.h.toStringAsFixed(0);
             bStr = s.b.toStringAsFixed(0);
             twStr = s.tw.toStringAsFixed(1);
             tfStr = s.tf.toStringAsFixed(1);
-          } else if (combined.toLowerCase().contains('hea') && StandardData.heaBeams.containsKey(sizeKey)) {
-            final s = StandardData.heaBeams[sizeKey]!;
+          } else if (combined.toLowerCase().contains('jis') && StandardData.jisChannels.containsKey(sizeKey)) {
+            final s = StandardData.jisChannels[sizeKey]!;
             hStr = s.h.toStringAsFixed(0);
             bStr = s.b.toStringAsFixed(0);
             twStr = s.tw.toStringAsFixed(1);
             tfStr = s.tf.toStringAsFixed(1);
-          } else if (combined.toLowerCase().contains('heb') && StandardData.hebBeams.containsKey(sizeKey)) {
-            final s = StandardData.hebBeams[sizeKey]!;
-            hStr = s.h.toStringAsFixed(0);
-            bStr = s.b.toStringAsFixed(0);
-            twStr = s.tw.toStringAsFixed(1);
-            tfStr = s.tf.toStringAsFixed(1);
-          } else if (StandardData.ipeBeams.containsKey(sizeKey)) {
-            final s = StandardData.ipeBeams[sizeKey]!;
+          } else if (StandardData.upnChannels.containsKey(sizeKey)) {
+            final s = StandardData.upnChannels[sizeKey]!;
             hStr = s.h.toStringAsFixed(0);
             bStr = s.b.toStringAsFixed(0);
             twStr = s.tw.toStringAsFixed(1);
             tfStr = s.tf.toStringAsFixed(1);
           } else {
             hStr = sizeKey;
-            bStr = '73';
-            twStr = '4.7';
-            tfStr = '6.9';
+            bStr = '60';
+            twStr = '7.0';
+            tfStr = '10.0';
           }
         }
         break;
 
-      case 'channel':
-        final matchSize = RegExp(r'\b(50|65|80|100|120|140|160|180|200|220|240|260|280|300|320|350|380|400)\b')
-            .firstMatch(combined);
-        final sizeKey = matchSize != null ? matchSize.group(1)! : '140';
-
-        if (combined.toLowerCase().contains('upe') && StandardData.upeChannels.containsKey(sizeKey)) {
-          final s = StandardData.upeChannels[sizeKey]!;
-          hStr = s.h.toStringAsFixed(0);
-          bStr = s.b.toStringAsFixed(0);
-          twStr = s.tw.toStringAsFixed(1);
-          tfStr = s.tf.toStringAsFixed(1);
-        } else if (combined.toLowerCase().contains('jis') && StandardData.jisChannels.containsKey(sizeKey)) {
-          final s = StandardData.jisChannels[sizeKey]!;
-          hStr = s.h.toStringAsFixed(0);
-          bStr = s.b.toStringAsFixed(0);
-          twStr = s.tw.toStringAsFixed(1);
-          tfStr = s.tf.toStringAsFixed(1);
-        } else if (StandardData.upnChannels.containsKey(sizeKey)) {
-          final s = StandardData.upnChannels[sizeKey]!;
-          hStr = s.h.toStringAsFixed(0);
-          bStr = s.b.toStringAsFixed(0);
-          twStr = s.tw.toStringAsFixed(1);
-          tfStr = s.tf.toStringAsFixed(1);
-        } else {
-          hStr = sizeKey;
-          bStr = '60';
-          twStr = '7.0';
-          tfStr = '10.0';
-        }
-        break;
-
       case 'angle':
-        final rawSize = item?.details['size']?.toString().trim() ?? '';
-        final rawThick = item?.details['thickness']?.toString().trim() ?? '';
-        final fullDimStr = '$dims $subtitle $title';
-
-        // Check for 3-part dimensions (e.g. "30x20 x 3" or "50x50x5")
-        final match3 = RegExp(r'(\d+)\s*[xX*×]\s*(\d+)\s*[xX*×]\s*(\d+(?:\.\d+)?)').firstMatch(fullDimStr);
-        final match2 = RegExp(r'(\d+)\s*[xX*×]\s*(\d+)').firstMatch(rawSize.isNotEmpty ? rawSize : fullDimStr);
-
-        if (match3 != null) {
-          hStr = match3.group(1)!;
-          bStr = match3.group(2)!;
-          tStr = match3.group(3)!;
-        } else if (match2 != null) {
-          hStr = match2.group(1)!;
-          bStr = match2.group(2)!;
-          tStr = rawThick.isNotEmpty ? rawThick : '5.0';
+        if (directW.isNotEmpty && directH.isNotEmpty) {
+          bStr = directW;
+          hStr = directH;
+          tStr = directT.isNotEmpty ? directT : '5.0';
         } else {
-          final mSingle = RegExp(r'\b(\d+)\b').firstMatch(rawSize.isNotEmpty ? rawSize : combined);
-          final val = mSingle != null ? mSingle.group(1)! : '50';
-          hStr = val;
-          bStr = val;
-          tStr = rawThick.isNotEmpty ? rawThick : '5.0';
+          final rawSize = item?.details['size']?.toString().trim() ?? '';
+          final rawThick = item?.details['thickness']?.toString().trim() ?? '';
+          final fullDimStr = '$dims $subtitle $title';
+
+          // Check for 3-part dimensions (e.g. "30x20 x 3" or "50x50x5")
+          final match3 = RegExp(r'(\d+)\s*[xX*×]\s*(\d+)\s*[xX*×]\s*[tT]?\s*(\d+(?:\.\d+)?)').firstMatch(fullDimStr);
+          final match2 = RegExp(r'(\d+)\s*[xX*×]\s*(\d+)').firstMatch(rawSize.isNotEmpty ? rawSize : fullDimStr);
+
+          if (match3 != null) {
+            hStr = match3.group(1)!;
+            bStr = match3.group(2)!;
+            tStr = match3.group(3)!;
+          } else if (match2 != null) {
+            hStr = match2.group(1)!;
+            bStr = match2.group(2)!;
+            tStr = rawThick.isNotEmpty ? rawThick : '5.0';
+          } else {
+            final mSingle = RegExp(r'\b(\d+)\b').firstMatch(rawSize.isNotEmpty ? rawSize : combined);
+            final val = mSingle != null ? mSingle.group(1)! : '50';
+            hStr = val;
+            bStr = val;
+            tStr = rawThick.isNotEmpty ? rawThick : '5.0';
+          }
         }
         break;
 
       case 'tube':
-        final rawSize = item?.details['size']?.toString().trim() ?? '';
-        final rawThick = item?.details['thickness']?.toString().trim() ?? '';
-        final fullDimStr = '$dims $subtitle $title';
-        final match3 = RegExp(r'(\d+)\s*[xX*×]\s*(\d+)\s*[xX*×]\s*(\d+(?:\.\d+)?)').firstMatch(fullDimStr);
-        final match2 = RegExp(r'(\d+)\s*[xX*×]\s*(\d+)').firstMatch(rawSize.isNotEmpty ? rawSize : fullDimStr);
-        if (match3 != null) {
-          hStr = match3.group(1)!;
-          bStr = match3.group(2)!;
-          tStr = match3.group(3)!;
-        } else if (match2 != null) {
-          hStr = match2.group(1)!;
-          bStr = match2.group(2)!;
-          tStr = rawThick.isNotEmpty ? rawThick : '1.2';
+        if (directW.isNotEmpty && directH.isNotEmpty) {
+          bStr = directW;
+          hStr = directH;
+          tStr = directT.isNotEmpty ? directT : '1.2';
         } else {
-          hStr = '50';
-          bStr = '50';
-          tStr = rawThick.isNotEmpty ? rawThick : '1.2';
+          final rawSize = item?.details['size']?.toString().trim() ?? '';
+          final rawThick = item?.details['thickness']?.toString().trim() ?? '';
+          final fullDimStr = '$dims $subtitle $title';
+          final match3 = RegExp(r'(\d+(?:\.\d+)?)\s*[xX*×]\s*(\d+(?:\.\d+)?)\s*[xX*×]\s*[tT]?\s*(\d+(?:\.\d+)?)')
+              .firstMatch(fullDimStr);
+          final match2 = RegExp(r'(\d+(?:\.\d+)?)\s*[xX*×]\s*(\d+(?:\.\d+)?)')
+              .firstMatch(rawSize.isNotEmpty ? rawSize : fullDimStr);
+
+          if (match3 != null) {
+            // Calculator format "W x H x tT x L..." has width first, height second
+            if (dims.contains('t') || dims.contains('L')) {
+              bStr = match3.group(1)!;
+              hStr = match3.group(2)!;
+            } else {
+              hStr = match3.group(1)!;
+              bStr = match3.group(2)!;
+            }
+            tStr = match3.group(3)!;
+          } else if (match2 != null) {
+            if (dims.contains('t') || dims.contains('L')) {
+              bStr = match2.group(1)!;
+              hStr = match2.group(2)!;
+            } else {
+              hStr = match2.group(1)!;
+              bStr = match2.group(2)!;
+            }
+            final matchT = RegExp(r'[tT]\s*(\d+(?:\.\d+)?)').firstMatch(fullDimStr);
+            tStr = rawThick.isNotEmpty
+                ? rawThick
+                : (matchT != null ? matchT.group(1)! : '1.2');
+          } else {
+            hStr = '50';
+            bStr = '50';
+            tStr = rawThick.isNotEmpty ? rawThick : '1.2';
+          }
         }
         break;
 
       case 'pipe':
-        final rawSize = item?.details['size']?.toString().trim() ?? '';
-        final rawThick = item?.details['thickness']?.toString().trim() ?? '';
-
-        if (rawSize.contains('(') && rawSize.contains('mm')) {
-          final start = rawSize.indexOf('(') + 1;
-          final end = rawSize.indexOf('mm');
-          dStr = rawSize.substring(start, end).trim();
+        if (directD.isNotEmpty) {
+          dStr = directD;
+          tStr = directT.isNotEmpty ? directT : '3.91';
         } else {
-          final mDia = RegExp(r'(\d+(?:\.\d+)?)\s*mm').firstMatch('$rawSize $dims $subtitle');
-          dStr = mDia != null ? mDia.group(1)! : '60.3';
-        }
+          final rawSize = item?.details['size']?.toString().trim() ?? '';
+          final rawThick = item?.details['thickness']?.toString().trim() ?? '';
 
-        if (rawThick.contains('(') && rawThick.contains('mm')) {
-          final start = rawThick.indexOf('(') + 1;
-          final end = rawThick.indexOf('mm');
-          tStr = rawThick.substring(start, end).trim();
-        } else {
-          final mThick = RegExp(r'(\d+(?:\.\d+)?)\s*mm').firstMatch('$rawThick $dims $subtitle');
-          tStr = mThick != null ? mThick.group(1)! : '3.91';
+          if (rawSize.contains('(') && rawSize.contains('mm')) {
+            final start = rawSize.indexOf('(') + 1;
+            final end = rawSize.indexOf('mm');
+            dStr = rawSize.substring(start, end).trim();
+          } else {
+            final mDia = RegExp(r'[ØOODod]\s*(\d+(?:\.\d+)?)').firstMatch('$rawSize $dims $subtitle');
+            dStr = mDia != null ? mDia.group(1)! : '60.3';
+          }
+
+          if (rawThick.contains('(') && rawThick.contains('mm')) {
+            final start = rawThick.indexOf('(') + 1;
+            final end = rawThick.indexOf('mm');
+            tStr = rawThick.substring(start, end).trim();
+          } else {
+            final mThick = RegExp(r'[tT]\s*(\d+(?:\.\d+)?)').firstMatch('$rawThick $dims $subtitle');
+            tStr = mThick != null ? mThick.group(1)! : (rawThick.isNotEmpty ? rawThick : '3.91');
+          }
         }
         break;
 
       case 'sheet':
-        final rawSize = item?.details['size']?.toString().trim() ?? '';
-        final rawThick = item?.details['thickness']?.toString().trim() ?? '';
-        final mDim = RegExp(r'(\d+)\s*[xX*×]\s*(\d+)').firstMatch(rawThick.isNotEmpty ? rawThick : dims);
-        bStr = mDim != null ? mDim.group(1)! : '1000';
-        final mThick = RegExp(r'(\d+(?:\.\d+)?)').firstMatch(rawSize.isNotEmpty ? rawSize : subtitle);
-        tStr = mThick != null ? mThick.group(1)! : '2.0';
+        if (directW.isNotEmpty && directT.isNotEmpty) {
+          bStr = directW;
+          tStr = directT;
+        } else {
+          final rawSize = item?.details['size']?.toString().trim() ?? '';
+          final rawThick = item?.details['thickness']?.toString().trim() ?? '';
+          final match3 = RegExp(r'(\d+)\s*[xX*×]\s*(\d+)\s*[xX*×]\s*[tT]?\s*(\d+(?:\.\d+)?)').firstMatch(dims);
+          if (match3 != null) {
+            bStr = match3.group(2)!;
+            tStr = match3.group(3)!;
+          } else {
+            final mDim = RegExp(r'(\d+)\s*[xX*×]\s*(\d+)').firstMatch(rawThick.isNotEmpty ? rawThick : dims);
+            bStr = mDim != null ? mDim.group(1)! : '1000';
+            final mThick = RegExp(r'(\d+(?:\.\d+)?)').firstMatch(rawSize.isNotEmpty ? rawSize : subtitle);
+            tStr = mThick != null ? mThick.group(1)! : '2.0';
+          }
+        }
         break;
 
       case 'flat_bar':
-        final rawSize = item?.details['size']?.toString().trim() ?? '';
-        final rawThick = item?.details['thickness']?.toString().trim() ?? '';
-        if (rawSize.isNotEmpty && rawThick.isNotEmpty) {
-          bStr = rawSize;
-          tStr = rawThick;
+        if (directW.isNotEmpty && directT.isNotEmpty) {
+          bStr = directW;
+          tStr = directT;
         } else {
-          final match = RegExp(r'(\d+)\s*[xX*×]\s*(\d+(?:\.\d+)?)').firstMatch('$dims $subtitle $title');
-          if (match != null) {
-            bStr = match.group(1)!;
-            tStr = match.group(2)!;
+          final rawSize = item?.details['size']?.toString().trim() ?? '';
+          final rawThick = item?.details['thickness']?.toString().trim() ?? '';
+          if (rawSize.isNotEmpty && rawThick.isNotEmpty) {
+            bStr = rawSize;
+            tStr = rawThick;
           } else {
-            bStr = '50';
-            tStr = '6';
+            final match3 = RegExp(r'(\d+)\s*[xX*×]\s*(\d+)\s*[xX*×]\s*[tT]?\s*(\d+(?:\.\d+)?)').firstMatch(dims);
+            if (match3 != null) {
+              bStr = match3.group(2)!;
+              tStr = match3.group(3)!;
+            } else {
+              final match = RegExp(r'(\d+)\s*[xX*×]\s*(\d+(?:\.\d+)?)').firstMatch('$dims $subtitle $title');
+              if (match != null) {
+                bStr = match.group(1)!;
+                tStr = match.group(2)!;
+              } else {
+                bStr = '50';
+                tStr = '6';
+              }
+            }
           }
         }
         break;
 
       case 'round_bar':
-        final rawSize = item?.details['size']?.toString().trim() ?? '';
-        if (rawSize.isNotEmpty) {
-          dStr = rawSize;
+        if (directD.isNotEmpty) {
+          dStr = directD;
         } else {
-          final match = RegExp(r'(\d+(?:\.\d+)?)').firstMatch('$dims $subtitle $title');
-          dStr = match != null ? match.group(1)! : '25';
+          final rawSize = item?.details['size']?.toString().trim() ?? '';
+          if (rawSize.isNotEmpty) {
+            dStr = rawSize;
+          } else {
+            final match = RegExp(r'[Ø\b](\d+(?:\.\d+)?)').firstMatch('$dims $subtitle $title');
+            dStr = match != null ? match.group(1)! : '25';
+          }
         }
         break;
     }
@@ -1079,14 +1161,32 @@ class PdfExportService {
         break;
 
       case 'tube':
+        final double dimH = double.tryParse(dims['h'] ?? '80') ?? 80.0;
+        final double dimW = double.tryParse(dims['b'] ?? '40') ?? 40.0;
+        final bool isRectangular = (dimH - dimW).abs() > 1.0;
+        double w;
+        double h;
+        if (isRectangular) {
+          if (dimW >= dimH) {
+            w = 100.0;
+            h = (w * (dimH / (dimW > 0 ? dimW : 1.0))).clamp(40.0, 75.0);
+          } else {
+            h = 100.0;
+            w = (h * (dimW / (dimH > 0 ? dimH : 1.0))).clamp(40.0, 75.0);
+          }
+        } else {
+          w = 80.0;
+          h = 80.0;
+        }
+
         if (dims['h']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 204.0, top: 73.0, child: _buildPdfDimBadge(dims['h']!)));
+          badges.add(pw.Positioned(left: 150.0 + w / 2 + 15.0, top: 73.0, child: _buildPdfDimBadge(dims['h']!)));
         }
         if (dims['b']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 120.0, top: 138.0, child: _buildPdfDimBadge(dims['b']!)));
+          badges.add(pw.Positioned(left: 150.0 - 20.0, top: (85.0 + h / 2 + 13.0).clamp(115.0, 150.0), child: _buildPdfDimBadge(dims['b']!)));
         }
         if (dims['t']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 46.0, top: 73.0, child: _buildPdfDimBadge('t=${dims['t']}')));
+          badges.add(pw.Positioned(left: 150.0 - w / 2 - 46.0, top: 73.0, child: _buildPdfDimBadge('t=${dims['t']}')));
         }
         break;
 
@@ -1104,7 +1204,7 @@ class PdfExportService {
           badges.add(pw.Positioned(left: 120.0, top: 98.0, child: _buildPdfDimBadge('${dims['b']} mm')));
         }
         if (dims['t']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 228.0, top: 73.0, child: _buildPdfDimBadge('t=${dims['t']} mm')));
+          badges.add(pw.Positioned(left: 232.0, top: 73.0, child: _buildPdfDimBadge('t=${dims['t']} mm')));
         }
         break;
 
@@ -1747,33 +1847,22 @@ class PdfExportService {
         break;
 
       case 'tube':
-        final itemStr =
-            '${item?.title ?? ''} ${item?.details['shape'] ?? ''}'.toLowerCase();
-        final dimStr =
-            item?.details['dimensions']?.toString() ?? item?.subtitle ?? '';
-        final bool isRectangular =
-            itemStr.contains('rectangular') || itemStr.contains('rhs');
-
-        // Extract dimension numbers (e.g. "80x40" -> 80 and 40)
-        double dimH = 80.0;
-        double dimW = 40.0;
-
-        final matchDim =
-            RegExp(r'(\d+(?:\.\d+)?)\s*[xX*×]\s*(\d+(?:\.\d+)?)').firstMatch(dimStr);
-        if (matchDim != null) {
-          dimH = double.tryParse(matchDim.group(1)!) ?? 80.0;
-          dimW = double.tryParse(matchDim.group(2)!) ?? 40.0;
-        }
+        final dims = _extractProfileDimensions(item, 'tube');
+        final double dimH = double.tryParse(dims['h'] ?? '80') ?? 80.0;
+        final double dimW = double.tryParse(dims['b'] ?? '40') ?? 40.0;
+        final bool isRectangular = (dimH - dimW).abs() > 1.0;
 
         double w;
         double h;
         if (isRectangular) {
-          if (dimH >= dimW) {
-            h = 100.0;
-            w = (h * (dimW / dimH)).clamp(48.0, 75.0);
-          } else {
+          if (dimW >= dimH) {
+            // Horizontal rectangular tube (e.g. 500 x 100)
             w = 100.0;
-            h = (w * (dimH / dimW)).clamp(48.0, 75.0);
+            h = (w * (dimH / (dimW > 0 ? dimW : 1.0))).clamp(40.0, 75.0);
+          } else {
+            // Vertical rectangular tube (e.g. 40 x 20 or 100 x 50)
+            h = 100.0;
+            w = (h * (dimW / (dimH > 0 ? dimH : 1.0))).clamp(40.0, 75.0);
           }
         } else {
           w = 80.0;
