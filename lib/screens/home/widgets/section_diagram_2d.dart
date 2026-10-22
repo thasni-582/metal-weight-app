@@ -1336,10 +1336,14 @@ class Section2DPainter extends CustomPainter {
         ..strokeWidth = 1.0,
     );
 
-    // 5. Large profile designation text (e.g. "HEA", "HEB", "UC", "UB", "W") situated in the left pocket
-    String profileLabel = data.variantTag.isNotEmpty ? data.variantTag : 'IPE';
+    // 5. Large profile designation text (e.g. "HEA", "HEB", "UC", "UB", "W", "H", "I") situated in the left pocket
+    String profileLabel = data.variantTag.isNotEmpty ? data.variantTag : (isHBeam ? 'H' : 'I');
     if (profileLabel.toUpperCase().contains('W-BEAM') || profileLabel.toUpperCase() == 'W') {
       profileLabel = 'W';
+    } else if (profileLabel.toUpperCase() == 'H-BEAM') {
+      profileLabel = 'H';
+    } else if (profileLabel.toUpperCase() == 'I-BEAM') {
+      profileLabel = 'I';
     }
 
     final double pocketLeft = centerX - b / 2 + 4.0;

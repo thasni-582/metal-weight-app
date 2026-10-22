@@ -158,6 +158,44 @@ void main() {
       expect(revived.details['material'], equals('Steel'));
       expect(revived.details['totalWeight'], equals('22.62 kg'));
     });
+    test('Client Catalog I-Beams and H-Beams are accurate and solve client weight discrepancy', () {
+      // 14 Client I-Beams
+      expect(StandardData.clientIBeams.length, equals(14));
+      expect(StandardData.clientIBeams['150x75']?.weight, equals(14.00));
+      expect(StandardData.clientIBeams['198x99']?.weight, equals(18.20));
+      expect(StandardData.clientIBeams['200x100']?.weight, equals(21.30));
+      expect(StandardData.clientIBeams['248x124']?.weight, equals(25.70));
+      expect(StandardData.clientIBeams['250x125']?.weight, equals(29.60));
+      expect(StandardData.clientIBeams['250x125']?.area, equals(37.66));
+      expect(StandardData.clientIBeams['298x149']?.weight, equals(32.00));
+      expect(StandardData.clientIBeams['300x150']?.weight, equals(36.70));
+      expect(StandardData.clientIBeams['346x174']?.weight, equals(41.20));
+      expect(StandardData.clientIBeams['350x175']?.weight, equals(49.40));
+      expect(StandardData.clientIBeams['396x199']?.weight, equals(56.60));
+      expect(StandardData.clientIBeams['400x200']?.weight, equals(66.00));
+      expect(StandardData.clientIBeams['496x199']?.weight, equals(79.50));
+      expect(StandardData.clientIBeams['500x200']?.weight, equals(89.60));
+      expect(StandardData.clientIBeams['596x199']?.weight, equals(92.50));
+
+      // 8 Client H-Beams
+      expect(StandardData.clientHBeams.length, equals(8));
+      expect(StandardData.clientHBeams['100x100']?.weight, equals(16.90));
+      expect(StandardData.clientHBeams['125x125']?.weight, equals(23.50));
+      expect(StandardData.clientHBeams['150x150']?.weight, equals(31.10));
+      expect(StandardData.clientHBeams['200x200']?.weight, equals(49.90));
+      expect(StandardData.clientHBeams['250x250']?.weight, equals(71.80));
+      expect(StandardData.clientHBeams['300x300']?.weight, equals(93.00));
+      expect(StandardData.clientHBeams['350x350']?.weight, equals(134.90));
+      expect(StandardData.clientHBeams['400x200']?.weight, equals(65.40));
+
+      // Test client complaint case: 250x125x6x9 at 12m length
+      final spec = StandardData.findClientIBeam(250.0, 125.0, 6.0, 9.0);
+      expect(spec, isNotNull);
+      expect(spec!.weight, equals(29.60));
+      final double totalWeight12m = spec.weight * 12.0;
+      expect(totalWeight12m, closeTo(355.20, 0.001)); // Exactly 355.20 kg, solving the 12.12 kg discrepancy!
+      expect(totalWeight12m.toStringAsFixed(2), equals('355.20'));
+    });
   });
 
   group('Localization Tests', () {

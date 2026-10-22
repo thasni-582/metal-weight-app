@@ -715,6 +715,10 @@ class PdfExportService {
             spec = StandardData.ucBeams[rawSize];
           } else if (rawVariant == 'UB' && StandardData.ubBeams.containsKey(rawSize)) {
             spec = StandardData.ubBeams[rawSize];
+          } else if (StandardData.clientIBeams.containsKey(rawSize)) {
+            spec = StandardData.clientIBeams[rawSize];
+          } else if (StandardData.clientHBeams.containsKey(rawSize)) {
+            spec = StandardData.clientHBeams[rawSize];
           } else if (StandardData.wBeams.containsKey(rawSize)) {
             spec = StandardData.wBeams[rawSize];
           } else if (StandardData.findWBeam(rawSize) != null) {
@@ -1027,25 +1031,29 @@ class PdfExportService {
       case 'beam':
         final rawVar = item?.details['variant']?.toString().trim().toUpperCase() ?? '';
         final titleUpper = '${item?.title ?? ''} ${item?.subtitle ?? ''}'.toUpperCase();
-        String beamVariant = 'IPE';
-        if (rawVar == 'UC') {
+        String beamVariant = 'I';
+        if (rawVar == 'UC' || titleUpper.contains(' UC ') || titleUpper.endsWith(' UC')) {
           beamVariant = 'UC';
-        } else if (rawVar == 'UB') {
+        } else if (rawVar == 'UB' || titleUpper.contains(' UB ') || titleUpper.endsWith(' UB')) {
           beamVariant = 'UB';
-        } else if (titleUpper.contains('HEA')) {
+        } else if (rawVar == 'HEA' || titleUpper.contains('HEA')) {
           beamVariant = 'HEA';
-        } else if (titleUpper.contains('HEB')) {
+        } else if (rawVar == 'HEB' || titleUpper.contains('HEB')) {
           beamVariant = 'HEB';
-        } else if (titleUpper.contains('IPE-AA')) {
+        } else if (rawVar == 'IPE-AA' || titleUpper.contains('IPE-AA')) {
           beamVariant = 'IPE-AA';
-        } else if (titleUpper.contains('IPE')) {
+        } else if (rawVar == 'IPE' || (titleUpper.contains('IPE') && !titleUpper.contains('IPE-AA') && !titleUpper.contains('I-BEAM'))) {
           beamVariant = 'IPE';
+        } else if (rawVar == 'H' || titleUpper.contains('H-BEAM') || titleUpper.contains('JIS')) {
+          beamVariant = 'H';
+        } else if (rawVar == 'I' || titleUpper.contains('I-BEAM')) {
+          beamVariant = 'I';
         } else if (titleUpper.contains('W-BEAM') || titleUpper.contains('WIDE FLANGE')) {
           beamVariant = 'W-BEAM';
-        } else if (titleUpper.contains('UC') && !titleUpper.contains('UB')) {
-          beamVariant = 'UC';
-        } else if (titleUpper.contains('UB') && !titleUpper.contains('UC')) {
-          beamVariant = 'UB';
+        } else {
+          final double hCheck = double.tryParse(dims['h'] ?? '') ?? 0.0;
+          final double bCheck = double.tryParse(dims['b'] ?? '') ?? 0.0;
+          beamVariant = (hCheck > 0 && bCheck > 0 && (bCheck / hCheck) >= 0.70) ? 'H' : 'I';
         }
 
         final double hParsed = double.tryParse(dims['h'] ?? '') ?? 0.0;
@@ -1238,6 +1246,10 @@ class PdfExportService {
         variantStr = 'UC';
       } else if (rawVar == 'UB') {
         variantStr = 'UB';
+      } else if (rawVar == 'H' || shape.contains('H-BEAM') || shape.contains('JIS')) {
+        variantStr = 'H-BEAM';
+      } else if (rawVar == 'I' || shape.contains('I-BEAM')) {
+        variantStr = 'I-BEAM';
       } else if (shape.contains('HEA')) {
         variantStr = 'HEA';
       } else if (shape.contains('HEB')) {
@@ -1281,22 +1293,55 @@ class PdfExportService {
     String sizeStr = primaryPart;
     if (sizeStr.contains('(')) {
       sizeStr = sizeStr.split('(').first.trim();
+    } else if (sizeStr.contains('x L')) {
+      sizeStr = sizeStr.split('x L').first.trim();
     } else if (sizeStr.contains('x') &&
         !shapeCategory.contains('tube') &&
         !shapeCategory.contains('angle') &&
-        !shapeCategory.contains('flat')) {
+        !shapeCategory.contains('flat') &&
+        !shapeCategory.contains('beam')) {
       sizeStr = sizeStr.split('x').first.trim();
     }
     if (sizeStr.isEmpty) sizeStr = 'STD';
 
     double wVal = 0.0;
-    if (details['weightPerPiece'] != null) {
-      final m = RegExp(r'(\d+(?:\.\d+)?)').firstMatch(details['weightPerPiece'].toString());
+    if (details['unitWeightPerM'] != null) {
+      final m = RegExp(r'(\d+(?:\.\d+)?)').firstMatch(details['unitWeightPerM'].toString());
+      if (m != null) wVal = double.tryParse(m.group(1)!) ?? 0.0;
+    }
+    if (wVal <= 0.0 && details['unitWeight'] != null) {
+      final m = RegExp(r'(\d+(?:\.\d+)?)').firstMatch(details['unitWeight'].toString());
       if (m != null) wVal = double.tryParse(m.group(1)!) ?? 0.0;
     }
     if (wVal <= 0.0) {
-      final m = RegExp(r'(\d+(?:\.\d+)?)').firstMatch(item.weight);
-      if (m != null) wVal = double.tryParse(m.group(1)!) ?? 0.0;
+      double totalPieceW = 0.0;
+      if (details['weightPerPiece'] != null) {
+        final m = RegExp(r'(\d+(?:\.\d+)?)').firstMatch(details['weightPerPiece'].toString());
+        if (m != null) totalPieceW = double.tryParse(m.group(1)!) ?? 0.0;
+      }
+      if (totalPieceW <= 0.0) {
+        final m = RegExp(r'(\d+(?:\.\d+)?)').firstMatch(item.weight);
+        if (m != null) totalPieceW = double.tryParse(m.group(1)!) ?? 0.0;
+      }
+
+      double lengthInM = 0.0;
+      if (details['length'] != null) {
+        final lenVal = double.tryParse(details['length'].toString()) ?? 0.0;
+        if (lenVal > 0) lengthInM = lenVal > 100 ? lenVal / 1000.0 : lenVal;
+      }
+      if (lengthInM <= 0.0) {
+        final matchL = RegExp(r'[xX]\s*L\s*(\d+(?:\.\d+)?)').firstMatch(dimStr);
+        if (matchL != null) {
+          final lenVal = double.tryParse(matchL.group(1)!) ?? 0.0;
+          if (lenVal > 0) lengthInM = lenVal > 100 ? lenVal / 1000.0 : lenVal;
+        }
+      }
+
+      if (lengthInM > 0.0 && totalPieceW > 0.0) {
+        wVal = totalPieceW / lengthInM;
+      } else {
+        wVal = totalPieceW;
+      }
     }
     final String weightStr = wVal.toStringAsFixed(2);
     final String weightUnit = shapeCategory == 'sheet' ? 'Kg/m2' : 'Kg/m';
@@ -1310,7 +1355,9 @@ class PdfExportService {
       }
     }
     if (sectionAreaStr.isEmpty) {
-      sectionAreaStr = (wVal * 1.27).toStringAsFixed(2);
+      if (wVal > 0.0) {
+        sectionAreaStr = (wVal / 0.785).toStringAsFixed(2);
+      }
     }
 
     return pw.Container(

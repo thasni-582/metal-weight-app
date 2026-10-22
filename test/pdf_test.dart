@@ -38,6 +38,8 @@ void main() {
     expect(PdfExportService.detectShapeCategory(makeModel('UC (Universal Columns) 152x152', 'UC (Universal Columns)', 'beam')), equals('beam'));
     expect(PdfExportService.detectShapeCategory(makeModel('IPE Beam 140', 'IPE Beam', 'beam')), equals('beam'));
     expect(PdfExportService.detectShapeCategory(makeModel('HEB Beam 140', 'HEB Beam', 'beam')), equals('beam'));
+    expect(PdfExportService.detectShapeCategory(makeModel('Steel H-Beam', 'H-Beam', 'beam')), equals('beam'));
+    expect(PdfExportService.detectShapeCategory(makeModel('Steel I-Beam', 'I-Beam', 'beam')), equals('beam'));
 
     // Other shapes
     expect(PdfExportService.detectShapeCategory(makeModel('Equal Angle 50x50x5', 'Equal Angle', 'angle')), equals('angle'));
@@ -98,6 +100,8 @@ void main() {
       {'title': 'Rectangular Tube (RHS) 60x40', 'shape': 'Rectangular Tube (RHS)', 'icon': 'tube', 'size': '60x40', 'thickness': '1.2'},
       {'title': 'Galvanized Sheet Square / Rectangular Tube', 'shape': 'Square / Rectangular Tube', 'icon': 'tube', 'dimensions': '500 x 100 x t12 x L1000 mm', 'width': '500', 'height': '100', 'thickness': '12'},
       {'title': 'Steel Round Tube / Pipe', 'shape': 'Round Tube / Pipe', 'icon': 'pipe', 'dimensions': 'Ø50 x t5 x L1000 mm', 'outerDia': '50', 'thickness': '5'},
+      {'title': 'Steel H-Beam', 'shape': 'H-Beam', 'icon': 'beam', 'dimensions': '200 x 200 x L12000 mm', 'height': '200', 'width': '200', 'webThickness': '8', 'flangeThickness': '12'},
+      {'title': 'Steel I-Beam', 'shape': 'I-Beam', 'icon': 'beam', 'dimensions': '250 x 125 x L12000 mm', 'height': '250', 'width': '125', 'webThickness': '6', 'flangeThickness': '9'},
     ];
 
     for (final p in testProfiles) {

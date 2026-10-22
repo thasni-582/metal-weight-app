@@ -2,8 +2,10 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:metal_weight/core/constants/app_colors.dart';
+import 'package:metal_weight/core/constants/standard_data.dart';
 import 'package:metal_weight/core/providers/app_settings_provider.dart';
 import 'package:metal_weight/models/calculation_model.dart';
+import 'package:metal_weight/models/profile_spec.dart';
 import 'package:metal_weight/screens/calculator/widgets/custom_shape_diagram_2d.dart';
 import 'package:metal_weight/services/history_service.dart';
 import 'package:metal_weight/services/pdf_export_service.dart';
@@ -49,6 +51,9 @@ class _CalculationScreenState extends State<CalculationScreen> {
   double _calculatedCost = 0.0;
   double _calculatedVolume = 0.0;
   double _calculatedSurfaceArea = 0.0;
+  double _lastUnitWeightPerM = 0.0;
+  double _lastSectionAreaCm2 = 0.0;
+  String _selectedBeamPreset = 'Custom';
   bool _isExportingPdf = false;
 
   final HistoryService _historyService = HistoryService();
@@ -80,7 +85,8 @@ class _CalculationScreenState extends State<CalculationScreen> {
     'Square / Rectangular Tube',
     'Angle (L-Profile)',
     'U-Channel / Channel (C-Profile)',
-    'I-Beam / H-Beam',
+    'H-Beam',
+    'I-Beam',
   ];
 
   @override
@@ -234,26 +240,62 @@ class _CalculationScreenState extends State<CalculationScreen> {
         surfaceArea = perim * l + 2 * math.max(0.0, areaCross);
         break;
 
+      case 'H-Beam':
+      case 'I-Beam':
       case 'I-Beam / H-Beam':
         final double heightB = h > 0 ? h : 100;
         final double widthB = w > 0 ? w : 100;
         final double tWebB = tw > 0 ? tw : t;
         final double tFlangeB = tf > 0 ? tf : t;
-        final double areaCross =
-            (2 * widthB * tFlangeB) + ((heightB - 2 * tFlangeB) * tWebB);
+
+        StandardProfileSpec? spec;
+        if (_selectedShape == 'H-Beam') {
+          spec = StandardData.findClientHBeam(heightB, widthB, tWebB, tFlangeB);
+        } else if (_selectedShape == 'I-Beam') {
+          spec = StandardData.findClientIBeam(heightB, widthB, tWebB, tFlangeB);
+        } else {
+          spec = StandardData.findClientIBeam(heightB, widthB, tWebB, tFlangeB) ??
+              StandardData.findClientHBeam(heightB, widthB, tWebB, tFlangeB);
+        }
+
+        double areaCross;
+        double unitWeightPerM;
+        if (spec != null) {
+          areaCross = spec.area * 100.0;
+          unitWeightPerM = spec.weight * (density / 7.85);
+        } else {
+          final double rApprox = math.max(0.0, tFlangeB * 0.8);
+          final double rootFilletArea = 0.8584 * rApprox * rApprox;
+          areaCross = (2 * widthB * tFlangeB) + ((heightB - 2 * tFlangeB) * tWebB) + rootFilletArea;
+          unitWeightPerM = (areaCross * density) / 1000.0;
+        }
+
         volume = math.max(0.0, areaCross * l);
         final double perim = 4 * widthB + 2 * heightB - 2 * tWebB;
         surfaceArea = perim * l + 2 * math.max(0.0, areaCross);
+        _lastUnitWeightPerM = unitWeightPerM;
+        _lastSectionAreaCm2 = areaCross / 100.0;
         break;
 
       default:
         volume = l * w * t;
         surfaceArea = 2 * (l * w + l * t + w * t);
+        if (l > 0.0) {
+          _lastUnitWeightPerM = (volume / 1000000.0 * density) / (l / 1000.0);
+          _lastSectionAreaCm2 = (volume / l) / 100.0;
+        }
     }
 
     double weightPerPiece = 0.0;
     if (_isMetric) {
-      weightPerPiece = (volume / 1000000.0) * density;
+      if ((_selectedShape == 'H-Beam' ||
+              _selectedShape == 'I-Beam' ||
+              _selectedShape == 'I-Beam / H-Beam') &&
+          _lastUnitWeightPerM > 0) {
+        weightPerPiece = (l / 1000.0) * _lastUnitWeightPerM;
+      } else {
+        weightPerPiece = (volume / 1000000.0) * density;
+      }
     } else {
       final double densityLbsIn3 = density * 0.03612729;
       weightPerPiece = volume * densityLbsIn3;
@@ -300,6 +342,11 @@ class _CalculationScreenState extends State<CalculationScreen> {
         'quantity': _quantityController.text,
         'weightPerPiece':
             '${_calculatedWeightPerPiece.toStringAsFixed(3)} $unitWeight',
+        'unitWeightPerM': '${_lastUnitWeightPerM.toStringAsFixed(2)} kg/m',
+        'sectionArea': '${_lastSectionAreaCm2.toStringAsFixed(2)} cm2',
+        'variant': _selectedShape == 'H-Beam'
+            ? 'H'
+            : (_selectedShape == 'I-Beam' ? 'I' : null),
         'totalWeight': weightStr,
         'totalCost':
             _calculatedCost > 0 ? _calculatedCost.toStringAsFixed(2) : null,
@@ -365,6 +412,8 @@ class _CalculationScreenState extends State<CalculationScreen> {
       case 'Channel (C-Profile)':
         return 'channel';
       case 'I-Beam / H-Beam':
+      case 'H-Beam':
+      case 'I-Beam':
         return 'beam';
       default:
         return 'calculate';
@@ -394,6 +443,8 @@ class _CalculationScreenState extends State<CalculationScreen> {
       case 'U-Channel / Channel (C-Profile)':
       case 'Channel (C-Profile)':
       case 'I-Beam / H-Beam':
+      case 'H-Beam':
+      case 'I-Beam':
         return '$h x $w x L$l $unitDim';
       default:
         return '$l x $w x t$t $unitDim';
@@ -833,6 +884,21 @@ class _CalculationScreenState extends State<CalculationScreen> {
               if (val != null) {
                 setState(() {
                   _selectedShape = val;
+                  if (val == 'H-Beam') {
+                    _heightController.text = '200';
+                    _widthController.text = '200';
+                    _webThicknessController.text = '8';
+                    _flangeThicknessController.text = '12';
+                    _lengthController.text = '12000';
+                    _selectedBeamPreset = '200x200';
+                  } else if (val == 'I-Beam') {
+                    _heightController.text = '250';
+                    _widthController.text = '125';
+                    _webThicknessController.text = '6';
+                    _flangeThicknessController.text = '9';
+                    _lengthController.text = '12000';
+                    _selectedBeamPreset = '250x125';
+                  }
                   _performCalculation();
                 });
               }
@@ -864,6 +930,8 @@ class _CalculationScreenState extends State<CalculationScreen> {
       case 'Channel (C-Profile)':
         return Icons.view_stream;
       case 'I-Beam / H-Beam':
+      case 'H-Beam':
+      case 'I-Beam':
         return Icons.view_column;
       default:
         return Icons.calculate;
@@ -889,6 +957,7 @@ class _CalculationScreenState extends State<CalculationScreen> {
   Widget _buildDimensionInputCard() {
     final String unitDim = _isMetric ? 'mm' : 'in';
     final String unitLen = _isMetric ? 'mm' : 'in';
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     List<Widget> fields = [];
 
@@ -1002,6 +1071,87 @@ class _CalculationScreenState extends State<CalculationScreen> {
             icon: Icons.line_weight));
         break;
 
+      case 'H-Beam':
+      case 'I-Beam':
+        final isIBeam = _selectedShape == 'I-Beam';
+        final Map<String, StandardProfileSpec> catalogMap =
+            isIBeam ? StandardData.clientIBeams : StandardData.clientHBeams;
+
+        fields.add(const SizedBox(height: 10));
+        fields.add(
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1),
+              ),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                isExpanded: true,
+                value: catalogMap.containsKey(_selectedBeamPreset) ? _selectedBeamPreset : 'Custom',
+                items: [
+                  const DropdownMenuItem(
+                    value: 'Custom',
+                    child: Text('Custom (Manual Dimensions)', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                  ),
+                  ...catalogMap.entries.map((e) {
+                    return DropdownMenuItem(
+                      value: e.key,
+                      child: Text(
+                        '${e.key}  (${e.value.weight.toStringAsFixed(2)} kg/m)',
+                        style: const TextStyle(fontSize: 13),
+                      ),
+                    );
+                  }).toList(),
+                ],
+                onChanged: (val) {
+                  if (val != null) {
+                    setState(() {
+                      _selectedBeamPreset = val;
+                      if (catalogMap.containsKey(val)) {
+                        final spec = catalogMap[val]!;
+                        _heightController.text = spec.h.toStringAsFixed(spec.h % 1 == 0 ? 0 : 1);
+                        _widthController.text = spec.b.toStringAsFixed(spec.b % 1 == 0 ? 0 : 1);
+                        _webThicknessController.text = spec.tw.toStringAsFixed(1);
+                        _flangeThicknessController.text = spec.tf.toStringAsFixed(1);
+                      }
+                      _performCalculation();
+                    });
+                  }
+                },
+              ),
+            ),
+          ),
+        );
+        fields.add(const SizedBox(height: 10));
+        fields.add(_buildInputField(
+            controller: _heightController,
+            label: 'Height (H)',
+            suffix: unitDim,
+            icon: Icons.height));
+        fields.add(const SizedBox(height: 10));
+        fields.add(_buildInputField(
+            controller: _widthController,
+            label: 'Flange Width (W)',
+            suffix: unitDim,
+            icon: Icons.straighten));
+        fields.add(const SizedBox(height: 10));
+        fields.add(_buildInputField(
+            controller: _webThicknessController,
+            label: 'Web Thickness (tw)',
+            suffix: unitDim,
+            icon: Icons.line_weight));
+        fields.add(const SizedBox(height: 10));
+        fields.add(_buildInputField(
+            controller: _flangeThicknessController,
+            label: 'Flange Thickness (tf)',
+            suffix: unitDim,
+            icon: Icons.line_weight));
+        break;
+
       case 'U-Channel / Channel (C-Profile)':
       case 'Channel (C-Profile)':
       case 'I-Beam / H-Beam':
@@ -1045,8 +1195,6 @@ class _CalculationScreenState extends State<CalculationScreen> {
             suffix: unitDim,
             icon: Icons.line_weight));
     }
-
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     fields.add(Divider(height: 24, color: isDark ? Colors.white12 : Colors.grey.shade200));
     fields.add(

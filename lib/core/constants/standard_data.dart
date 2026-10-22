@@ -488,25 +488,137 @@ class StandardData {
     '380x100': StandardProfileSpec(h: 380.0, b: 100.0, tw: 10.5, tf: 16.0, weight: 54.50, area: 69.39),
   };
 
-  // Japanese Standard H-Beams (JIS G 3192)
+  // Japanese Standard H-Beams (JIS G 3192) - Aligned with Client Catalog
   static const Map<String, StandardProfileSpec> jisBeams = {
-    '100x100': StandardProfileSpec(h: 100.0, b: 100.0, tw: 6.0, tf: 8.0, weight: 17.20, area: 21.90),
-    '125x125': StandardProfileSpec(h: 125.0, b: 125.0, tw: 6.5, tf: 9.0, weight: 23.80, area: 30.31),
+    '100x100': StandardProfileSpec(h: 100.0, b: 100.0, tw: 6.0, tf: 8.0, weight: 16.90, area: 21.53),
+    '125x125': StandardProfileSpec(h: 125.0, b: 125.0, tw: 6.5, tf: 9.0, weight: 23.50, area: 29.94),
     '150x75': StandardProfileSpec(h: 150.0, b: 75.0, tw: 5.0, tf: 7.0, weight: 14.00, area: 17.85),
-    '150x150': StandardProfileSpec(h: 150.0, b: 150.0, tw: 7.0, tf: 10.0, weight: 31.50, area: 40.14),
+    '150x150': StandardProfileSpec(h: 150.0, b: 150.0, tw: 7.0, tf: 10.0, weight: 31.10, area: 39.62),
     '175x90': StandardProfileSpec(h: 175.0, b: 90.0, tw: 5.0, tf: 8.0, weight: 18.10, area: 23.04),
     '175x175': StandardProfileSpec(h: 175.0, b: 175.0, tw: 7.5, tf: 11.0, weight: 40.20, area: 51.21),
     '200x100': StandardProfileSpec(h: 200.0, b: 100.0, tw: 5.5, tf: 8.0, weight: 21.30, area: 27.16),
     '200x200': StandardProfileSpec(h: 200.0, b: 200.0, tw: 8.0, tf: 12.0, weight: 49.90, area: 63.53),
     '250x125': StandardProfileSpec(h: 250.0, b: 125.0, tw: 6.0, tf: 9.0, weight: 29.60, area: 37.66),
-    '250x250': StandardProfileSpec(h: 250.0, b: 250.0, tw: 9.0, tf: 14.0, weight: 72.40, area: 92.18),
+    '250x250': StandardProfileSpec(h: 250.0, b: 250.0, tw: 9.0, tf: 14.0, weight: 71.80, area: 91.46),
     '300x150': StandardProfileSpec(h: 300.0, b: 150.0, tw: 6.5, tf: 9.0, weight: 36.70, area: 46.78),
-    '300x300': StandardProfileSpec(h: 300.0, b: 300.0, tw: 10.0, tf: 15.0, weight: 94.00, area: 119.80),
-    '350x175': StandardProfileSpec(h: 350.0, b: 175.0, tw: 7.0, tf: 11.0, weight: 49.60, area: 63.14),
-    '350x350': StandardProfileSpec(h: 350.0, b: 350.0, tw: 12.0, tf: 19.0, weight: 137.00, area: 173.90),
-    '400x200': StandardProfileSpec(h: 400.0, b: 200.0, tw: 8.0, tf: 13.0, weight: 66.00, area: 84.10),
+    '300x300': StandardProfileSpec(h: 300.0, b: 300.0, tw: 10.0, tf: 15.0, weight: 93.00, area: 118.47),
+    '350x175': StandardProfileSpec(h: 350.0, b: 175.0, tw: 7.0, tf: 11.0, weight: 49.40, area: 62.93),
+    '350x350': StandardProfileSpec(h: 350.0, b: 350.0, tw: 12.0, tf: 19.0, weight: 134.90, area: 171.85),
+    '400x200': StandardProfileSpec(h: 400.0, b: 200.0, tw: 8.0, tf: 13.0, weight: 65.40, area: 83.31),
     '400x400': StandardProfileSpec(h: 400.0, b: 400.0, tw: 13.0, tf: 21.0, weight: 172.00, area: 218.70),
   };
+
+  // Client Catalog Standard I-Beams (Narrow Flange) - 14 Sizes from Client Specification
+  static const Map<String, StandardProfileSpec> clientIBeams = {
+    '150x75': StandardProfileSpec(h: 150.0, b: 75.0, tw: 5.0, tf: 7.0, weight: 14.00, area: 17.85),
+    '198x99': StandardProfileSpec(h: 198.0, b: 99.0, tw: 4.5, tf: 7.0, weight: 18.20, area: 23.18),
+    '200x100': StandardProfileSpec(h: 200.0, b: 100.0, tw: 5.5, tf: 8.0, weight: 21.30, area: 27.16),
+    '248x124': StandardProfileSpec(h: 248.0, b: 124.0, tw: 5.0, tf: 8.0, weight: 25.70, area: 32.74),
+    '250x125': StandardProfileSpec(h: 250.0, b: 125.0, tw: 6.0, tf: 9.0, weight: 29.60, area: 37.66),
+    '298x149': StandardProfileSpec(h: 298.0, b: 149.0, tw: 5.5, tf: 8.0, weight: 32.00, area: 40.76),
+    '300x150': StandardProfileSpec(h: 300.0, b: 150.0, tw: 6.5, tf: 9.0, weight: 36.70, area: 46.78),
+    '346x174': StandardProfileSpec(h: 346.0, b: 174.0, tw: 6.0, tf: 9.0, weight: 41.20, area: 52.48),
+    '350x175': StandardProfileSpec(h: 350.0, b: 175.0, tw: 7.0, tf: 11.0, weight: 49.40, area: 62.93),
+    '396x199': StandardProfileSpec(h: 396.0, b: 199.0, tw: 7.0, tf: 11.0, weight: 56.60, area: 72.10),
+    '400x200': StandardProfileSpec(h: 400.0, b: 200.0, tw: 8.0, tf: 13.0, weight: 66.00, area: 84.08),
+    '496x199': StandardProfileSpec(h: 496.0, b: 199.0, tw: 9.0, tf: 14.0, weight: 79.50, area: 101.27),
+    '500x200': StandardProfileSpec(h: 500.0, b: 200.0, tw: 10.0, tf: 16.0, weight: 89.60, area: 114.14),
+    '596x199': StandardProfileSpec(h: 596.0, b: 199.0, tw: 10.0, tf: 15.0, weight: 92.50, area: 117.83),
+  };
+
+  // Client Catalog Standard H-Beams (Wide Flange) - 8 Sizes from Client Specification
+  static const Map<String, StandardProfileSpec> clientHBeams = {
+    '100x100': StandardProfileSpec(h: 100.0, b: 100.0, tw: 6.0, tf: 8.0, weight: 16.90, area: 21.53),
+    '125x125': StandardProfileSpec(h: 125.0, b: 125.0, tw: 6.5, tf: 9.0, weight: 23.50, area: 29.94),
+    '150x150': StandardProfileSpec(h: 150.0, b: 150.0, tw: 7.0, tf: 10.0, weight: 31.10, area: 39.62),
+    '200x200': StandardProfileSpec(h: 200.0, b: 200.0, tw: 8.0, tf: 12.0, weight: 49.90, area: 63.53),
+    '250x250': StandardProfileSpec(h: 250.0, b: 250.0, tw: 9.0, tf: 14.0, weight: 71.80, area: 91.46),
+    '300x300': StandardProfileSpec(h: 300.0, b: 300.0, tw: 10.0, tf: 15.0, weight: 93.00, area: 118.47),
+    '350x350': StandardProfileSpec(h: 350.0, b: 350.0, tw: 12.0, tf: 19.0, weight: 134.90, area: 171.85),
+    '400x200': StandardProfileSpec(h: 400.0, b: 200.0, tw: 8.0, tf: 13.0, weight: 65.40, area: 83.31),
+  };
+
+  static StandardProfileSpec? findClientIBeam(double h, double b, double tw, double tf) {
+    for (final spec in clientIBeams.values) {
+      if ((spec.h - h).abs() <= 2.0 &&
+          (spec.b - b).abs() <= 2.0 &&
+          (spec.tw - tw).abs() <= 0.6 &&
+          (spec.tf - tf).abs() <= 0.6) {
+        return spec;
+      }
+    }
+    for (final spec in clientIBeams.values) {
+      if ((spec.h - h).abs() <= 1.0 && (spec.b - b).abs() <= 1.0) {
+        return spec;
+      }
+    }
+    for (final spec in ipeBeams.values) {
+      if ((spec.h - h).abs() <= 1.0 &&
+          (spec.b - b).abs() <= 1.0 &&
+          (spec.tw - tw).abs() <= 0.6 &&
+          (spec.tf - tf).abs() <= 0.6) {
+        return spec;
+      }
+    }
+    for (final spec in ipeAaBeams.values) {
+      if ((spec.h - h).abs() <= 1.0 &&
+          (spec.b - b).abs() <= 1.0 &&
+          (spec.tw - tw).abs() <= 0.6 &&
+          (spec.tf - tf).abs() <= 0.6) {
+        return spec;
+      }
+    }
+    return null;
+  }
+
+  static StandardProfileSpec? findClientHBeam(double h, double b, double tw, double tf) {
+    for (final spec in clientHBeams.values) {
+      if ((spec.h - h).abs() <= 2.0 &&
+          (spec.b - b).abs() <= 2.0 &&
+          (spec.tw - tw).abs() <= 0.6 &&
+          (spec.tf - tf).abs() <= 0.6) {
+        return spec;
+      }
+    }
+    for (final spec in clientHBeams.values) {
+      if ((spec.h - h).abs() <= 1.0 && (spec.b - b).abs() <= 1.0) {
+        return spec;
+      }
+    }
+    for (final spec in jisBeams.values) {
+      if ((spec.h - h).abs() <= 1.0 &&
+          (spec.b - b).abs() <= 1.0 &&
+          (spec.tw - tw).abs() <= 0.6 &&
+          (spec.tf - tf).abs() <= 0.6) {
+        return spec;
+      }
+    }
+    for (final spec in heaBeams.values) {
+      if ((spec.h - h).abs() <= 1.0 &&
+          (spec.b - b).abs() <= 1.0 &&
+          (spec.tw - tw).abs() <= 0.6 &&
+          (spec.tf - tf).abs() <= 0.6) {
+        return spec;
+      }
+    }
+    for (final spec in hebBeams.values) {
+      if ((spec.h - h).abs() <= 1.0 &&
+          (spec.b - b).abs() <= 1.0 &&
+          (spec.tw - tw).abs() <= 0.6 &&
+          (spec.tf - tf).abs() <= 0.6) {
+        return spec;
+      }
+    }
+    for (final spec in wBeams.values) {
+      if ((spec.h - h).abs() <= 2.0 &&
+          (spec.b - b).abs() <= 2.0 &&
+          (spec.tw - tw).abs() <= 0.6 &&
+          (spec.tf - tf).abs() <= 0.6) {
+        return spec;
+      }
+    }
+    return null;
+  }
 
   // Standard Square Hollow Sections (SHS) - size -> { thickness: kg/m }
   static const Map<String, Map<String, double>> squareTubes = {

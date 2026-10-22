@@ -164,6 +164,8 @@ class _ShapeDiagramPainter extends CustomPainter {
         _drawChannel(canvas, size);
         break;
       case 'I-Beam / H-Beam':
+      case 'H-Beam':
+      case 'I-Beam':
         _drawIBeam(canvas, size);
         break;
       default:
