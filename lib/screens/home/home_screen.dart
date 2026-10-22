@@ -94,8 +94,10 @@ class _HomeScreenState extends State<HomeScreen> {
         _activeVariant = 'HEA';
       } else if (newShape == 'HEB Beam') {
         _activeVariant = 'HEB';
-      } else if (newShape == 'H-Beam (JIS)') {
+      } else if (newShape == 'H-Beam (JIS)' || newShape == 'H-Beam') {
         _activeVariant = 'JIS';
+      } else if (newShape == 'I-Beam') {
+        _activeVariant = 'I-Beam';
       } else if (newShape == 'UB (Universal Beam)') {
         _activeVariant = 'UB';
       } else if (newShape == 'UC (Universal Columns)') {
@@ -164,7 +166,10 @@ class _HomeScreenState extends State<HomeScreen> {
       case 'HEB Beam':
         return StandardData.hebBeams.keys.toList();
       case 'H-Beam (JIS)':
+      case 'H-Beam':
         return StandardData.jisBeams.keys.toList();
+      case 'I-Beam':
+        return StandardData.clientIBeams.keys.toList();
       case 'UB (Universal Beam)':
         return StandardData.ubBeams.keys.toList();
       case 'UC (Universal Columns)':
@@ -369,7 +374,16 @@ class _HomeScreenState extends State<HomeScreen> {
         break;
 
       case 'H-Beam (JIS)':
-        final spec = StandardData.jisBeams[_selectedSize];
+      case 'H-Beam':
+        final spec = StandardData.clientHBeams[_selectedSize] ?? StandardData.jisBeams[_selectedSize];
+        if (spec != null) {
+          weightKgPerM = spec.weight;
+          sectionAreaCm2 = spec.area;
+        }
+        break;
+
+      case 'I-Beam':
+        final spec = StandardData.clientIBeams[_selectedSize] ?? StandardData.jisBeams[_selectedSize];
         if (spec != null) {
           weightKgPerM = spec.weight;
           sectionAreaCm2 = spec.area;
