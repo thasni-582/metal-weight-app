@@ -186,7 +186,7 @@ class _CalculationScreenState extends State<CalculationScreen> {
         _activeVariant = 'UPE';
       } else if (newProduct == 'U-Channel (JIS)') {
         _activeVariant = 'JIS';
-      } else if (newProduct.contains('Equal Angle')) {
+      } else if (newProduct.contains('Angle') && !newProduct.contains('Unequal')) {
         _activeVariant = '20 to 60';
       }
 
@@ -199,6 +199,8 @@ class _CalculationScreenState extends State<CalculationScreen> {
         _selectedMetal = 'Brass';
       } else if (newProduct.contains('Copper')) {
         _selectedMetal = 'Copper';
+      } else {
+        _selectedMetal = 'Steel';
       }
 
       final sizes = _getAvailableSizesForProduct(newProduct);
@@ -347,6 +349,7 @@ class _CalculationScreenState extends State<CalculationScreen> {
       } else {
         _thicknessController.text = availThick.isNotEmpty ? availThick.first : '5';
       }
+      _selectedThickness = _thicknessController.text;
       final double? w;
       if (product.contains('Unequal')) {
         w = StandardData.unequalAngles[size]?[_thicknessController.text];
@@ -663,9 +666,12 @@ class _CalculationScreenState extends State<CalculationScreen> {
 
         final double? angleW;
         if (_selectedProduct.contains('Unequal')) {
-          angleW = StandardData.unequalAngles[_selectedSize]?[_thicknessController.text];
+          angleW = StandardData.unequalAngles[_selectedSize]?[_thicknessController.text] ??
+              StandardData.unequalAngles['${legA.round()}x${legB.round()}']?[_thicknessController.text] ??
+              StandardData.unequalAngles['${legB.round()}x${legA.round()}']?[_thicknessController.text];
         } else {
-          angleW = StandardData.equalAngles[_selectedSize]?[_thicknessController.text];
+          angleW = StandardData.equalAngles[_selectedSize]?[_thicknessController.text] ??
+              StandardData.equalAngles['${legA.round()}']?[_thicknessController.text];
         }
 
         if (angleW != null) {
@@ -1452,7 +1458,7 @@ class _CalculationScreenState extends State<CalculationScreen> {
     return Section2DDiagramWidget(
       shapeType: _selectedProduct,
       selectedSize: _selectedSize.isNotEmpty ? _selectedSize : (availSizes.isNotEmpty ? availSizes.first : '100'),
-      selectedThickness: _selectedThickness,
+      selectedThickness: _thicknessController.text.isNotEmpty ? _thicknessController.text : _selectedThickness,
       lengthMeters: lM > 0 ? lM : 1.0,
       availableSizes: availSizes,
       activeVariant: _activeVariant,
@@ -1463,6 +1469,17 @@ class _CalculationScreenState extends State<CalculationScreen> {
           _selectedSize = newSize;
           _applyDimensionsForProductSize(_selectedProduct, newSize);
           _performCalculation();
+        });
+      },
+      onVariantChanged: (variant) {
+        setState(() {
+          _activeVariant = variant;
+          final sizes = _getAvailableSizesForProduct(_selectedProduct);
+          if (sizes.isNotEmpty) {
+            _selectedSize = sizes.first;
+            _applyDimensionsForProductSize(_selectedProduct, _selectedSize);
+            _performCalculation();
+          }
         });
       },
     );

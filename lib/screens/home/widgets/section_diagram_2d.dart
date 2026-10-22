@@ -467,17 +467,24 @@ class DiagramData {
       if (isSS) {
         title = 'STAINLESS STEEL ANGLE';
         dispName = 'SS L $sizeStr';
+        variantTag = 'SS 304/316';
+        standardTag = 'ASTM A276';
       } else if (isAl) {
         title = 'ALUMINUM ANGLE';
         dispName = 'AL L $sizeStr';
+        variantTag = '6063-T6';
+        standardTag = 'EN 755-9';
       } else if (isUnequal) {
         title = 'UNEQUAL ANGLE';
         dispName = 'L $sizeStr';
+        variantTag = 'UNEQUAL';
+        standardTag = 'EN 10056-1';
       } else {
-        title = 'ANGLE EQUAL';
+        title = 'EQUAL ANGLE';
         dispName = 'L $sizeStr';
+        variantTag = variant.isNotEmpty ? variant : '20 to 60';
+        standardTag = 'EN 10056-1';
       }
-      variantTag = variant.isNotEmpty ? variant : '20 to 60';
       sizeTag = sizeStr;
 
       if (isUnequal && sizeStr.contains('x')) {
@@ -499,13 +506,13 @@ class DiagramData {
 
       if (isSS) {
         w = baseSteelW * (8.00 / 7.85);
-        area = w * 1.25;
+        area = baseSteelW / 0.785;
       } else if (isAl) {
         w = baseSteelW * (2.70 / 7.85);
-        area = w * 3.70;
+        area = baseSteelW / 0.785;
       } else {
         w = baseSteelW;
-        area = isUnequal ? (w * 1.27) : (w * 1.28);
+        area = baseSteelW / 0.785;
       }
     } else if (shapeType.contains('Beam') ||
         shapeType.contains('Universal') ||

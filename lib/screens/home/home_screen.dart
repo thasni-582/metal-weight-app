@@ -117,7 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _activeVariant = 'UB';
       } else if (newShape.contains('Beam')) {
         _activeVariant = 'IPE';
-      } else if (newShape == 'Equal Angle' || newShape == 'Angle Equal') {
+      } else if (newShape.contains('Angle') && !newShape.contains('Unequal')) {
         _activeVariant = '20 to 60';
       }
       _initForSelectedShape();
@@ -269,28 +269,28 @@ class _HomeScreenState extends State<HomeScreen> {
       case 'Angle Equal':
         final double? w = StandardData.equalAngles[_selectedSize]?[_selectedThickness];
         weightKgPerM = w ?? 1.36;
-        sectionAreaCm2 = weightKgPerM * 1.28;
+        sectionAreaCm2 = weightKgPerM / 0.785;
         break;
 
       case 'Unequal Angle':
       case 'Angle Unequal':
         final double? w = StandardData.unequalAngles[_selectedSize]?[_selectedThickness];
         weightKgPerM = w ?? 3.76;
-        sectionAreaCm2 = weightKgPerM * 1.27;
+        sectionAreaCm2 = weightKgPerM / 0.785;
         break;
 
       case 'SS Angle (Stainless Steel)':
         final double? w = StandardData.equalAngles[_selectedSize]?[_selectedThickness];
         final double steelW = w ?? 3.77;
         weightKgPerM = steelW * (8.00 / 7.85);
-        sectionAreaCm2 = steelW * 1.27;
+        sectionAreaCm2 = steelW / 0.785;
         break;
 
       case 'Aluminum Angle':
         final double? w = StandardData.equalAngles[_selectedSize]?[_selectedThickness];
         final double steelW = w ?? 3.77;
         weightKgPerM = steelW * (2.70 / 7.85);
-        sectionAreaCm2 = steelW * 1.27;
+        sectionAreaCm2 = steelW / 0.785;
         break;
 
       // Channels
