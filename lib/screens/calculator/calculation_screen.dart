@@ -136,6 +136,9 @@ class _CalculationScreenState extends State<CalculationScreen> {
     String normProduct = p.shape;
     if (normProduct == 'H-Beam') normProduct = 'H-Beam (JIS)';
     if (normProduct == 'I-Beam') normProduct = 'I-Beam (JIS)';
+    if (normProduct.contains('Universal Column') || normProduct == 'UC') normProduct = 'UC (Universal Columns)';
+    if (normProduct.contains('Universal Beam') || normProduct == 'UB') normProduct = 'UB (Universal Beam)';
+    if (normProduct.contains('W-Beam') || normProduct.contains('Wide Flange')) normProduct = 'W-Beam (Wide Flange)';
 
     _selectedProduct = normProduct;
     _selectedSize = p.size;
@@ -300,23 +303,23 @@ class _CalculationScreenState extends State<CalculationScreen> {
   }
 
   Map<String, StandardProfileSpec> _getBeamCatalogMap() {
-    if (_selectedProduct == 'I-Beam (JIS)' || _selectedProduct == 'I-Beam') {
+    if (_selectedProduct.contains('I-Beam')) {
       return StandardData.clientIBeams;
-    } else if (_selectedProduct == 'H-Beam (JIS)' || _selectedProduct == 'H-Beam') {
+    } else if (_selectedProduct.contains('H-Beam')) {
       return StandardData.clientHBeams;
-    } else if (_selectedProduct == 'IPE Beam') {
-      return StandardData.ipeBeams;
-    } else if (_selectedProduct == 'IPE-AA Beam') {
+    } else if (_selectedProduct.contains('IPE-AA')) {
       return StandardData.ipeAaBeams;
-    } else if (_selectedProduct == 'HEA Beam') {
+    } else if (_selectedProduct.contains('IPE')) {
+      return StandardData.ipeBeams;
+    } else if (_selectedProduct.contains('HEA')) {
       return StandardData.heaBeams;
-    } else if (_selectedProduct == 'HEB Beam') {
+    } else if (_selectedProduct.contains('HEB')) {
       return StandardData.hebBeams;
-    } else if (_selectedProduct == 'UB (Universal Beam)') {
+    } else if (_selectedProduct.contains('UB') || _selectedProduct.contains('Universal Beam')) {
       return StandardData.ubBeams;
-    } else if (_selectedProduct == 'UC (Universal Columns)') {
+    } else if (_selectedProduct.contains('UC') || _selectedProduct.contains('Universal Column') || _selectedProduct.contains('Columns')) {
       return StandardData.ucBeams;
-    } else if (_selectedProduct == 'W-Beam (Wide Flange)') {
+    } else if (_selectedProduct.contains('W-Beam') || _selectedProduct.contains('Wide Flange')) {
       return StandardData.wBeams;
     }
     return _selectedShape == 'I-Beam'
@@ -474,39 +477,39 @@ class _CalculationScreenState extends State<CalculationScreen> {
       StandardProfileSpec? spec;
       bool isH = false;
 
-      if (product == 'I-Beam (JIS)' || product == 'I-Beam') {
+      if (product.contains('I-Beam')) {
         spec = StandardData.clientIBeams[size] ?? StandardData.jisBeams[size];
         isH = false;
         _selectedShape = 'I-Beam';
-      } else if (product == 'H-Beam (JIS)' || product == 'H-Beam') {
+      } else if (product.contains('H-Beam')) {
         spec = StandardData.clientHBeams[size] ?? StandardData.jisBeams[size];
         isH = true;
         _selectedShape = 'H-Beam';
-      } else if (product == 'IPE Beam') {
-        spec = StandardData.ipeBeams[size];
-        isH = false;
-        _selectedShape = 'I-Beam';
-      } else if (product == 'IPE-AA Beam') {
+      } else if (product.contains('IPE-AA')) {
         spec = StandardData.ipeAaBeams[size];
         isH = false;
         _selectedShape = 'I-Beam';
-      } else if (product == 'HEA Beam') {
+      } else if (product.contains('IPE')) {
+        spec = StandardData.ipeBeams[size];
+        isH = false;
+        _selectedShape = 'I-Beam';
+      } else if (product.contains('HEA')) {
         spec = StandardData.heaBeams[size];
         isH = true;
         _selectedShape = 'H-Beam';
-      } else if (product == 'HEB Beam') {
+      } else if (product.contains('HEB')) {
         spec = StandardData.hebBeams[size];
         isH = true;
         _selectedShape = 'H-Beam';
-      } else if (product == 'UB (Universal Beam)') {
+      } else if (product.contains('UB') || product.contains('Universal Beam')) {
         spec = StandardData.ubBeams[size];
         isH = false;
         _selectedShape = 'I-Beam';
-      } else if (product == 'UC (Universal Columns)') {
+      } else if (product.contains('UC') || product.contains('Universal Column') || product.contains('Columns')) {
         spec = StandardData.ucBeams[size];
         isH = true;
         _selectedShape = 'H-Beam';
-      } else if (product == 'W-Beam (Wide Flange)') {
+      } else if (product.contains('W-Beam') || product.contains('Wide Flange')) {
         spec = StandardData.wBeams[size] ?? StandardData.findWBeam(size);
         isH = spec != null && (spec.b / spec.h) >= 0.70;
         _selectedShape = isH ? 'H-Beam' : 'I-Beam';
@@ -726,18 +729,17 @@ class _CalculationScreenState extends State<CalculationScreen> {
         final beamMap = _getBeamCatalogMap();
         StandardProfileSpec? spec;
         if (beamMap.containsKey(_selectedBeamPreset)) {
-          final s = beamMap[_selectedBeamPreset]!;
-          if ((s.h - heightB).abs() < 1.5 && (s.b - widthB).abs() < 1.5) {
-            spec = s;
-          }
+          spec = beamMap[_selectedBeamPreset];
         }
+        spec ??= beamMap[_selectedSize];
+        spec ??= StandardData.findWBeam(_selectedBeamPreset) ??
+            StandardData.findWBeam(_selectedSize);
         spec ??= beamMap.values.cast<StandardProfileSpec?>().firstWhere(
-          (s) => s != null && (s.h - heightB).abs() < 1.5 && (s.b - widthB).abs() < 1.5,
+          (s) => s != null && (s.h - heightB).abs() < 2.0 && (s.b - widthB).abs() < 2.0,
           orElse: () => null,
         );
         spec ??= StandardData.findClientIBeam(heightB, widthB, tWebB, tFlangeB) ??
-            StandardData.findClientHBeam(heightB, widthB, tWebB, tFlangeB) ??
-            StandardData.findWBeam(_selectedBeamPreset);
+            StandardData.findClientHBeam(heightB, widthB, tWebB, tFlangeB);
 
         double areaCross;
         double unitWeightPerM;

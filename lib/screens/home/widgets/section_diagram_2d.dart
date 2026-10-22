@@ -516,12 +516,12 @@ class DiagramData {
         shapeType.contains('UC')) {
       category = 'BEAM';
       String effVariant = 'IPE';
-      if (shapeType.contains('Universal') || shapeType.contains('UB / UC')) {
-        effVariant = (variant == 'UC') ? 'UC' : 'UB';
-      } else if (shapeType.contains('HEA / HEB / JIS / IPE') ||
-          shapeType.contains('HEA / HEB / IPE') ||
-          shapeType.contains('Beams (IPE / IPE-AA / HEA / HEB)')) {
-        effVariant = variant.isNotEmpty ? variant : 'IPE';
+      if (shapeType.contains('Universal Column') || shapeType.contains('UC') || variant == 'UC') {
+        effVariant = 'UC';
+      } else if (shapeType.contains('Universal Beam') || shapeType.contains('UB') || variant == 'UB') {
+        effVariant = 'UB';
+      } else if (shapeType.contains('W-Beam') || shapeType.contains('Wide Flange')) {
+        effVariant = 'W-Beam';
       } else if (shapeType.contains('IPE-AA')) {
         effVariant = 'IPE-AA';
       } else if (shapeType.contains('HEA')) {
@@ -534,12 +534,6 @@ class DiagramData {
         effVariant = 'H-Beam (JIS)';
       } else if (shapeType.contains('JIS')) {
         effVariant = (variant == 'I' || variant.contains('I-Beam')) ? 'I-Beam (JIS)' : 'H-Beam (JIS)';
-      } else if (shapeType.contains('UC') || shapeType.contains('Universal Column')) {
-        effVariant = 'UC';
-      } else if (shapeType.contains('UB') || shapeType.contains('Universal Beam')) {
-        effVariant = 'UB';
-      } else if (shapeType.contains('W-Beam') || shapeType.contains('Wide Flange')) {
-        effVariant = 'W-Beam';
       } else if (shapeType.contains('IPE')) {
         effVariant = 'IPE';
       } else {
@@ -556,6 +550,21 @@ class DiagramData {
         dispName = 'H-Beam $sizeStr';
         variantTag = 'H-Beam (JIS)';
         standardTag = 'JIS G 3192';
+      } else if (effVariant == 'UC') {
+        title = 'UC COLUMN';
+        dispName = 'UC $sizeStr';
+        variantTag = 'UC';
+        standardTag = 'BS 4-1';
+      } else if (effVariant == 'UB') {
+        title = 'UB BEAM';
+        dispName = 'UB $sizeStr';
+        variantTag = 'UB';
+        standardTag = 'BS 4-1';
+      } else if (effVariant == 'W-Beam') {
+        title = 'W-BEAM';
+        dispName = 'W-Beam $sizeStr';
+        variantTag = 'W-Beam';
+        standardTag = 'ASTM A6';
       } else {
         title = effVariant.toUpperCase().contains('BEAM') ? effVariant.toUpperCase() : '$effVariant BEAM';
         dispName = '$effVariant $sizeStr';
