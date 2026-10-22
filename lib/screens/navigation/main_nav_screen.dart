@@ -31,7 +31,7 @@ class _MainNavScreenState extends State<MainNavScreen> {
     final settings = Provider.of<AppSettingsProvider>(context);
 
     final List<Widget> pages = [
-      const HomeScreen(),
+      HomeScreen(onNavigateToCalculator: _navigateToCalculator),
       const CalculationScreen(),
       HistoryScreen(
         key: ValueKey('history_$_historyRefreshTrigger'),

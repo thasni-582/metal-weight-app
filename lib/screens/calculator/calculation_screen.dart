@@ -144,7 +144,13 @@ class _CalculationScreenState extends State<CalculationScreen> {
     _lastUnitWeightPerM = p.weightPerM;
     _lastSectionAreaCm2 = p.sectionArea;
 
-    _applyDimensionsForProductSize(_selectedProduct, _selectedSize);
+    _applyDimensionsForProductSize(_selectedProduct, _selectedSize, preferredThickness: p.thickness);
+    if (p.weightPerM > 0) {
+      _lastUnitWeightPerM = p.weightPerM;
+    }
+    if (p.sectionArea > 0) {
+      _lastSectionAreaCm2 = p.sectionArea;
+    }
     _performCalculation();
   }
 
@@ -261,6 +267,10 @@ class _CalculationScreenState extends State<CalculationScreen> {
         return StandardData.flatBarWidths;
       case 'MS Round Bar':
       case 'SS Round Bar':
+      case 'SS Round Bar (Stainless Steel)':
+      case 'Aluminum Round Bar':
+      case 'Brass Round Bar':
+      case 'Copper Round Bar':
       case 'Rebar / Deformed Bar':
       case 'Round Bar':
         return StandardData.roundBarDiameters;
@@ -287,7 +297,7 @@ class _CalculationScreenState extends State<CalculationScreen> {
     }
   }
 
-  void _applyDimensionsForProductSize(String product, String size) {
+  void _applyDimensionsForProductSize(String product, String size, {String? preferredThickness}) {
     if (product.contains('Angle')) {
       _selectedShape = 'Angle (L-Profile)';
       if (product.contains('Unequal') || size.contains('x')) {
@@ -298,10 +308,26 @@ class _CalculationScreenState extends State<CalculationScreen> {
         _widthController.text = size;
         _heightController.text = size;
       }
-      final availThick = StandardData.equalAngles[size]?.keys.toList() ?? ['5'];
-      _thicknessController.text = availThick.isNotEmpty ? availThick.first : '5';
-      final double? w = StandardData.equalAngles[size]?[_thicknessController.text];
-      if (w != null) _lastUnitWeightPerM = w;
+      final availThick = (product.contains('Unequal')
+              ? StandardData.unequalAngles[size]?.keys.toList()
+              : StandardData.equalAngles[size]?.keys.toList()) ??
+          ['5'];
+      if (preferredThickness != null && availThick.contains(preferredThickness)) {
+        _thicknessController.text = preferredThickness;
+      } else {
+        _thicknessController.text = availThick.isNotEmpty ? availThick.first : '5';
+      }
+      final double? w;
+      if (product.contains('Unequal')) {
+        w = StandardData.unequalAngles[size]?[_thicknessController.text];
+      } else {
+        w = StandardData.equalAngles[size]?[_thicknessController.text];
+      }
+      if (w != null) {
+        final double density = _getEffectiveDensity();
+        _lastUnitWeightPerM = w * (density / 7.85);
+        _lastSectionAreaCm2 = (w / 0.785);
+      }
     } else if (product.contains('Channel')) {
       _selectedShape = 'U-Channel / Channel (C-Profile)';
       StandardProfileSpec? spec;
@@ -317,7 +343,8 @@ class _CalculationScreenState extends State<CalculationScreen> {
         _widthController.text = spec.b.toStringAsFixed(spec.b % 1 == 0 ? 0 : 1);
         _webThicknessController.text = spec.tw.toStringAsFixed(1);
         _flangeThicknessController.text = spec.tf.toStringAsFixed(1);
-        _lastUnitWeightPerM = spec.weight;
+        final double density = _getEffectiveDensity();
+        _lastUnitWeightPerM = spec.weight * (density / 7.85);
         _lastSectionAreaCm2 = spec.area;
       }
     } else if (product.contains('Tube')) {
@@ -333,9 +360,17 @@ class _CalculationScreenState extends State<CalculationScreen> {
       final isRect = product.contains('Rectangular') || product.contains('RHS');
       final map = isRect ? StandardData.rectangularTubes[size] : StandardData.squareTubes[size];
       final thicks = map?.keys.toList() ?? ['2.0'];
-      _thicknessController.text = thicks.isNotEmpty ? thicks.first : '2.0';
+      if (preferredThickness != null && thicks.contains(preferredThickness)) {
+        _thicknessController.text = preferredThickness;
+      } else {
+        _thicknessController.text = thicks.isNotEmpty ? thicks.first : '2.0';
+      }
       final double? w = map?[_thicknessController.text];
-      if (w != null) _lastUnitWeightPerM = w;
+      if (w != null) {
+        final double density = _getEffectiveDensity();
+        _lastUnitWeightPerM = w * (density / 7.85);
+        _lastSectionAreaCm2 = (w / 0.785);
+      }
     } else if (product.contains('Pipe')) {
       _selectedShape = 'Round Tube / Pipe';
       final m = RegExp(r'\((\d+(?:\.\d+)?)\s*mm\)').firstMatch(size);
@@ -346,41 +381,68 @@ class _CalculationScreenState extends State<CalculationScreen> {
       }
       final map = StandardData.steelPipes[size];
       final thicks = map?.keys.toList() ?? ['Sch 40 (3.91mm)'];
-      final String chosenThick = thicks.first;
+      String chosenThick = thicks.first;
+      if (preferredThickness != null && thicks.contains(preferredThickness)) {
+        chosenThick = preferredThickness;
+      }
       final mt = RegExp(r'\((\d+(?:\.\d+)?)\s*mm\)').firstMatch(chosenThick);
       _thicknessController.text = mt != null ? mt.group(1)! : '3.91';
       final double? w = map?[chosenThick];
-      if (w != null) _lastUnitWeightPerM = w;
+      if (w != null) {
+        final double density = _getEffectiveDensity();
+        _lastUnitWeightPerM = w * (density / 7.85);
+        _lastSectionAreaCm2 = (w / 0.785);
+      }
     } else if (product.contains('Round') || product.contains('Shaft') || product.contains('Rebar')) {
       _selectedShape = 'Round Bar';
       _outerDiaController.text = size.replaceAll(RegExp(r'[^0-9.]'), '');
       final d = double.tryParse(_outerDiaController.text) ?? 20.0;
-      _lastUnitWeightPerM = (d * d * 0.006165);
+      final double density = _getEffectiveDensity();
+      _lastUnitWeightPerM = (d * d * 0.006165) * (density / 7.85);
       _lastSectionAreaCm2 = (math.pi * d * d / 400.0);
     } else if (product.contains('Square Bar')) {
       _selectedShape = 'Square Bar';
       _widthController.text = size.replaceAll(RegExp(r'[^0-9.]'), '');
       final s = double.tryParse(_widthController.text) ?? 20.0;
-      _lastUnitWeightPerM = (s * s * 0.00785);
+      final double density = _getEffectiveDensity();
+      _lastUnitWeightPerM = (s * s * 0.00785) * (density / 7.85);
       _lastSectionAreaCm2 = (s * s / 100.0);
     } else if (product.contains('Flat Bar')) {
       _selectedShape = 'Flat Bar';
       _widthController.text = size.replaceAll(RegExp(r'[^0-9.]'), '');
-      _thicknessController.text = '6';
+      if (preferredThickness != null && preferredThickness.isNotEmpty) {
+        _thicknessController.text = preferredThickness;
+      } else {
+        _thicknessController.text = '6';
+      }
       final w = double.tryParse(_widthController.text) ?? 50.0;
-      _lastUnitWeightPerM = (w * 6.0 * 0.00785);
-      _lastSectionAreaCm2 = (w * 6.0 / 100.0);
+      final t = double.tryParse(_thicknessController.text) ?? 6.0;
+      final double density = _getEffectiveDensity();
+      _lastUnitWeightPerM = (w * t * 0.00785) * (density / 7.85);
+      _lastSectionAreaCm2 = (w * t / 100.0);
     } else if (product.contains('Hexagonal')) {
       _selectedShape = 'Hexagonal Bar';
       _widthController.text = size.replaceAll(RegExp(r'[^0-9.]'), '');
       final s = double.tryParse(_widthController.text) ?? 20.0;
-      _lastUnitWeightPerM = (s * s * 0.006798);
+      final double density = _getEffectiveDensity();
+      _lastUnitWeightPerM = (s * s * 0.006798) * (density / 7.85);
       _lastSectionAreaCm2 = (math.sqrt(3) / 2 * s * s / 100.0);
     } else if (product.contains('Sheet') || product.contains('Plate')) {
       _selectedShape = 'Sheet / Plate';
       _thicknessController.text = size.replaceAll(RegExp(r'[^0-9.]'), '');
       final t = double.tryParse(_thicknessController.text) ?? 5.0;
-      _lastUnitWeightPerM = t * 7.85;
+      final double density = _getEffectiveDensity();
+      if (product.contains('Checkered')) {
+        if (product.contains('Aluminum')) {
+          _lastUnitWeightPerM = StandardData.aluminumCheckeredWeights[size] ?? ((t * 2.70) + 1.60);
+        } else {
+          final double baseW = StandardData.hrCheckeredWeights[size] ?? 36.5;
+          _lastUnitWeightPerM = baseW * (density / 7.85);
+        }
+      } else {
+        _lastUnitWeightPerM = t * density;
+      }
+      _lastSectionAreaCm2 = t * 10.0;
     } else if (product.contains('Beam') || product.contains('Columns') || product.contains('Universal')) {
       StandardProfileSpec? spec;
       bool isH = false;
@@ -433,7 +495,8 @@ class _CalculationScreenState extends State<CalculationScreen> {
         _widthController.text = spec.b.toStringAsFixed(spec.b % 1 == 0 ? 0 : 1);
         _webThicknessController.text = spec.tw.toStringAsFixed(1);
         _flangeThicknessController.text = spec.tf.toStringAsFixed(1);
-        _lastUnitWeightPerM = spec.weight;
+        final double density = _getEffectiveDensity();
+        _lastUnitWeightPerM = spec.weight * (density / 7.85);
         _lastSectionAreaCm2 = spec.area;
       }
     }
@@ -506,8 +569,6 @@ class _CalculationScreenState extends State<CalculationScreen> {
 
     double volume = 0.0;
     double surfaceArea = 0.0;
-    _lastUnitWeightPerM = 0.0;
-    _lastSectionAreaCm2 = 0.0;
 
     switch (_selectedShape) {
       case 'Sheet / Plate':
@@ -642,10 +703,7 @@ class _CalculationScreenState extends State<CalculationScreen> {
 
     double weightPerPiece = 0.0;
     if (_isMetric) {
-      if ((_selectedShape == 'H-Beam' ||
-              _selectedShape == 'I-Beam' ||
-              _selectedShape == 'I-Beam / H-Beam') &&
-          _lastUnitWeightPerM > 0) {
+      if (_selectedShape != 'Sheet / Plate' && _lastUnitWeightPerM > 0) {
         weightPerPiece = (l / 1000.0) * _lastUnitWeightPerM;
       } else {
         weightPerPiece = (volume / 1000000.0) * density;
@@ -861,6 +919,7 @@ class _CalculationScreenState extends State<CalculationScreen> {
   @override
   Widget build(BuildContext context) {
     final settings = Provider.of<AppSettingsProvider>(context);
+    _checkAndApplyHomeSync(settings);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(

@@ -254,6 +254,11 @@ void main() {
       expect(en.get('app_title'), equals('Milen Trading'));
       expect(ar.get('app_title'), equals('ميلين للحديد'));
 
+      expect(en.get('cat_all'), equals('All (37)'));
+      expect(ar.get('cat_all'), equals('الكل (37)'));
+      expect(en.get('cat_beams'), equals('Beams & Columns (9)'));
+      expect(ar.get('cat_beams'), equals('الكمرات والأعمدة (9)'));
+
       expect(en.get('calculator'), equals('Calculator'));
       expect(ar.get('calculator'), equals('حاسبة الوزن'));
 

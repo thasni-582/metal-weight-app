@@ -10,7 +10,8 @@ import 'package:metal_weight/services/history_service.dart';
 import 'package:metal_weight/services/pdf_export_service.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final VoidCallback? onNavigateToCalculator;
+  const HomeScreen({super.key, this.onNavigateToCalculator});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -813,7 +814,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: const Text(
-                  '36 PRODUCTS',
+                  '37 PRODUCTS',
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
@@ -1389,6 +1390,35 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
           ),
+          if (widget.onNavigateToCalculator != null) ...[
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  _syncCurrentSelectionToProvider();
+                  widget.onNavigateToCalculator?.call();
+                },
+                icon: const Icon(Icons.calculate_outlined, color: Colors.white, size: 20),
+                label: Text(
+                  settings.isArabic
+                      ? 'فتح في الحاسبة (مزامنة تلقائية)'
+                      : 'Open in Calculator (Auto-Sync)',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.secondaryOrange,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  elevation: 0,
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
