@@ -2,11 +2,12 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:metal_weight/core/constants/app_colors.dart';
+import 'package:metal_weight/core/constants/catalog_data.dart';
 import 'package:metal_weight/core/constants/standard_data.dart';
 import 'package:metal_weight/core/providers/app_settings_provider.dart';
 import 'package:metal_weight/models/calculation_model.dart';
 import 'package:metal_weight/models/profile_spec.dart';
-import 'package:metal_weight/screens/calculator/widgets/custom_shape_diagram_2d.dart';
+import 'package:metal_weight/screens/home/widgets/section_diagram_2d.dart';
 import 'package:metal_weight/services/history_service.dart';
 import 'package:metal_weight/services/pdf_export_service.dart';
 
@@ -20,7 +21,11 @@ class CalculationScreen extends StatefulWidget {
 class _CalculationScreenState extends State<CalculationScreen> {
   // State variables
   String _selectedMetal = 'Steel';
-  String _selectedShape = 'Sheet / Plate';
+  String _selectedProduct = 'I-Beam (JIS)';
+  String _selectedShape = 'I-Beam';
+  String _selectedSize = '200x100';
+  String _selectedThickness = '';
+  String _activeVariant = 'I-Beam (JIS)';
   bool _isMetric = true; // true = Metric (mm, kg), false = Imperial (in, lbs)
 
   // Controllers for dimensions
@@ -127,14 +132,165 @@ class _CalculationScreenState extends State<CalculationScreen> {
     final int lenMm = (p.lengthInM * 1000).round();
     _lengthController.text = lenMm > 0 ? lenMm.toString() : '1000';
 
-    // 4. Map Shape and Dimensions
-    final String homeShape = p.shape;
-    final String size = p.size;
-    final String thick = p.thickness;
+    // 4. Product, Size, Variant
+    String normProduct = p.shape;
+    if (normProduct == 'H-Beam') normProduct = 'H-Beam (JIS)';
+    if (normProduct == 'I-Beam') normProduct = 'I-Beam (JIS)';
 
-    if (homeShape.contains('Angle')) {
+    _selectedProduct = normProduct;
+    _selectedSize = p.size;
+    _selectedThickness = p.thickness;
+    _activeVariant = p.variant;
+    _lastUnitWeightPerM = p.weightPerM;
+    _lastSectionAreaCm2 = p.sectionArea;
+
+    _applyDimensionsForProductSize(_selectedProduct, _selectedSize);
+    _performCalculation();
+  }
+
+  void _onProductSelected(String newProduct) {
+    setState(() {
+      _selectedProduct = newProduct;
+      // Derive activeVariant
+      if (newProduct == 'IPE Beam') {
+        _activeVariant = 'IPE';
+      } else if (newProduct == 'IPE-AA Beam') {
+        _activeVariant = 'IPE-AA';
+      } else if (newProduct == 'HEA Beam') {
+        _activeVariant = 'HEA';
+      } else if (newProduct == 'HEB Beam') {
+        _activeVariant = 'HEB';
+      } else if (newProduct == 'H-Beam (JIS)' || newProduct == 'H-Beam') {
+        _activeVariant = 'H-Beam (JIS)';
+      } else if (newProduct == 'I-Beam (JIS)' || newProduct == 'I-Beam') {
+        _activeVariant = 'I-Beam (JIS)';
+      } else if (newProduct == 'UB (Universal Beam)') {
+        _activeVariant = 'UB';
+      } else if (newProduct == 'UC (Universal Columns)') {
+        _activeVariant = 'UC';
+      } else if (newProduct == 'W-Beam (Wide Flange)') {
+        _activeVariant = 'W-Beam';
+      } else if (newProduct == 'UPN Channel') {
+        _activeVariant = 'UPN';
+      } else if (newProduct == 'UPE Channel') {
+        _activeVariant = 'UPE';
+      } else if (newProduct == 'U-Channel (JIS)') {
+        _activeVariant = 'JIS';
+      } else if (newProduct.contains('Equal Angle')) {
+        _activeVariant = '20 to 60';
+      }
+
+      // Infer metal if product specifies it
+      if (newProduct.contains('Aluminum')) {
+        _selectedMetal = 'Aluminum';
+      } else if (newProduct.contains('Stainless') || newProduct.contains('SS')) {
+        _selectedMetal = 'Stainless Steel';
+      } else if (newProduct.contains('Brass')) {
+        _selectedMetal = 'Brass';
+      } else if (newProduct.contains('Copper')) {
+        _selectedMetal = 'Copper';
+      }
+
+      final sizes = _getAvailableSizesForProduct(newProduct);
+      if (sizes.isNotEmpty) {
+        _selectedSize = sizes.first;
+      }
+      _applyDimensionsForProductSize(newProduct, _selectedSize);
+      _performCalculation();
+    });
+  }
+
+  List<String> _getAvailableSizesForProduct(String product) {
+    switch (product) {
+      // Angles
+      case 'Equal Angle':
+      case 'Angle Equal':
+      case 'SS Angle (Stainless Steel)':
+      case 'Aluminum Angle':
+        return StandardData.equalAngles.keys.toList();
+      case 'Unequal Angle':
+      case 'Angle Unequal':
+        return StandardData.unequalAngles.keys.toList();
+
+      // Channels
+      case 'UPN Channel':
+        return StandardData.upnChannels.keys.toList();
+      case 'UPE Channel':
+        return StandardData.upeChannels.keys.toList();
+      case 'U-Channel (JIS)':
+        return StandardData.jisChannels.keys.toList();
+
+      // Beams & Columns
+      case 'IPE Beam':
+        return StandardData.ipeBeams.keys.toList();
+      case 'IPE-AA Beam':
+        return StandardData.ipeAaBeams.keys.toList();
+      case 'HEA Beam':
+        return StandardData.heaBeams.keys.toList();
+      case 'HEB Beam':
+        return StandardData.hebBeams.keys.toList();
+      case 'H-Beam (JIS)':
+      case 'H-Beam':
+        return StandardData.clientHBeams.keys.toList();
+      case 'I-Beam (JIS)':
+      case 'I-Beam':
+        return StandardData.clientIBeams.keys.toList();
+      case 'UB (Universal Beam)':
+        return StandardData.ubBeams.keys.toList();
+      case 'UC (Universal Columns)':
+        return StandardData.ucBeams.keys.toList();
+      case 'W-Beam (Wide Flange)':
+        return StandardData.wBeams.keys.toList();
+
+      // Hollow Sections / Tubes
+      case 'Square Tube (SHS)':
+      case 'Stainless Steel Square Tube':
+        return StandardData.squareTubes.keys.toList();
+      case 'Rectangular Tube (RHS)':
+      case 'Stainless Steel Rectangular Tube':
+        return StandardData.rectangularTubes.keys.toList();
+
+      // Pipes
+      case 'Pipe ERW':
+      case 'Pipe Seamless':
+      case 'Stainless Steel Pipe':
+        return StandardData.steelPipes.keys.toList();
+
+      // Solid Bars
+      case 'Flat Bar':
+        return StandardData.flatBarWidths;
+      case 'MS Round Bar':
+      case 'SS Round Bar':
+      case 'Rebar / Deformed Bar':
+      case 'Round Bar':
+        return StandardData.roundBarDiameters;
+      case 'Square Bar':
+        return StandardData.roundBarDiameters;
+      case 'Hexagonal Bar':
+        return StandardData.roundBarDiameters;
+
+      // Sheets & Plates
+      case 'HR Checkered Sheet':
+      case 'Stainless Steel Checkered Sheet':
+        return StandardData.hrCheckeredWeights.keys.toList();
+      case 'Aluminum Checkered Sheet':
+        return StandardData.checkeredSheetThicknesses;
+      case 'HR Sheet / HR Plate':
+      case 'Stainless Steel Sheet':
+      case 'Aluminum Sheet':
+      case 'Brass Sheet':
+      case 'Copper Sheet':
+        return StandardData.sheetThicknesses;
+
+      default:
+        return ['100'];
+    }
+  }
+
+  void _applyDimensionsForProductSize(String product, String size) {
+    if (product.contains('Angle')) {
       _selectedShape = 'Angle (L-Profile)';
-      if (homeShape.contains('Unequal') || size.contains('x')) {
+      if (product.contains('Unequal') || size.contains('x')) {
         final parts = size.split('x');
         _widthController.text = parts[0].trim();
         _heightController.text = parts.length > 1 ? parts[1].trim() : parts[0].trim();
@@ -142,13 +298,16 @@ class _CalculationScreenState extends State<CalculationScreen> {
         _widthController.text = size;
         _heightController.text = size;
       }
-      _thicknessController.text = thick.isNotEmpty ? thick : '5';
-    } else if (homeShape.contains('Channel')) {
+      final availThick = StandardData.equalAngles[size]?.keys.toList() ?? ['5'];
+      _thicknessController.text = availThick.isNotEmpty ? availThick.first : '5';
+      final double? w = StandardData.equalAngles[size]?[_thicknessController.text];
+      if (w != null) _lastUnitWeightPerM = w;
+    } else if (product.contains('Channel')) {
       _selectedShape = 'U-Channel / Channel (C-Profile)';
       StandardProfileSpec? spec;
-      if (p.variant == 'UPE') {
+      if (product.contains('UPE')) {
         spec = StandardData.upeChannels[size];
-      } else if (p.variant == 'JIS' || homeShape.contains('JIS')) {
+      } else if (product.contains('JIS')) {
         spec = StandardData.jisChannels[size];
       } else {
         spec = StandardData.upnChannels[size];
@@ -158,8 +317,10 @@ class _CalculationScreenState extends State<CalculationScreen> {
         _widthController.text = spec.b.toStringAsFixed(spec.b % 1 == 0 ? 0 : 1);
         _webThicknessController.text = spec.tw.toStringAsFixed(1);
         _flangeThicknessController.text = spec.tf.toStringAsFixed(1);
+        _lastUnitWeightPerM = spec.weight;
+        _lastSectionAreaCm2 = spec.area;
       }
-    } else if (homeShape.contains('Tube')) {
+    } else if (product.contains('Tube')) {
       _selectedShape = 'Square / Rectangular Tube';
       if (size.contains('x')) {
         final parts = size.split('x');
@@ -169,8 +330,13 @@ class _CalculationScreenState extends State<CalculationScreen> {
         _widthController.text = size;
         _heightController.text = size;
       }
-      _thicknessController.text = thick.isNotEmpty ? thick : '2.0';
-    } else if (homeShape.contains('Pipe')) {
+      final isRect = product.contains('Rectangular') || product.contains('RHS');
+      final map = isRect ? StandardData.rectangularTubes[size] : StandardData.squareTubes[size];
+      final thicks = map?.keys.toList() ?? ['2.0'];
+      _thicknessController.text = thicks.isNotEmpty ? thicks.first : '2.0';
+      final double? w = map?[_thicknessController.text];
+      if (w != null) _lastUnitWeightPerM = w;
+    } else if (product.contains('Pipe')) {
       _selectedShape = 'Round Tube / Pipe';
       final m = RegExp(r'\((\d+(?:\.\d+)?)\s*mm\)').firstMatch(size);
       if (m != null) {
@@ -178,72 +344,86 @@ class _CalculationScreenState extends State<CalculationScreen> {
       } else {
         _outerDiaController.text = '50';
       }
-      final mt = RegExp(r'\((\d+(?:\.\d+)?)\s*mm\)').firstMatch(thick);
-      if (mt != null) {
-        _thicknessController.text = mt.group(1)!;
-      } else {
-        _thicknessController.text = '3.5';
-      }
-    } else if (homeShape.contains('Round') || homeShape.contains('Shaft')) {
+      final map = StandardData.steelPipes[size];
+      final thicks = map?.keys.toList() ?? ['Sch 40 (3.91mm)'];
+      final String chosenThick = thicks.first;
+      final mt = RegExp(r'\((\d+(?:\.\d+)?)\s*mm\)').firstMatch(chosenThick);
+      _thicknessController.text = mt != null ? mt.group(1)! : '3.91';
+      final double? w = map?[chosenThick];
+      if (w != null) _lastUnitWeightPerM = w;
+    } else if (product.contains('Round') || product.contains('Shaft') || product.contains('Rebar')) {
       _selectedShape = 'Round Bar';
       _outerDiaController.text = size.replaceAll(RegExp(r'[^0-9.]'), '');
-    } else if (homeShape.contains('Square Bar')) {
+      final d = double.tryParse(_outerDiaController.text) ?? 20.0;
+      _lastUnitWeightPerM = (d * d * 0.006165);
+      _lastSectionAreaCm2 = (math.pi * d * d / 400.0);
+    } else if (product.contains('Square Bar')) {
       _selectedShape = 'Square Bar';
       _widthController.text = size.replaceAll(RegExp(r'[^0-9.]'), '');
-    } else if (homeShape.contains('Flat')) {
+      final s = double.tryParse(_widthController.text) ?? 20.0;
+      _lastUnitWeightPerM = (s * s * 0.00785);
+      _lastSectionAreaCm2 = (s * s / 100.0);
+    } else if (product.contains('Flat Bar')) {
       _selectedShape = 'Flat Bar';
       _widthController.text = size.replaceAll(RegExp(r'[^0-9.]'), '');
-      _thicknessController.text = thick.isNotEmpty ? thick : '6';
-    } else if (homeShape.contains('Hexagonal')) {
+      _thicknessController.text = '6';
+      final w = double.tryParse(_widthController.text) ?? 50.0;
+      _lastUnitWeightPerM = (w * 6.0 * 0.00785);
+      _lastSectionAreaCm2 = (w * 6.0 / 100.0);
+    } else if (product.contains('Hexagonal')) {
       _selectedShape = 'Hexagonal Bar';
       _widthController.text = size.replaceAll(RegExp(r'[^0-9.]'), '');
-    } else if (homeShape.contains('Rebar')) {
-      _selectedShape = 'Round Bar';
-      _outerDiaController.text = size.replaceAll(RegExp(r'[^0-9.]'), '');
-    } else if (homeShape.contains('Sheet') || homeShape.contains('Plate')) {
+      final s = double.tryParse(_widthController.text) ?? 20.0;
+      _lastUnitWeightPerM = (s * s * 0.006798);
+      _lastSectionAreaCm2 = (math.sqrt(3) / 2 * s * s / 100.0);
+    } else if (product.contains('Sheet') || product.contains('Plate')) {
       _selectedShape = 'Sheet / Plate';
       _thicknessController.text = size.replaceAll(RegExp(r'[^0-9.]'), '');
-    } else if (homeShape.contains('Beam') || homeShape.contains('Columns') || homeShape.contains('Universal')) {
+      final t = double.tryParse(_thicknessController.text) ?? 5.0;
+      _lastUnitWeightPerM = t * 7.85;
+    } else if (product.contains('Beam') || product.contains('Columns') || product.contains('Universal')) {
       StandardProfileSpec? spec;
       bool isH = false;
 
-      if (StandardData.clientIBeams.containsKey(size)) {
-        spec = StandardData.clientIBeams[size];
+      if (product == 'I-Beam (JIS)' || product == 'I-Beam') {
+        spec = StandardData.clientIBeams[size] ?? StandardData.jisBeams[size];
         isH = false;
-      } else if (StandardData.clientHBeams.containsKey(size)) {
-        spec = StandardData.clientHBeams[size];
+        _selectedShape = 'I-Beam';
+      } else if (product == 'H-Beam (JIS)' || product == 'H-Beam') {
+        spec = StandardData.clientHBeams[size] ?? StandardData.jisBeams[size];
         isH = true;
-      } else if (StandardData.jisBeams.containsKey(size)) {
-        spec = StandardData.jisBeams[size];
-        isH = spec != null && (spec.b / spec.h) >= 0.70;
-      } else if (p.variant == 'UC' && StandardData.ucBeams.containsKey(size)) {
-        spec = StandardData.ucBeams[size];
-        isH = true;
-      } else if (p.variant == 'UB' && StandardData.ubBeams.containsKey(size)) {
-        spec = StandardData.ubBeams[size];
-        isH = false;
-      } else if (p.variant == 'HEA' && StandardData.heaBeams.containsKey(size)) {
-        spec = StandardData.heaBeams[size];
-        isH = true;
-      } else if (p.variant == 'HEB' && StandardData.hebBeams.containsKey(size)) {
-        spec = StandardData.hebBeams[size];
-        isH = true;
-      } else if (p.variant == 'IPE-AA' && StandardData.ipeAaBeams.containsKey(size)) {
-        spec = StandardData.ipeAaBeams[size];
-        isH = false;
-      } else if (StandardData.ipeBeams.containsKey(size)) {
+        _selectedShape = 'H-Beam';
+      } else if (product == 'IPE Beam') {
         spec = StandardData.ipeBeams[size];
         isH = false;
-      } else if (StandardData.wBeams.containsKey(size) || StandardData.findWBeam(size) != null) {
+        _selectedShape = 'I-Beam';
+      } else if (product == 'IPE-AA Beam') {
+        spec = StandardData.ipeAaBeams[size];
+        isH = false;
+        _selectedShape = 'I-Beam';
+      } else if (product == 'HEA Beam') {
+        spec = StandardData.heaBeams[size];
+        isH = true;
+        _selectedShape = 'H-Beam';
+      } else if (product == 'HEB Beam') {
+        spec = StandardData.hebBeams[size];
+        isH = true;
+        _selectedShape = 'H-Beam';
+      } else if (product == 'UB (Universal Beam)') {
+        spec = StandardData.ubBeams[size];
+        isH = false;
+        _selectedShape = 'I-Beam';
+      } else if (product == 'UC (Universal Columns)') {
+        spec = StandardData.ucBeams[size];
+        isH = true;
+        _selectedShape = 'H-Beam';
+      } else if (product == 'W-Beam (Wide Flange)') {
         spec = StandardData.wBeams[size] ?? StandardData.findWBeam(size);
         isH = spec != null && (spec.b / spec.h) >= 0.70;
-      }
-
-      if (homeShape == 'H-Beam (JIS)' || homeShape == 'H-Beam' || (homeShape.contains('H-Beam') && isH)) {
-        _selectedShape = 'H-Beam';
-      } else if (homeShape == 'I-Beam (JIS)' || homeShape == 'I-Beam' || (!isH)) {
-        _selectedShape = 'I-Beam';
+        _selectedShape = isH ? 'H-Beam' : 'I-Beam';
       } else {
+        spec = StandardData.clientIBeams[size] ?? StandardData.clientHBeams[size];
+        isH = spec != null && (spec.b / spec.h) >= 0.70;
         _selectedShape = isH ? 'H-Beam' : 'I-Beam';
       }
 
@@ -253,6 +433,8 @@ class _CalculationScreenState extends State<CalculationScreen> {
         _widthController.text = spec.b.toStringAsFixed(spec.b % 1 == 0 ? 0 : 1);
         _webThicknessController.text = spec.tw.toStringAsFixed(1);
         _flangeThicknessController.text = spec.tf.toStringAsFixed(1);
+        _lastUnitWeightPerM = spec.weight;
+        _lastSectionAreaCm2 = spec.area;
       }
     }
 
@@ -996,17 +1178,39 @@ class _CalculationScreenState extends State<CalculationScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Select Shape / Profile',
-            style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: isDark ? Colors.white : AppColors.primaryDark),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Select Product / Profile',
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : AppColors.primaryDark),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: AppColors.secondaryOrange.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Text(
+                  '37 Products',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.secondaryOrange,
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           DropdownButtonFormField<String>(
             isExpanded: true,
-            initialValue: _selectedShape,
+            value: CatalogData.allShapeNames.contains(_selectedProduct)
+                ? _selectedProduct
+                : CatalogData.allShapeNames.first,
             dropdownColor: isDark ? const Color(0xFF1E293B) : Colors.white,
             style: TextStyle(
               color: isDark ? Colors.white : AppColors.primaryDark,
@@ -1029,23 +1233,39 @@ class _CalculationScreenState extends State<CalculationScreen> {
                 ),
               ),
             ),
-            items: _shapes.map((String shape) {
+            items: CatalogData.profiles.map((CatalogProfile profile) {
               return DropdownMenuItem<String>(
-                value: shape,
+                value: profile.name,
                 child: Row(
                   children: [
-                    Icon(_getIconForShape(shape),
+                    Icon(profile.icon,
                         color: AppColors.secondaryOrange, size: 20),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        shape,
+                        profile.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                            fontSize: 14,
+                            fontSize: 13.5,
                             fontWeight: FontWeight.w600,
                             color: isDark ? Colors.white : AppColors.primaryDark),
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.only(left: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: isDark ? Colors.white10 : Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        profile.categoryLabel,
+                        style: TextStyle(
+                          fontSize: 9.5,
+                          color: isDark ? Colors.white60 : Colors.grey.shade600,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
                   ],
@@ -1054,25 +1274,7 @@ class _CalculationScreenState extends State<CalculationScreen> {
             }).toList(),
             onChanged: (val) {
               if (val != null) {
-                setState(() {
-                  _selectedShape = val;
-                  if (val == 'H-Beam') {
-                    _heightController.text = '200';
-                    _widthController.text = '200';
-                    _webThicknessController.text = '8';
-                    _flangeThicknessController.text = '12';
-                    _lengthController.text = '12000';
-                    _selectedBeamPreset = '200x200';
-                  } else if (val == 'I-Beam') {
-                    _heightController.text = '250';
-                    _widthController.text = '125';
-                    _webThicknessController.text = '6';
-                    _flangeThicknessController.text = '9';
-                    _lengthController.text = '12000';
-                    _selectedBeamPreset = '250x125';
-                  }
-                  _performCalculation();
-                });
+                _onProductSelected(val);
               }
             },
           ),
@@ -1111,18 +1313,25 @@ class _CalculationScreenState extends State<CalculationScreen> {
   }
 
   Widget _buildShapePreviewBox() {
-    final String unitDim = _isMetric ? 'mm' : 'in';
+    final double lM = (double.tryParse(_lengthController.text) ?? 1000.0) / 1000.0;
+    final availSizes = _getAvailableSizesForProduct(_selectedProduct);
 
-    return CustomShape2DDiagram(
-      shape: _selectedShape,
-      unitDim: unitDim,
-      lengthStr: _lengthController.text,
-      widthStr: _widthController.text,
-      thicknessStr: _thicknessController.text,
-      outerDiaStr: _outerDiaController.text,
-      heightStr: _heightController.text,
-      webThickStr: _webThicknessController.text,
-      flangeThickStr: _flangeThicknessController.text,
+    return Section2DDiagramWidget(
+      shapeType: _selectedProduct,
+      selectedSize: _selectedSize.isNotEmpty ? _selectedSize : (availSizes.isNotEmpty ? availSizes.first : '100'),
+      selectedThickness: _selectedThickness,
+      lengthMeters: lM > 0 ? lM : 1.0,
+      availableSizes: availSizes,
+      activeVariant: _activeVariant,
+      overrideWeight: _lastUnitWeightPerM > 0 ? _lastUnitWeightPerM : null,
+      overrideSectionArea: _lastSectionAreaCm2 > 0 ? _lastSectionAreaCm2 : null,
+      onSizeChanged: (newSize) {
+        setState(() {
+          _selectedSize = newSize;
+          _applyDimensionsForProductSize(_selectedProduct, newSize);
+          _performCalculation();
+        });
+      },
     );
   }
 
