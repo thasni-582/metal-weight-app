@@ -1261,11 +1261,13 @@ class Section2DPainter extends CustomPainter {
     // 2. Identify if this profile is an H-Beam / Wide Flange profile (b ≈ h) or Deep I-Beam (h >> b)
     final double rawAspect = data.widthVal / (data.heightVal > 0 ? data.heightVal : 140.0);
     final String combinedName = '${data.variantTag} ${data.headerTitle} ${data.displayName}'.toUpperCase();
-    final bool isHBeam = combinedName.contains('HEA') ||
-        combinedName.contains('HEB') ||
-        combinedName.contains('UC') ||
-        combinedName.contains('JIS') ||
-        rawAspect >= 0.70;
+    final bool isHBeam = !combinedName.contains('I-BEAM') &&
+        (combinedName.contains('HEA') ||
+            combinedName.contains('HEB') ||
+            combinedName.contains('UC') ||
+            combinedName.contains('H-BEAM') ||
+            (combinedName.contains('JIS') && !combinedName.contains('I-BEAM')) ||
+            rawAspect >= 0.70);
 
     // 3. Beam geometry:
     // Wide-Flange H-Beams / Columns (HEA, HEB, UC, square W-Beams) have equal or near-equal width & height (b ≈ h)
@@ -1338,12 +1340,12 @@ class Section2DPainter extends CustomPainter {
 
     // 5. Large profile designation text (e.g. "HEA", "HEB", "UC", "UB", "W", "H", "I") situated in the left pocket
     String profileLabel = data.variantTag.isNotEmpty ? data.variantTag : (isHBeam ? 'H' : 'I');
-    if (profileLabel.toUpperCase().contains('W-BEAM') || profileLabel.toUpperCase() == 'W') {
-      profileLabel = 'W';
-    } else if (profileLabel.toUpperCase() == 'H-BEAM') {
-      profileLabel = 'H';
-    } else if (profileLabel.toUpperCase() == 'I-BEAM') {
+    if (combinedName.contains('I-BEAM') || profileLabel.toUpperCase() == 'I-BEAM' || profileLabel.toUpperCase() == 'I') {
       profileLabel = 'I';
+    } else if (combinedName.contains('H-BEAM') || profileLabel.toUpperCase() == 'H-BEAM' || profileLabel.toUpperCase() == 'H') {
+      profileLabel = 'H';
+    } else if (profileLabel.toUpperCase().contains('W-BEAM') || profileLabel.toUpperCase() == 'W') {
+      profileLabel = 'W';
     }
 
     final double pocketLeft = centerX - b / 2 + 4.0;

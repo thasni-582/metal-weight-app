@@ -3,13 +3,13 @@ import 'package:metal_weight/core/constants/catalog_data.dart';
 
 void main() {
   group('Catalog Profiles Completeness Tests', () {
-    test('Catalog contains exactly 36 distinct client products', () {
-      expect(CatalogData.profiles.length, equals(36));
-      expect(CatalogData.allShapeNames.length, equals(36));
+    test('Catalog contains exactly 37 distinct client products', () {
+      expect(CatalogData.profiles.length, equals(37));
+      expect(CatalogData.allShapeNames.length, equals(37));
 
       // Verify no duplicates
       final uniqueNames = CatalogData.allShapeNames.toSet();
-      expect(uniqueNames.length, equals(36));
+      expect(uniqueNames.length, equals(37));
     });
 
     test('Special client requested items exist in catalog', () {
@@ -27,18 +27,19 @@ void main() {
       expect(names.contains('Pipe Seamless'), isTrue);
       expect(names.contains('Stainless Steel Pipe'), isTrue);
 
-      // IPE-AA Beam
+      // Beams (including separate H-Beam and I-Beam)
       expect(names.contains('IPE-AA Beam'), isTrue);
       expect(names.contains('IPE Beam'), isTrue);
       expect(names.contains('HEA Beam'), isTrue);
       expect(names.contains('HEB Beam'), isTrue);
       expect(names.contains('H-Beam (JIS)'), isTrue);
+      expect(names.contains('I-Beam (JIS)'), isTrue);
       expect(names.contains('UB (Universal Beam)'), isTrue);
       expect(names.contains('UC (Universal Columns)'), isTrue);
       expect(names.contains('W-Beam (Wide Flange)'), isTrue);
     });
 
-    test('All 7 categories exist and partition the 36 items', () {
+    test('All 7 categories exist and partition the 37 items', () {
       expect(CatalogData.categories.length, equals(8)); // 'all' + 7 groups
 
       final beams = CatalogData.getProfilesForCategory('beams');
@@ -49,7 +50,7 @@ void main() {
       final sheets = CatalogData.getProfilesForCategory('sheets');
       final bars = CatalogData.getProfilesForCategory('bars');
 
-      expect(beams.length, equals(8));
+      expect(beams.length, equals(9));
       expect(channels.length, equals(3));
       expect(angles.length, equals(4));
       expect(tubes.length, equals(4));
@@ -57,7 +58,7 @@ void main() {
       expect(sheets.length, equals(8));
       expect(bars.length, equals(6));
 
-      expect(beams.length + channels.length + angles.length + tubes.length + pipes.length + sheets.length + bars.length, equals(36));
+      expect(beams.length + channels.length + angles.length + tubes.length + pipes.length + sheets.length + bars.length, equals(37));
     });
   });
 }

@@ -194,6 +194,12 @@ class _CalculationScreenState extends State<CalculationScreen> {
       _selectedShape = 'Flat Bar';
       _widthController.text = size.replaceAll(RegExp(r'[^0-9.]'), '');
       _thicknessController.text = thick.isNotEmpty ? thick : '6';
+    } else if (homeShape.contains('Hexagonal')) {
+      _selectedShape = 'Hexagonal Bar';
+      _widthController.text = size.replaceAll(RegExp(r'[^0-9.]'), '');
+    } else if (homeShape.contains('Rebar')) {
+      _selectedShape = 'Round Bar';
+      _outerDiaController.text = size.replaceAll(RegExp(r'[^0-9.]'), '');
     } else if (homeShape.contains('Sheet') || homeShape.contains('Plate')) {
       _selectedShape = 'Sheet / Plate';
       _thicknessController.text = size.replaceAll(RegExp(r'[^0-9.]'), '');
@@ -233,9 +239,9 @@ class _CalculationScreenState extends State<CalculationScreen> {
         isH = spec != null && (spec.b / spec.h) >= 0.70;
       }
 
-      if (homeShape == 'H-Beam' || (homeShape.contains('H-Beam') && isH)) {
+      if (homeShape == 'H-Beam (JIS)' || homeShape == 'H-Beam' || (homeShape.contains('H-Beam') && isH)) {
         _selectedShape = 'H-Beam';
-      } else if (homeShape == 'I-Beam' || (!isH)) {
+      } else if (homeShape == 'I-Beam (JIS)' || homeShape == 'I-Beam' || (!isH)) {
         _selectedShape = 'I-Beam';
       } else {
         _selectedShape = isH ? 'H-Beam' : 'I-Beam';

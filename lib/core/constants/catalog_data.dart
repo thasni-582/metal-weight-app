@@ -34,14 +34,14 @@ class CatalogData {
   static const List<CatalogCategory> categories = [
     CatalogCategory(
       id: 'all',
-      label: 'All (36)',
-      arLabel: 'الكل (36)',
+      label: 'All (37)',
+      arLabel: 'الكل (37)',
       icon: Icons.apps,
     ),
     CatalogCategory(
       id: 'beams',
-      label: 'Beams & Columns (8)',
-      arLabel: 'الكمرات والأعمدة (8)',
+      label: 'Beams & Columns (9)',
+      arLabel: 'الكمرات والأعمدة (9)',
       icon: Icons.view_column,
     ),
     CatalogCategory(
@@ -133,7 +133,7 @@ class CatalogData {
       icon: Icons.crop_square,
     ),
 
-    // 2. Beams & Columns (8 items)
+    // 2. Beams & Columns (9 items)
     CatalogProfile(
       name: 'IPE Beam',
       categoryId: 'beams',
@@ -160,6 +160,12 @@ class CatalogData {
     ),
     CatalogProfile(
       name: 'H-Beam (JIS)',
+      categoryId: 'beams',
+      categoryLabel: 'Beams & Columns',
+      icon: Icons.view_column,
+    ),
+    CatalogProfile(
+      name: 'I-Beam (JIS)',
       categoryId: 'beams',
       categoryLabel: 'Beams & Columns',
       icon: Icons.view_column,

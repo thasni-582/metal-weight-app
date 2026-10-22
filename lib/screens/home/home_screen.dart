@@ -96,7 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _activeVariant = 'HEB';
       } else if (newShape == 'H-Beam (JIS)' || newShape == 'H-Beam') {
         _activeVariant = 'JIS';
-      } else if (newShape == 'I-Beam') {
+      } else if (newShape == 'I-Beam (JIS)' || newShape == 'I-Beam') {
         _activeVariant = 'I-Beam';
       } else if (newShape == 'UB (Universal Beam)') {
         _activeVariant = 'UB';
@@ -167,7 +167,8 @@ class _HomeScreenState extends State<HomeScreen> {
         return StandardData.hebBeams.keys.toList();
       case 'H-Beam (JIS)':
       case 'H-Beam':
-        return StandardData.jisBeams.keys.toList();
+        return StandardData.clientHBeams.keys.toList();
+      case 'I-Beam (JIS)':
       case 'I-Beam':
         return StandardData.clientIBeams.keys.toList();
       case 'UB (Universal Beam)':
@@ -382,6 +383,7 @@ class _HomeScreenState extends State<HomeScreen> {
         }
         break;
 
+      case 'I-Beam (JIS)':
       case 'I-Beam':
         final spec = StandardData.clientIBeams[_selectedSize] ?? StandardData.jisBeams[_selectedSize];
         if (spec != null) {

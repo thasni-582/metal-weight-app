@@ -224,6 +224,25 @@ void main() {
       expect(p.lengthInM, equals(12.0));
       expect(p.quantity, equals(5));
       expect(p.weightPerM, equals(29.60));
+
+      // Test I-Beam (JIS) sync
+      settings.syncProfileFromHome(
+        material: 'Steel',
+        shape: 'I-Beam (JIS)',
+        size: '250x125',
+        thickness: '',
+        variant: 'I-Beam',
+        lengthInM: 12.0,
+        quantity: 2,
+        weightPerM: 29.60,
+        sectionArea: 37.66,
+      );
+
+      expect(settings.syncVersion, equals(2));
+      final pI = settings.syncedProfileFromHome!;
+      expect(pI.shape, equals('I-Beam (JIS)'));
+      expect(pI.quantity, equals(2));
+      expect(pI.weightPerM, equals(29.60));
     });
   });
 
