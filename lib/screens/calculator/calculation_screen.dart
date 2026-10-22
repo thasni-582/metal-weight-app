@@ -318,6 +318,8 @@ class _CalculationScreenState extends State<CalculationScreen> {
 
     double volume = 0.0;
     double surfaceArea = 0.0;
+    _lastUnitWeightPerM = 0.0;
+    _lastSectionAreaCm2 = 0.0;
 
     switch (_selectedShape) {
       case 'Sheet / Plate':
@@ -438,10 +440,16 @@ class _CalculationScreenState extends State<CalculationScreen> {
       default:
         volume = l * w * t;
         surfaceArea = 2 * (l * w + l * t + w * t);
-        if (l > 0.0) {
-          _lastUnitWeightPerM = (volume / 1000000.0 * density) / (l / 1000.0);
-          _lastSectionAreaCm2 = (volume / l) / 100.0;
-        }
+    }
+
+    if (_lastUnitWeightPerM <= 0.0 && l > 0.0) {
+      if (_selectedShape == 'Sheet / Plate') {
+        _lastUnitWeightPerM = (t > 0 ? t : 1.0) * density;
+        _lastSectionAreaCm2 = (w > 0 ? w : 100.0) * (t > 0 ? t : 1.0) / 100.0;
+      } else {
+        _lastUnitWeightPerM = (volume / 1000000.0 * density) / (l / 1000.0);
+        _lastSectionAreaCm2 = (volume / l) / 100.0;
+      }
     }
 
     double weightPerPiece = 0.0;
@@ -1518,14 +1526,37 @@ class _CalculationScreenState extends State<CalculationScreen> {
           Row(
             children: [
               Expanded(
-                child: _buildResultStat('Weight / Piece',
-                    '${_calculatedWeightPerPiece.toStringAsFixed(3)} $unitWeight'),
+                child: _buildResultStat(
+                  _selectedShape.contains('Sheet')
+                      ? (_isMetric ? 'Unit Weight (kg/m²)' : 'Unit Weight (lbs/ft²)')
+                      : (_isMetric ? 'Unit Weight (kg/m)' : 'Unit Weight (lbs/ft)'),
+                  _isMetric
+                      ? '${_lastUnitWeightPerM.toStringAsFixed(2)} ${_selectedShape.contains('Sheet') ? 'kg/m²' : 'kg/m'}'
+                      : '${(_lastUnitWeightPerM * 0.6719689).toStringAsFixed(2)} ${_selectedShape.contains('Sheet') ? 'lbs/ft²' : 'lbs/ft'}',
+                ),
               ),
               const SizedBox(width: 12),
+              Expanded(
+                child: _buildResultStat('Weight / Piece',
+                    '${_calculatedWeightPerPiece.toStringAsFixed(2)} $unitWeight'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
               Expanded(
                 child: _buildResultStat('Total Weight',
                     '${_calculatedTotalWeight.toStringAsFixed(2)} $unitWeight',
                     isHighlight: true),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildResultStat(
+                    'Section Area',
+                    _isMetric
+                        ? '${_lastSectionAreaCm2.toStringAsFixed(2)} cm²'
+                        : '${(_lastSectionAreaCm2 * 0.1550003).toStringAsFixed(2)} in²'),
               ),
             ],
           ),
