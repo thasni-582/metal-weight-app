@@ -243,6 +243,29 @@ void main() {
       expect(pI.shape, equals('I-Beam (JIS)'));
       expect(pI.quantity, equals(2));
       expect(pI.weightPerM, equals(29.60));
+
+      // Test UB Beam 838 x 292 x 176 sync matching client screenshot
+      settings.syncProfileFromHome(
+        material: 'Steel',
+        shape: 'UB (Universal Beam)',
+        size: '838 x 292 x 176',
+        thickness: '',
+        variant: 'UB',
+        lengthInM: 12.0,
+        quantity: 1,
+        weightPerM: 175.90,
+        sectionArea: 224.00,
+      );
+
+      expect(settings.syncVersion, equals(3));
+      final pUB = settings.syncedProfileFromHome!;
+      expect(pUB.shape, equals('UB (Universal Beam)'));
+      expect(pUB.size, equals('838 x 292 x 176'));
+      expect(pUB.lengthInM, equals(12.0));
+      expect(pUB.quantity, equals(1));
+      expect(pUB.weightPerM, equals(175.90));
+      expect(pUB.sectionArea, equals(224.00));
+      expect(pUB.weightPerM * pUB.lengthInM * pUB.quantity, closeTo(2110.80, 0.001));
     });
   });
 

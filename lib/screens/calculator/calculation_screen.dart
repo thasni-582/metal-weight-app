@@ -139,6 +139,7 @@ class _CalculationScreenState extends State<CalculationScreen> {
 
     _selectedProduct = normProduct;
     _selectedSize = p.size;
+    _selectedBeamPreset = p.size;
     _selectedThickness = p.thickness;
     _activeVariant = p.variant;
     _lastUnitWeightPerM = p.weightPerM;
@@ -200,6 +201,7 @@ class _CalculationScreenState extends State<CalculationScreen> {
       final sizes = _getAvailableSizesForProduct(newProduct);
       if (sizes.isNotEmpty) {
         _selectedSize = sizes.first;
+        _selectedBeamPreset = sizes.first;
       }
       _applyDimensionsForProductSize(newProduct, _selectedSize);
       _performCalculation();
@@ -295,6 +297,31 @@ class _CalculationScreenState extends State<CalculationScreen> {
       default:
         return ['100'];
     }
+  }
+
+  Map<String, StandardProfileSpec> _getBeamCatalogMap() {
+    if (_selectedProduct == 'I-Beam (JIS)' || _selectedProduct == 'I-Beam') {
+      return StandardData.clientIBeams;
+    } else if (_selectedProduct == 'H-Beam (JIS)' || _selectedProduct == 'H-Beam') {
+      return StandardData.clientHBeams;
+    } else if (_selectedProduct == 'IPE Beam') {
+      return StandardData.ipeBeams;
+    } else if (_selectedProduct == 'IPE-AA Beam') {
+      return StandardData.ipeAaBeams;
+    } else if (_selectedProduct == 'HEA Beam') {
+      return StandardData.heaBeams;
+    } else if (_selectedProduct == 'HEB Beam') {
+      return StandardData.hebBeams;
+    } else if (_selectedProduct == 'UB (Universal Beam)') {
+      return StandardData.ubBeams;
+    } else if (_selectedProduct == 'UC (Universal Columns)') {
+      return StandardData.ucBeams;
+    } else if (_selectedProduct == 'W-Beam (Wide Flange)') {
+      return StandardData.wBeams;
+    }
+    return _selectedShape == 'I-Beam'
+        ? StandardData.clientIBeams
+        : StandardData.clientHBeams;
   }
 
   void _applyDimensionsForProductSize(String product, String size, {String? preferredThickness}) {
@@ -628,12 +655,31 @@ class _CalculationScreenState extends State<CalculationScreen> {
       case 'Angle (L-Profile)':
         final double legA = w > 0 ? w : h;
         final double legB = h > 0 ? h : legA;
-        if (legA > t && legB > t) {
-          final double areaCross = t * (legA + legB - t);
-          volume = areaCross * l;
-          final double perim = 2 * (legA + legB);
-          surfaceArea = perim * l + 2 * areaCross;
+        double areaCross = 0.0;
+        double unitWeightPerM = 0.0;
+
+        final double? angleW;
+        if (_selectedProduct.contains('Unequal')) {
+          angleW = StandardData.unequalAngles[_selectedSize]?[_thicknessController.text];
+        } else {
+          angleW = StandardData.equalAngles[_selectedSize]?[_thicknessController.text];
         }
+
+        if (angleW != null) {
+          unitWeightPerM = angleW * (density / 7.85);
+          areaCross = (angleW / 0.785) * 100.0;
+        } else if (legA > t && legB > t) {
+          areaCross = t * (legA + legB - t);
+          unitWeightPerM = (areaCross * density) / 1000.0;
+        }
+
+        if (legA > t && legB > t) {
+          volume = (areaCross > 0 ? areaCross : t * (legA + legB - t)) * l;
+          final double perim = 2 * (legA + legB);
+          surfaceArea = perim * l + 2 * (areaCross > 0 ? areaCross : t * (legA + legB - t));
+        }
+        _lastUnitWeightPerM = unitWeightPerM;
+        _lastSectionAreaCm2 = areaCross / 100.0;
         break;
 
       case 'U-Channel / Channel (C-Profile)':
@@ -642,11 +688,31 @@ class _CalculationScreenState extends State<CalculationScreen> {
         final double widthC = w > 0 ? w : 50;
         final double tWeb = tw > 0 ? tw : t;
         final double tFlange = tf > 0 ? tf : t;
-        final double areaCross =
-            (heightC * tWeb) + (2 * widthC * tFlange) - (2 * tWeb * tFlange);
+
+        StandardProfileSpec? chSpec;
+        if (_selectedProduct.contains('UPE')) {
+          chSpec = StandardData.upeChannels[_selectedSize];
+        } else if (_selectedProduct.contains('JIS')) {
+          chSpec = StandardData.jisChannels[_selectedSize];
+        } else {
+          chSpec = StandardData.upnChannels[_selectedSize];
+        }
+
+        double areaCross;
+        double unitWeightPerM;
+        if (chSpec != null && (chSpec.h - heightC).abs() < 1.5 && (chSpec.b - widthC).abs() < 1.5) {
+          areaCross = chSpec.area * 100.0;
+          unitWeightPerM = chSpec.weight * (density / 7.85);
+        } else {
+          areaCross = (heightC * tWeb) + (2 * widthC * tFlange) - (2 * tWeb * tFlange);
+          unitWeightPerM = (areaCross * density) / 1000.0;
+        }
+
         volume = math.max(0.0, areaCross * l);
         final double perim = 4 * widthC + 2 * heightC - 2 * tWeb;
         surfaceArea = perim * l + 2 * math.max(0.0, areaCross);
+        _lastUnitWeightPerM = unitWeightPerM;
+        _lastSectionAreaCm2 = areaCross / 100.0;
         break;
 
       case 'H-Beam':
@@ -657,15 +723,21 @@ class _CalculationScreenState extends State<CalculationScreen> {
         final double tWebB = tw > 0 ? tw : t;
         final double tFlangeB = tf > 0 ? tf : t;
 
+        final beamMap = _getBeamCatalogMap();
         StandardProfileSpec? spec;
-        if (_selectedShape == 'H-Beam') {
-          spec = StandardData.findClientHBeam(heightB, widthB, tWebB, tFlangeB);
-        } else if (_selectedShape == 'I-Beam') {
-          spec = StandardData.findClientIBeam(heightB, widthB, tWebB, tFlangeB);
-        } else {
-          spec = StandardData.findClientIBeam(heightB, widthB, tWebB, tFlangeB) ??
-              StandardData.findClientHBeam(heightB, widthB, tWebB, tFlangeB);
+        if (beamMap.containsKey(_selectedBeamPreset)) {
+          final s = beamMap[_selectedBeamPreset]!;
+          if ((s.h - heightB).abs() < 1.5 && (s.b - widthB).abs() < 1.5) {
+            spec = s;
+          }
         }
+        spec ??= beamMap.values.cast<StandardProfileSpec?>().firstWhere(
+          (s) => s != null && (s.h - heightB).abs() < 1.5 && (s.b - widthB).abs() < 1.5,
+          orElse: () => null,
+        );
+        spec ??= StandardData.findClientIBeam(heightB, widthB, tWebB, tFlangeB) ??
+            StandardData.findClientHBeam(heightB, widthB, tWebB, tFlangeB) ??
+            StandardData.findWBeam(_selectedBeamPreset);
 
         double areaCross;
         double unitWeightPerM;
@@ -1513,9 +1585,7 @@ class _CalculationScreenState extends State<CalculationScreen> {
 
       case 'H-Beam':
       case 'I-Beam':
-        final isIBeam = _selectedShape == 'I-Beam';
-        final Map<String, StandardProfileSpec> catalogMap =
-            isIBeam ? StandardData.clientIBeams : StandardData.clientHBeams;
+        final Map<String, StandardProfileSpec> catalogMap = _getBeamCatalogMap();
 
         fields.add(const SizedBox(height: 10));
         fields.add(
@@ -1551,12 +1621,16 @@ class _CalculationScreenState extends State<CalculationScreen> {
                   if (val != null) {
                     setState(() {
                       _selectedBeamPreset = val;
+                      _selectedSize = val;
                       if (catalogMap.containsKey(val)) {
                         final spec = catalogMap[val]!;
                         _heightController.text = spec.h.toStringAsFixed(spec.h % 1 == 0 ? 0 : 1);
                         _widthController.text = spec.b.toStringAsFixed(spec.b % 1 == 0 ? 0 : 1);
                         _webThicknessController.text = spec.tw.toStringAsFixed(1);
                         _flangeThicknessController.text = spec.tf.toStringAsFixed(1);
+                        final double density = _getEffectiveDensity();
+                        _lastUnitWeightPerM = spec.weight * (density / 7.85);
+                        _lastSectionAreaCm2 = spec.area;
                       }
                       _performCalculation();
                     });
