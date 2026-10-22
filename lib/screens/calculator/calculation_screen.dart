@@ -89,9 +89,167 @@ class _CalculationScreenState extends State<CalculationScreen> {
     'I-Beam',
   ];
 
+  int _lastAppliedSyncVersion = 0;
+
   @override
   void initState() {
     super.initState();
+    _performCalculation();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final settings = Provider.of<AppSettingsProvider>(context);
+    _checkAndApplyHomeSync(settings);
+  }
+
+  void _checkAndApplyHomeSync(AppSettingsProvider settings) {
+    final payload = settings.syncedProfileFromHome;
+    if (payload != null && settings.syncVersion != _lastAppliedSyncVersion) {
+      _lastAppliedSyncVersion = settings.syncVersion;
+      _applyHomeSyncPayload(payload);
+    }
+  }
+
+  void _applyHomeSyncPayload(ProfileSyncPayload p) {
+    // 1. Material
+    if (_metalDensities.containsKey(p.material)) {
+      _selectedMetal = p.material;
+    } else {
+      _selectedMetal = 'Steel';
+    }
+
+    // 2. Quantity
+    _quantityController.text = p.quantity.toString();
+
+    // 3. Length (meters to mm)
+    final int lenMm = (p.lengthInM * 1000).round();
+    _lengthController.text = lenMm > 0 ? lenMm.toString() : '1000';
+
+    // 4. Map Shape and Dimensions
+    final String homeShape = p.shape;
+    final String size = p.size;
+    final String thick = p.thickness;
+
+    if (homeShape.contains('Angle')) {
+      _selectedShape = 'Angle (L-Profile)';
+      if (homeShape.contains('Unequal') || size.contains('x')) {
+        final parts = size.split('x');
+        _widthController.text = parts[0].trim();
+        _heightController.text = parts.length > 1 ? parts[1].trim() : parts[0].trim();
+      } else {
+        _widthController.text = size;
+        _heightController.text = size;
+      }
+      _thicknessController.text = thick.isNotEmpty ? thick : '5';
+    } else if (homeShape.contains('Channel')) {
+      _selectedShape = 'U-Channel / Channel (C-Profile)';
+      StandardProfileSpec? spec;
+      if (p.variant == 'UPE') {
+        spec = StandardData.upeChannels[size];
+      } else if (p.variant == 'JIS' || homeShape.contains('JIS')) {
+        spec = StandardData.jisChannels[size];
+      } else {
+        spec = StandardData.upnChannels[size];
+      }
+      if (spec != null) {
+        _heightController.text = spec.h.toStringAsFixed(spec.h % 1 == 0 ? 0 : 1);
+        _widthController.text = spec.b.toStringAsFixed(spec.b % 1 == 0 ? 0 : 1);
+        _webThicknessController.text = spec.tw.toStringAsFixed(1);
+        _flangeThicknessController.text = spec.tf.toStringAsFixed(1);
+      }
+    } else if (homeShape.contains('Tube')) {
+      _selectedShape = 'Square / Rectangular Tube';
+      if (size.contains('x')) {
+        final parts = size.split('x');
+        _widthController.text = parts[0].trim();
+        _heightController.text = parts.length > 1 ? parts[1].trim() : parts[0].trim();
+      } else {
+        _widthController.text = size;
+        _heightController.text = size;
+      }
+      _thicknessController.text = thick.isNotEmpty ? thick : '2.0';
+    } else if (homeShape.contains('Pipe')) {
+      _selectedShape = 'Round Tube / Pipe';
+      final m = RegExp(r'\((\d+(?:\.\d+)?)\s*mm\)').firstMatch(size);
+      if (m != null) {
+        _outerDiaController.text = m.group(1)!;
+      } else {
+        _outerDiaController.text = '50';
+      }
+      final mt = RegExp(r'\((\d+(?:\.\d+)?)\s*mm\)').firstMatch(thick);
+      if (mt != null) {
+        _thicknessController.text = mt.group(1)!;
+      } else {
+        _thicknessController.text = '3.5';
+      }
+    } else if (homeShape.contains('Round') || homeShape.contains('Shaft')) {
+      _selectedShape = 'Round Bar';
+      _outerDiaController.text = size.replaceAll(RegExp(r'[^0-9.]'), '');
+    } else if (homeShape.contains('Square Bar')) {
+      _selectedShape = 'Square Bar';
+      _widthController.text = size.replaceAll(RegExp(r'[^0-9.]'), '');
+    } else if (homeShape.contains('Flat')) {
+      _selectedShape = 'Flat Bar';
+      _widthController.text = size.replaceAll(RegExp(r'[^0-9.]'), '');
+      _thicknessController.text = thick.isNotEmpty ? thick : '6';
+    } else if (homeShape.contains('Sheet') || homeShape.contains('Plate')) {
+      _selectedShape = 'Sheet / Plate';
+      _thicknessController.text = size.replaceAll(RegExp(r'[^0-9.]'), '');
+    } else if (homeShape.contains('Beam') || homeShape.contains('Columns') || homeShape.contains('Universal')) {
+      StandardProfileSpec? spec;
+      bool isH = false;
+
+      if (StandardData.clientIBeams.containsKey(size)) {
+        spec = StandardData.clientIBeams[size];
+        isH = false;
+      } else if (StandardData.clientHBeams.containsKey(size)) {
+        spec = StandardData.clientHBeams[size];
+        isH = true;
+      } else if (StandardData.jisBeams.containsKey(size)) {
+        spec = StandardData.jisBeams[size];
+        isH = spec != null && (spec.b / spec.h) >= 0.70;
+      } else if (p.variant == 'UC' && StandardData.ucBeams.containsKey(size)) {
+        spec = StandardData.ucBeams[size];
+        isH = true;
+      } else if (p.variant == 'UB' && StandardData.ubBeams.containsKey(size)) {
+        spec = StandardData.ubBeams[size];
+        isH = false;
+      } else if (p.variant == 'HEA' && StandardData.heaBeams.containsKey(size)) {
+        spec = StandardData.heaBeams[size];
+        isH = true;
+      } else if (p.variant == 'HEB' && StandardData.hebBeams.containsKey(size)) {
+        spec = StandardData.hebBeams[size];
+        isH = true;
+      } else if (p.variant == 'IPE-AA' && StandardData.ipeAaBeams.containsKey(size)) {
+        spec = StandardData.ipeAaBeams[size];
+        isH = false;
+      } else if (StandardData.ipeBeams.containsKey(size)) {
+        spec = StandardData.ipeBeams[size];
+        isH = false;
+      } else if (StandardData.wBeams.containsKey(size) || StandardData.findWBeam(size) != null) {
+        spec = StandardData.wBeams[size] ?? StandardData.findWBeam(size);
+        isH = spec != null && (spec.b / spec.h) >= 0.70;
+      }
+
+      if (homeShape == 'H-Beam' || (homeShape.contains('H-Beam') && isH)) {
+        _selectedShape = 'H-Beam';
+      } else if (homeShape == 'I-Beam' || (!isH)) {
+        _selectedShape = 'I-Beam';
+      } else {
+        _selectedShape = isH ? 'H-Beam' : 'I-Beam';
+      }
+
+      _selectedBeamPreset = size;
+      if (spec != null) {
+        _heightController.text = spec.h.toStringAsFixed(spec.h % 1 == 0 ? 0 : 1);
+        _widthController.text = spec.b.toStringAsFixed(spec.b % 1 == 0 ? 0 : 1);
+        _webThicknessController.text = spec.tw.toStringAsFixed(1);
+        _flangeThicknessController.text = spec.tf.toStringAsFixed(1);
+      }
+    }
+
     _performCalculation();
   }
 

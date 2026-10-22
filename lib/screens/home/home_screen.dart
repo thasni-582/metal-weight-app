@@ -604,6 +604,37 @@ class _HomeScreenState extends State<HomeScreen> {
 
     _weightController.text = weightKgPerM.toStringAsFixed(2);
     _sectionController.text = sectionAreaCm2.toStringAsFixed(2);
+    _syncCurrentSelectionToProvider(weightKgPerM, sectionAreaCm2);
+  }
+
+  void _syncCurrentSelectionToProvider([double? weightPerM, double? secArea]) {
+    final w = weightPerM ?? (double.tryParse(_weightController.text) ?? 0.0);
+    final a = secArea ?? (double.tryParse(_sectionController.text) ?? 0.0);
+    final String mat = _selectedShape.contains('Aluminum')
+        ? 'Aluminum'
+        : (_selectedShape.contains('Brass')
+            ? 'Brass'
+            : (_selectedShape.contains('Copper')
+                ? 'Copper'
+                : (_selectedShape.contains('Stainless') || _selectedShape.contains('SS')
+                    ? 'Stainless Steel'
+                    : 'Steel')));
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        Provider.of<AppSettingsProvider>(context, listen: false).syncProfileFromHome(
+          material: mat,
+          shape: _selectedShape,
+          size: _selectedSize,
+          thickness: _selectedThickness,
+          variant: _activeVariant,
+          lengthInM: _pieceLength,
+          quantity: _quantity,
+          weightPerM: w,
+          sectionArea: a,
+        );
+      }
+    });
   }
 
   CalculationModel _createCalculationModel() {
@@ -1203,6 +1234,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 setState(() {
                   _pieceLength = val;
                 });
+                _syncCurrentSelectionToProvider();
               },
             ),
           ),
@@ -1224,7 +1256,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     icon: const Icon(Icons.remove_circle_outline, color: AppColors.secondaryOrange, size: 22),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
-                    onPressed: _quantity > 1 ? () => setState(() => _quantity--) : null,
+                    onPressed: _quantity > 1
+                        ? () {
+                            setState(() => _quantity--);
+                            _syncCurrentSelectionToProvider();
+                          }
+                        : null,
                   ),
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: 10),
@@ -1246,7 +1283,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     icon: const Icon(Icons.add_circle_outline, color: AppColors.secondaryOrange, size: 22),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
-                    onPressed: () => setState(() => _quantity++),
+                    onPressed: () {
+                      setState(() => _quantity++);
+                      _syncCurrentSelectionToProvider();
+                    },
                   ),
                 ],
               ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:metal_weight/core/constants/standard_data.dart';
 import 'package:metal_weight/core/localization/app_strings.dart';
+import 'package:metal_weight/core/providers/app_settings_provider.dart';
 import 'package:metal_weight/models/calculation_model.dart';
 
 void main() {
@@ -195,6 +196,34 @@ void main() {
       final double totalWeight12m = spec.weight * 12.0;
       expect(totalWeight12m, closeTo(355.20, 0.001)); // Exactly 355.20 kg, solving the 12.12 kg discrepancy!
       expect(totalWeight12m.toStringAsFixed(2), equals('355.20'));
+    });
+
+    test('AppSettingsProvider auto-sync payload carries home screen dimensions and quantity', () {
+      final settings = AppSettingsProvider();
+      expect(settings.syncVersion, equals(0));
+      expect(settings.syncedProfileFromHome, isNull);
+
+      settings.syncProfileFromHome(
+        material: 'Steel',
+        shape: 'H-Beam (JIS)',
+        size: '250x125',
+        thickness: '',
+        variant: 'JIS',
+        lengthInM: 12.0,
+        quantity: 5,
+        weightPerM: 29.60,
+        sectionArea: 37.66,
+      );
+
+      expect(settings.syncVersion, equals(1));
+      expect(settings.syncedProfileFromHome, isNotNull);
+      final p = settings.syncedProfileFromHome!;
+      expect(p.material, equals('Steel'));
+      expect(p.shape, equals('H-Beam (JIS)'));
+      expect(p.size, equals('250x125'));
+      expect(p.lengthInM, equals(12.0));
+      expect(p.quantity, equals(5));
+      expect(p.weightPerM, equals(29.60));
     });
   });
 
