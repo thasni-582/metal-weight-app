@@ -1044,10 +1044,10 @@ class PdfExportService {
           beamVariant = 'IPE-AA';
         } else if (rawVar == 'IPE' || (titleUpper.contains('IPE') && !titleUpper.contains('IPE-AA') && !titleUpper.contains('I-BEAM'))) {
           beamVariant = 'IPE';
-        } else if (rawVar == 'H' || titleUpper.contains('H-BEAM') || titleUpper.contains('JIS')) {
-          beamVariant = 'H';
         } else if (rawVar == 'I' || titleUpper.contains('I-BEAM')) {
           beamVariant = 'I';
+        } else if (rawVar == 'H' || titleUpper.contains('H-BEAM') || titleUpper.contains('JIS')) {
+          beamVariant = 'H';
         } else if (titleUpper.contains('W-BEAM') || titleUpper.contains('WIDE FLANGE')) {
           beamVariant = 'W-BEAM';
         } else {
@@ -1246,10 +1246,10 @@ class PdfExportService {
         variantStr = 'UC';
       } else if (rawVar == 'UB') {
         variantStr = 'UB';
-      } else if (rawVar == 'H' || shape.contains('H-BEAM') || shape.contains('JIS')) {
-        variantStr = 'H-BEAM';
       } else if (rawVar == 'I' || shape.contains('I-BEAM')) {
-        variantStr = 'I-BEAM';
+        variantStr = 'I-Beam (JIS)';
+      } else if (rawVar == 'H' || shape.contains('H-BEAM') || shape.contains('JIS')) {
+        variantStr = 'H-Beam (JIS)';
       } else if (shape.contains('HEA')) {
         variantStr = 'HEA';
       } else if (shape.contains('HEB')) {

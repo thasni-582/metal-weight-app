@@ -95,9 +95,9 @@ class _HomeScreenState extends State<HomeScreen> {
       } else if (newShape == 'HEB Beam') {
         _activeVariant = 'HEB';
       } else if (newShape == 'H-Beam (JIS)' || newShape == 'H-Beam') {
-        _activeVariant = 'JIS';
+        _activeVariant = 'H-Beam (JIS)';
       } else if (newShape == 'I-Beam (JIS)' || newShape == 'I-Beam') {
-        _activeVariant = 'I-Beam';
+        _activeVariant = 'I-Beam (JIS)';
       } else if (newShape == 'UB (Universal Beam)') {
         _activeVariant = 'UB';
       } else if (newShape == 'UC (Universal Columns)') {

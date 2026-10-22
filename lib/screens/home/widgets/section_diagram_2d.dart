@@ -72,7 +72,9 @@ class _Section2DDiagramWidgetState extends State<Section2DDiagramWidget> {
 
   String _getDefaultVariant(String shape) {
     if ((shape.contains('Equal Angle') || shape.contains('Angle Equal')) && !shape.contains('Unequal')) return '20 to 60';
-    if (shape.contains('JIS') && (shape.contains('Beam') || shape.contains('H-Beam'))) return 'JIS';
+    if (shape.contains('I-Beam')) return 'I-Beam (JIS)';
+    if (shape.contains('H-Beam')) return 'H-Beam (JIS)';
+    if (shape.contains('JIS') && (shape.contains('Beam') || shape.contains('H-Beam'))) return 'H-Beam (JIS)';
     if (shape.contains('JIS') && shape.contains('Channel')) return 'JIS';
     if (shape.contains('UPE')) return 'UPE';
     if (shape.contains('UPN')) return 'UPN';
@@ -180,7 +182,7 @@ class _Section2DDiagramWidgetState extends State<Section2DDiagramWidget> {
               children: [
                 Expanded(
                   child: Text(
-                    data.headerTitle.toUpperCase(),
+                    data.headerTitle,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
@@ -526,8 +528,12 @@ class DiagramData {
         effVariant = 'HEA';
       } else if (shapeType.contains('HEB')) {
         effVariant = 'HEB';
+      } else if (shapeType == 'I-Beam (JIS)' || shapeType == 'I-Beam' || shapeType.contains('I-Beam')) {
+        effVariant = 'I-Beam (JIS)';
+      } else if (shapeType == 'H-Beam (JIS)' || shapeType == 'H-Beam' || shapeType.contains('H-Beam')) {
+        effVariant = 'H-Beam (JIS)';
       } else if (shapeType.contains('JIS')) {
-        effVariant = 'JIS';
+        effVariant = (variant == 'I' || variant.contains('I-Beam')) ? 'I-Beam (JIS)' : 'H-Beam (JIS)';
       } else if (shapeType.contains('UC') || shapeType.contains('Universal Column')) {
         effVariant = 'UC';
       } else if (shapeType.contains('UB') || shapeType.contains('Universal Beam')) {
@@ -539,13 +545,30 @@ class DiagramData {
       } else {
         effVariant = variant.isNotEmpty ? variant : 'HEA';
       }
-      title = effVariant.toUpperCase().contains('BEAM') ? effVariant.toUpperCase() : '$effVariant BEAM';
-      dispName = '$effVariant $sizeStr';
-      variantTag = effVariant;
+
+      if (effVariant == 'I-Beam (JIS)') {
+        title = 'I-Beam (JIS)';
+        dispName = 'I-Beam $sizeStr';
+        variantTag = 'I-Beam (JIS)';
+        standardTag = 'JIS G 3192';
+      } else if (effVariant == 'H-Beam (JIS)') {
+        title = 'H-Beam (JIS)';
+        dispName = 'H-Beam $sizeStr';
+        variantTag = 'H-Beam (JIS)';
+        standardTag = 'JIS G 3192';
+      } else {
+        title = effVariant.toUpperCase().contains('BEAM') ? effVariant.toUpperCase() : '$effVariant BEAM';
+        dispName = '$effVariant $sizeStr';
+        variantTag = effVariant;
+      }
       sizeTag = sizeStr;
 
       StandardProfileSpec? spec;
-      if (effVariant == 'JIS') {
+      if (effVariant == 'I-Beam (JIS)') {
+        spec = StandardData.clientIBeams[sizeStr] ?? StandardData.jisBeams[sizeStr];
+      } else if (effVariant == 'H-Beam (JIS)') {
+        spec = StandardData.clientHBeams[sizeStr] ?? StandardData.jisBeams[sizeStr];
+      } else if (effVariant == 'JIS') {
         spec = StandardData.jisBeams[sizeStr];
       } else if (effVariant == 'IPE') {
         spec = StandardData.ipeBeams[sizeStr];
@@ -564,7 +587,9 @@ class DiagramData {
       }
 
       // Catalog cross-fallback if variant wasn't strictly resolved
-      spec ??= StandardData.ubBeams[sizeStr] ??
+      spec ??= StandardData.clientIBeams[sizeStr] ??
+          StandardData.clientHBeams[sizeStr] ??
+          StandardData.ubBeams[sizeStr] ??
           StandardData.ucBeams[sizeStr] ??
           StandardData.wBeams[sizeStr] ??
           StandardData.findWBeam(sizeStr) ??
@@ -1271,20 +1296,20 @@ class Section2DPainter extends CustomPainter {
 
     // 3. Beam geometry:
     // Wide-Flange H-Beams / Columns (HEA, HEB, UC, square W-Beams) have equal or near-equal width & height (b ≈ h)
-    // Universal Beams and deep W-Beams (UB, IPE, IPE-AA, deep W-Beams) are deep and narrow (h > b)
-    final double h = isHBeam ? 126.0 : 138.0;
+    // Universal Beams and deep W-Beams (UB, IPE, IPE-AA, deep W-Beams, I-Beams) are deep and narrow (h >> b)
+    final double h = isHBeam ? 124.0 : 144.0;
     final double b = isHBeam
-        ? (h * rawAspect.clamp(0.80, 1.15)).clamp(100.0, 128.0)
-        : (h * rawAspect.clamp(0.35, 0.65)).clamp(48.0, 82.0);
+        ? (h * rawAspect.clamp(0.85, 1.15)).clamp(104.0, 126.0)
+        : (h * rawAspect.clamp(0.40, 0.55)).clamp(52.0, 72.0);
 
     final double tf = isHBeam
-        ? (11.0 + (data.flangeThickVal / 25.0 * 5.0)).clamp(12.0, 16.0)
-        : (10.0 + (data.flangeThickVal / 25.0 * 4.0)).clamp(11.0, 14.0);
+        ? (12.0 + (data.flangeThickVal / 25.0 * 4.0)).clamp(12.5, 16.0)
+        : (9.0 + (data.flangeThickVal / 25.0 * 3.5)).clamp(9.5, 12.0);
     final double tw = isHBeam
-        ? (8.0 + (data.webThickVal / 15.0 * 4.0)).clamp(9.0, 12.0)
-        : (7.0 + (data.webThickVal / 15.0 * 3.0)).clamp(8.0, 10.5);
-    final double r = isHBeam ? 8.0 : 6.5; // root fillet radius
-    final double topY = isHBeam ? 18.0 : 16.0;
+        ? (8.5 + (data.webThickVal / 15.0 * 3.5)).clamp(9.0, 12.0)
+        : (6.0 + (data.webThickVal / 15.0 * 2.5)).clamp(6.5, 8.5);
+    final double r = isHBeam ? 8.0 : 5.0; // root fillet radius
+    final double topY = isHBeam ? 19.0 : 13.0;
 
     final double diagramRight = size.width - 10.0;
     const double rightDimReserve = 44.0;

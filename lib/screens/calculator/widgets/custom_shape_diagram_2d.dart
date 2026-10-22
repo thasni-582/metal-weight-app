@@ -511,11 +511,12 @@ class _ShapeDiagramPainter extends CustomPainter {
   }
 
   void _drawIBeam(Canvas canvas, Size size) {
-    const double h = 106.0;
-    const double b = 74.0;
-    const double tw = 11.0;
-    const double tf = 13.0;
-    const double r = 6.0;
+    final bool isH = shape == 'H-Beam' || (shape.contains('H-Beam'));
+    final double h = isH ? 98.0 : 114.0;
+    final double b = isH ? 98.0 : 58.0;
+    final double tw = isH ? 12.0 : 9.0;
+    final double tf = isH ? 14.0 : 11.0;
+    final double r = isH ? 6.0 : 4.5;
     final double startX = (size.width - b) / 2 - 8.0;
     final double startY = (size.height - (h + 28.0)) / 2;
 
@@ -527,14 +528,14 @@ class _ShapeDiagramPainter extends CustomPainter {
       ..lineTo(startX + (b + tw) / 2 + r, startY + tf)
       ..arcToPoint(
         Offset(startX + (b + tw) / 2, startY + tf + r),
-        radius: const Radius.circular(r),
+        radius: Radius.circular(r),
         clockwise: false,
       )
       // Web
       ..lineTo(startX + (b + tw) / 2, startY + h - tf - r)
       ..arcToPoint(
         Offset(startX + (b + tw) / 2 + r, startY + h - tf),
-        radius: const Radius.circular(r),
+        radius: Radius.circular(r),
         clockwise: false,
       )
       // Bottom Flange
@@ -545,14 +546,14 @@ class _ShapeDiagramPainter extends CustomPainter {
       ..lineTo(startX + (b - tw) / 2 - r, startY + h - tf)
       ..arcToPoint(
         Offset(startX + (b - tw) / 2, startY + h - tf - r),
-        radius: const Radius.circular(r),
+        radius: Radius.circular(r),
         clockwise: false,
       )
       // Web other side
       ..lineTo(startX + (b - tw) / 2, startY + tf + r)
       ..arcToPoint(
         Offset(startX + (b - tw) / 2 - r, startY + tf),
-        radius: const Radius.circular(r),
+        radius: Radius.circular(r),
         clockwise: false,
       )
       ..lineTo(startX, startY + tf)
