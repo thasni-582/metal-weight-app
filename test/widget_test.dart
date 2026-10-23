@@ -113,7 +113,7 @@ void main() {
       shape: 'Equal Angle',
       size: '50',
       thickness: '5',
-      variant: '20 to 60',
+      variant: 'EQUAL',
       lengthInM: 6.0,
       quantity: 2,
       weightPerM: 3.77,

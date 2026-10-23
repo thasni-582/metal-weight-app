@@ -187,7 +187,7 @@ class _CalculationScreenState extends State<CalculationScreen> {
       } else if (newProduct == 'U-Channel (JIS)') {
         _activeVariant = 'JIS';
       } else if (newProduct.contains('Angle') && !newProduct.contains('Unequal')) {
-        _activeVariant = '20 to 60';
+        _activeVariant = 'EQUAL';
       }
 
       // Infer metal if product specifies it

@@ -51,9 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (sizes.isNotEmpty) {
       if (!sizes.contains(_selectedSize)) {
         if (_selectedShape.contains('Angle') && !_selectedShape.contains('Unequal')) {
-          _selectedSize = (_activeVariant == '70 to 200')
-              ? (sizes.contains('70') ? '70' : sizes.first)
-              : (sizes.contains('30') ? '30' : sizes.first);
+          _selectedSize = sizes.contains('30') ? '30' : sizes.first;
         } else if (_selectedShape.contains('Pipe')) {
           _selectedSize = sizes.contains('1/2" (21.3 mm)') ? '1/2" (21.3 mm)' : sizes.first;
         } else {
@@ -118,7 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
       } else if (newShape.contains('Beam')) {
         _activeVariant = 'IPE';
       } else if (newShape.contains('Angle') && !newShape.contains('Unequal')) {
-        _activeVariant = '20 to 60';
+        _activeVariant = 'EQUAL';
       }
       _initForSelectedShape();
     });
@@ -131,14 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
       case 'Angle Equal':
       case 'SS Angle (Stainless Steel)':
       case 'Aluminum Angle':
-        if (_activeVariant == '70 to 200') {
-          return StandardData.equalAngles.keys
-              .where((k) => (int.tryParse(k) ?? 0) >= 63)
-              .toList();
-        }
-        return StandardData.equalAngles.keys
-            .where((k) => (int.tryParse(k) ?? 0) <= 60)
-            .toList();
+        return StandardData.equalAngles.keys.toList();
       case 'Unequal Angle':
       case 'Angle Unequal':
         return StandardData.unequalAngles.keys.toList();
@@ -1161,13 +1152,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _activeVariant = variant;
           final sizes = _getAvailableSizes();
           if (sizes.isNotEmpty) {
-            if (_selectedShape.contains('Angle') && !_selectedShape.contains('Unequal')) {
-              _selectedSize = (variant == '70 to 200')
-                  ? (sizes.contains('70') ? '70' : sizes.first)
-                  : (sizes.contains('30') ? '30' : sizes.first);
-            } else {
-              _selectedSize = sizes.first;
-            }
+            _selectedSize = sizes.first;
           }
           final thicks = _getAvailableThicknesses();
           if (thicks.isNotEmpty && !thicks.contains(_selectedThickness)) {

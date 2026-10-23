@@ -71,7 +71,7 @@ class _Section2DDiagramWidgetState extends State<Section2DDiagramWidget> {
   }
 
   String _getDefaultVariant(String shape) {
-    if ((shape.contains('Equal Angle') || shape.contains('Angle Equal')) && !shape.contains('Unequal')) return '20 to 60';
+    if ((shape.contains('Equal Angle') || shape.contains('Angle Equal')) && !shape.contains('Unequal')) return 'EQUAL';
     if (shape.contains('I-Beam')) return 'I-Beam (JIS)';
     if (shape.contains('H-Beam')) return 'H-Beam (JIS)';
     if (shape.contains('JIS') && (shape.contains('Beam') || shape.contains('H-Beam'))) return 'H-Beam (JIS)';
@@ -93,9 +93,6 @@ class _Section2DDiagramWidgetState extends State<Section2DDiagramWidget> {
   }
 
   List<String> _getAvailableVariants(String shape) {
-    if ((shape.contains('Equal Angle') || shape.contains('Angle Equal')) && !shape.contains('Unequal')) {
-      return ['20 to 60', '70 to 200'];
-    }
     if (shape.contains('(') && shape.contains('/')) {
       if (shape.contains('Channel')) {
         return ['UPN', 'UPE', 'JIS'];
@@ -491,7 +488,7 @@ class DiagramData {
       } else {
         title = 'EQUAL ANGLE';
         dispName = 'L $sizeStr';
-        variantTag = variant.isNotEmpty ? variant : '20 to 60';
+        variantTag = variant.isNotEmpty ? variant : 'EQUAL';
         standardTag = 'EN 10056-1';
       }
       sizeTag = sizeStr;
@@ -1214,15 +1211,13 @@ class Section2DPainter extends CustomPainter {
       data.heightVal.toStringAsFixed(0),
     );
 
-    // 3. Center Size Range Text (e.g. "20 x 20 to 60 x 60" or "70 x 70 to 200 x 200")
-    final String rangeStr = (data.variantTag == '70 to 200' || data.heightVal >= 63)
-        ? '70 x 70 to 200 x 200'
-        : '20 x 20 to 60 x 60';
+    // 3. Center Size Range Text (e.g. "20 x 20 to 200 x 200")
+    final String rangeStr = '20 x 20 to 200 x 200';
     final TextPainter tpCenter = TextPainter(
       text: TextSpan(
         text: rangeStr,
         style: const TextStyle(
-          fontSize: 14.5,
+          fontSize: 13.5,
           fontWeight: FontWeight.bold,
           color: Color(0xFF1E293B),
           letterSpacing: 0.3,

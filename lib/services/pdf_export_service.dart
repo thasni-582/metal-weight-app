@@ -1144,7 +1144,7 @@ class PdfExportService {
           }
           final String hNum = dims['h'] ?? '30';
           final int hVal = int.tryParse(hNum) ?? 30;
-          final String rangeStr = hVal >= 63 ? '70x70 to 200x200' : '20x20 to 60x60';
+          const String rangeStr = '20x20 to 200x200';
           badges.add(
             pw.Positioned(
               left: 104.0,
