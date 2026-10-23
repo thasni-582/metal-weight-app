@@ -428,9 +428,18 @@ class DiagramData {
       } else {
         effVariant = variant.isNotEmpty ? variant : 'UPN';
       }
-      title = '$effVariant CHANNEL';
-      dispName = effVariant;
-      variantTag = effVariant;
+
+      if (effVariant == 'JIS') {
+        title = 'U CHANNEL';
+        dispName = 'U Channel';
+        variantTag = 'U Channel';
+        standardTag = 'JIS G 3192';
+      } else {
+        title = '$effVariant CHANNEL';
+        dispName = effVariant;
+        variantTag = effVariant;
+        standardTag = effVariant == 'UPE' ? 'DIN 1026-2' : 'DIN 1026-1';
+      }
       sizeTag = sizeStr;
 
       if (effVariant == 'JIS' && StandardData.jisChannels.containsKey(sizeStr)) {
@@ -948,7 +957,23 @@ class Section2DPainter extends CustomPainter {
     }
     final double boxW = math.max(48.0, maxValW + 12.0);
     const double boxH = 20.0;
-    final double boxStartX = startX + 50.0;
+    double maxLabelW = 44.0;
+    for (final row in rows) {
+      final lp = TextPainter(
+        text: TextSpan(
+          text: row[0],
+          style: const TextStyle(
+            fontSize: 12.0,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      if (lp.width > maxLabelW) {
+        maxLabelW = lp.width;
+      }
+    }
+    final double boxStartX = startX + maxLabelW + 8.0;
 
     for (int i = 0; i < rows.length; i++) {
       final double rowY = startY + (i * rowHeight);
@@ -1057,8 +1082,10 @@ class Section2DPainter extends CustomPainter {
         ..strokeWidth = 1.0,
     );
 
-    // Profile designation text (e.g. "UPN", "UPE", "JIS")
-    final String profileLabel = data.variantTag.isNotEmpty ? data.variantTag : 'UPN';
+    // Profile designation text (e.g. "UPN", "UPE", "U")
+    final String profileLabel = (data.variantTag.toLowerCase().contains('channel'))
+        ? 'U'
+        : (data.variantTag.isNotEmpty ? data.variantTag : 'UPN');
     final TextPainter lp = TextPainter(
       text: TextSpan(
         text: profileLabel,

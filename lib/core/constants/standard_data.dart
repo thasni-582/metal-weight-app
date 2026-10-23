@@ -87,10 +87,6 @@ class StandardData {
     '260': StandardProfileSpec(h: 260, b: 90, tw: 10.0, tf: 14.0, weight: 37.90, area: 48.30),
     '280': StandardProfileSpec(h: 280, b: 95, tw: 10.0, tf: 15.0, weight: 41.80, area: 53.30),
     '300': StandardProfileSpec(h: 300, b: 100, tw: 10.0, tf: 16.0, weight: 46.20, area: 58.80),
-    '320': StandardProfileSpec(h: 320, b: 100, tw: 14.0, tf: 17.5, weight: 59.50, area: 75.80),
-    '350': StandardProfileSpec(h: 350, b: 100, tw: 14.0, tf: 16.0, weight: 60.60, area: 77.30),
-    '380': StandardProfileSpec(h: 380, b: 102, tw: 13.5, tf: 16.0, weight: 63.10, area: 80.40),
-    '400': StandardProfileSpec(h: 400, b: 110, tw: 14.0, tf: 18.0, weight: 71.80, area: 91.50),
   };
 
   // Standard Channels UPE (DIN 1026-2)
@@ -471,21 +467,13 @@ class StandardData {
     return null;
   }
 
-  // Japanese Standard Channels (JIS G 3192)
+  // Japanese Standard Channels (JIS G 3192) - Sizes up to 150x75H
   static const Map<String, StandardProfileSpec> jisChannels = {
     '75x40': StandardProfileSpec(h: 75.0, b: 40.0, tw: 5.0, tf: 7.0, weight: 6.92, area: 8.82),
     '100x50': StandardProfileSpec(h: 100.0, b: 50.0, tw: 5.0, tf: 7.5, weight: 9.36, area: 11.92),
     '125x65': StandardProfileSpec(h: 125.0, b: 65.0, tw: 6.0, tf: 8.0, weight: 13.40, area: 17.11),
     '150x75': StandardProfileSpec(h: 150.0, b: 75.0, tw: 6.5, tf: 10.0, weight: 18.60, area: 23.71),
     '150x75H': StandardProfileSpec(h: 150.0, b: 75.0, tw: 9.0, tf: 12.5, weight: 24.00, area: 30.59),
-    '180x75': StandardProfileSpec(h: 180.0, b: 75.0, tw: 7.0, tf: 10.5, weight: 21.40, area: 27.20),
-    '200x80': StandardProfileSpec(h: 200.0, b: 80.0, tw: 7.5, tf: 11.0, weight: 24.60, area: 31.33),
-    '200x90': StandardProfileSpec(h: 200.0, b: 90.0, tw: 8.0, tf: 13.5, weight: 30.30, area: 38.65),
-    '250x90': StandardProfileSpec(h: 250.0, b: 90.0, tw: 9.0, tf: 13.0, weight: 34.60, area: 44.07),
-    '250x90H': StandardProfileSpec(h: 250.0, b: 90.0, tw: 11.0, tf: 14.5, weight: 40.20, area: 51.17),
-    '300x90': StandardProfileSpec(h: 300.0, b: 90.0, tw: 9.0, tf: 13.0, weight: 38.10, area: 48.57),
-    '300x90H': StandardProfileSpec(h: 300.0, b: 90.0, tw: 10.0, tf: 15.5, weight: 43.80, area: 55.74),
-    '380x100': StandardProfileSpec(h: 380.0, b: 100.0, tw: 10.5, tf: 16.0, weight: 54.50, area: 69.39),
   };
 
   // Japanese Standard H-Beams (JIS G 3192) - Aligned with Client Catalog

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import 'package:metal_weight/core/constants/standard_data.dart';
 import 'package:metal_weight/core/providers/app_settings_provider.dart';
 import 'package:metal_weight/main.dart';
 import 'package:metal_weight/screens/calculator/calculation_screen.dart';
@@ -227,5 +228,45 @@ void main() {
     expect(find.text('1.30 kg/m'), findsWidgets);
     expect(find.text('7.78 kg'), findsWidgets);
     expect(find.text('4.80 cm²'), findsWidgets);
+  });
+
+  testWidgets('U-Channel (JIS) and UPN Channel sizes and blueprint headers verify correctly', (WidgetTester tester) async {
+    // Assert JIS channels only up to 150x75H
+    expect(StandardData.jisChannels.keys.toList(), equals(['75x40', '100x50', '125x65', '150x75', '150x75H']));
+    // Assert UPN channels maximum size is 300
+    expect(StandardData.upnChannels.keys.contains('300'), isTrue);
+    expect(StandardData.upnChannels.keys.contains('320'), isFalse);
+    expect(StandardData.upnChannels.keys.contains('350'), isFalse);
+    expect(StandardData.upnChannels.keys.contains('400'), isFalse);
+
+    final settings = AppSettingsProvider();
+    settings.syncProfileFromHome(
+      material: 'Steel',
+      shape: 'U-Channel (JIS)',
+      size: '150x75H',
+      thickness: '',
+      variant: 'U Channel',
+      lengthInM: 12.0,
+      quantity: 1,
+      weightPerM: 24.00,
+      sectionArea: 30.59,
+    );
+
+    await tester.pumpWidget(
+      ChangeNotifierProvider<AppSettingsProvider>.value(
+        value: settings,
+        child: const MaterialApp(
+          home: Scaffold(
+            body: CalculationScreen(),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('24.00 kg/m'), findsWidgets);
+    expect(find.text('288.00 kg'), findsWidgets);
+    expect(find.text('30.59 cm²'), findsWidgets);
+    expect(find.text('U CHANNEL'), findsOneWidget);
   });
 }
