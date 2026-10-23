@@ -269,4 +269,35 @@ void main() {
     expect(find.text('30.59 cm²'), findsWidgets);
     expect(find.text('U CHANNEL'), findsOneWidget);
   });
+
+  testWidgets('CalculationScreen renders IPE-AA Beam 160 with 12.30 kg/m and 15.68 cm²', (WidgetTester tester) async {
+    final settings = AppSettingsProvider();
+    settings.syncProfileFromHome(
+      material: 'Steel',
+      shape: 'IPE-AA Beam',
+      size: '160',
+      thickness: '',
+      variant: 'IPE-AA',
+      lengthInM: 12.0,
+      quantity: 1,
+      weightPerM: 12.30,
+      sectionArea: 15.68,
+    );
+
+    await tester.pumpWidget(
+      ChangeNotifierProvider<AppSettingsProvider>.value(
+        value: settings,
+        child: const MaterialApp(
+          home: Scaffold(
+            body: CalculationScreen(),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('12.30 kg/m'), findsWidgets);
+    expect(find.text('147.60 kg'), findsWidgets);
+    expect(find.text('15.68 cm²'), findsWidgets);
+  });
 }

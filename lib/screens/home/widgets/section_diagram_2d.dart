@@ -578,6 +578,26 @@ class DiagramData {
         dispName = 'W-Beam $sizeStr';
         variantTag = 'W-Beam';
         standardTag = 'ASTM A6';
+      } else if (effVariant == 'IPE-AA') {
+        title = 'IPE-AA BEAM';
+        dispName = 'IPE-AA $sizeStr';
+        variantTag = 'IPE-AA';
+        standardTag = 'EN 10365';
+      } else if (effVariant == 'IPE') {
+        title = 'IPE BEAM';
+        dispName = 'IPE $sizeStr';
+        variantTag = 'IPE';
+        standardTag = 'EN 10365';
+      } else if (effVariant == 'HEA') {
+        title = 'HEA BEAM';
+        dispName = 'HEA $sizeStr';
+        variantTag = 'HEA';
+        standardTag = 'EN 10025';
+      } else if (effVariant == 'HEB') {
+        title = 'HEB BEAM';
+        dispName = 'HEB $sizeStr';
+        variantTag = 'HEB';
+        standardTag = 'EN 10025';
       } else {
         title = effVariant.toUpperCase().contains('BEAM') ? effVariant.toUpperCase() : '$effVariant BEAM';
         dispName = '$effVariant $sizeStr';
