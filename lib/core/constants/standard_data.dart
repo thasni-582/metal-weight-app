@@ -934,24 +934,24 @@ class StandardData {
         h: 596.0, b: 199.0, tw: 10.0, tf: 15.0, weight: 92.50, area: 117.83),
   };
 
-  // Client Catalog Standard H-Beams (Wide Flange) - 8 Sizes from Client Specification
+  // Client Catalog Standard H-Beams (Wide Flange) - 8 Sizes from Client Stock Specification
   static const Map<String, StandardProfileSpec> clientHBeams = {
     '100x100': StandardProfileSpec(
-        h: 100.0, b: 100.0, tw: 6.0, tf: 8.0, weight: 16.90, area: 21.53),
+        h: 100.0, b: 100.0, tw: 6.0, tf: 8.0, weight: 17.20, area: 21.91),
     '125x125': StandardProfileSpec(
-        h: 125.0, b: 125.0, tw: 6.5, tf: 9.0, weight: 23.50, area: 29.94),
+        h: 125.0, b: 125.0, tw: 6.5, tf: 9.0, weight: 23.80, area: 30.32),
     '150x150': StandardProfileSpec(
-        h: 150.0, b: 150.0, tw: 7.0, tf: 10.0, weight: 31.10, area: 39.62),
+        h: 150.0, b: 150.0, tw: 7.0, tf: 10.0, weight: 31.50, area: 40.13),
     '200x200': StandardProfileSpec(
-        h: 200.0, b: 200.0, tw: 8.0, tf: 12.0, weight: 49.90, area: 63.53),
+        h: 200.0, b: 200.0, tw: 8.0, tf: 12.0, weight: 49.90, area: 63.57),
     '250x250': StandardProfileSpec(
-        h: 250.0, b: 250.0, tw: 9.0, tf: 14.0, weight: 71.80, area: 91.46),
+        h: 250.0, b: 250.0, tw: 9.0, tf: 14.0, weight: 72.40, area: 92.23),
     '300x300': StandardProfileSpec(
-        h: 300.0, b: 300.0, tw: 10.0, tf: 15.0, weight: 93.00, area: 118.47),
+        h: 300.0, b: 300.0, tw: 10.0, tf: 15.0, weight: 94.00, area: 119.75),
     '350x350': StandardProfileSpec(
-        h: 350.0, b: 350.0, tw: 12.0, tf: 19.0, weight: 134.90, area: 171.85),
-    '400x200': StandardProfileSpec(
-        h: 400.0, b: 200.0, tw: 8.0, tf: 13.0, weight: 65.40, area: 83.31),
+        h: 350.0, b: 350.0, tw: 12.0, tf: 19.0, weight: 138.00, area: 175.80),
+    '400x400': StandardProfileSpec(
+        h: 400.0, b: 400.0, tw: 13.0, tf: 21.0, weight: 172.00, area: 219.11),
   };
 
   static StandardProfileSpec? findClientIBeam(

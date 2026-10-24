@@ -178,16 +178,16 @@ void main() {
       expect(StandardData.clientIBeams['500x200']?.weight, equals(89.60));
       expect(StandardData.clientIBeams['596x199']?.weight, equals(92.50));
 
-      // 8 Client H-Beams
+      // 8 Client H-Beams from Client Stock Specification
       expect(StandardData.clientHBeams.length, equals(8));
-      expect(StandardData.clientHBeams['100x100']?.weight, equals(16.90));
-      expect(StandardData.clientHBeams['125x125']?.weight, equals(23.50));
-      expect(StandardData.clientHBeams['150x150']?.weight, equals(31.10));
+      expect(StandardData.clientHBeams['100x100']?.weight, equals(17.20));
+      expect(StandardData.clientHBeams['125x125']?.weight, equals(23.80));
+      expect(StandardData.clientHBeams['150x150']?.weight, equals(31.50));
       expect(StandardData.clientHBeams['200x200']?.weight, equals(49.90));
-      expect(StandardData.clientHBeams['250x250']?.weight, equals(71.80));
-      expect(StandardData.clientHBeams['300x300']?.weight, equals(93.00));
-      expect(StandardData.clientHBeams['350x350']?.weight, equals(134.90));
-      expect(StandardData.clientHBeams['400x200']?.weight, equals(65.40));
+      expect(StandardData.clientHBeams['250x250']?.weight, equals(72.40));
+      expect(StandardData.clientHBeams['300x300']?.weight, equals(94.00));
+      expect(StandardData.clientHBeams['350x350']?.weight, equals(138.00));
+      expect(StandardData.clientHBeams['400x400']?.weight, equals(172.00));
 
       // Test client complaint case: 250x125x6x9 at 12m length
       final spec = StandardData.findClientIBeam(250.0, 125.0, 6.0, 9.0);
