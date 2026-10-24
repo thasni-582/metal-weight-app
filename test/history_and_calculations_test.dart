@@ -22,7 +22,7 @@ void main() {
       expect(StandardData.equalAngles['50']?['5'], equals(3.77));
       expect(StandardData.upnChannels['100']?.weight, equals(10.60));
       expect(StandardData.ipeBeams['200']?.weight, equals(22.40));
-      expect(StandardData.ipeAaBeams['100']?.weight, equals(6.70));
+      expect(StandardData.ipeAaBeams['100']?.weight, equals(5.72));
       // IPE-AA only 80 to 200
       expect(StandardData.ipeAaBeams.keys.toList(), equals(['80', '100', '120', '140', '160', '180', '200']));
       expect(StandardData.ipeAaBeams.containsKey('220'), isFalse);

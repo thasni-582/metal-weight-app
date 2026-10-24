@@ -217,22 +217,22 @@ class StandardData {
         h: 600, b: 220, tw: 12.0, tf: 19.0, weight: 122.00, area: 156.00),
   };
 
-  // Beams IPE-AA (Ultra-light European I-Beams, EN 10365 / Madar / SULB)
+  // Beams IPE-AA (Ultra-light European I-Beams, Client Stock Specification)
   static const Map<String, StandardProfileSpec> ipeAaBeams = {
     '80': StandardProfileSpec(
-        h: 78.0, b: 46.0, tw: 3.2, tf: 4.2, weight: 4.90, area: 6.24),
+        h: 80.0, b: 46.0, tw: 3.2, tf: 4.6, weight: 4.85, area: 6.18),
     '100': StandardProfileSpec(
-        h: 97.6, b: 55.0, tw: 3.6, tf: 4.5, weight: 6.70, area: 8.54),
+        h: 100.0, b: 55.0, tw: 3.5, tf: 4.8, weight: 5.72, area: 7.29),
     '120': StandardProfileSpec(
-        h: 117.0, b: 64.0, tw: 3.8, tf: 4.8, weight: 8.40, area: 10.65),
+        h: 120.0, b: 64.0, tw: 3.7, tf: 5.0, weight: 8.36, area: 10.65),
     '140': StandardProfileSpec(
-        h: 136.6, b: 73.0, tw: 3.8, tf: 5.2, weight: 10.10, area: 12.80),
+        h: 140.0, b: 73.0, tw: 3.8, tf: 5.2, weight: 10.10, area: 12.87),
     '160': StandardProfileSpec(
-        h: 156.4, b: 82.0, tw: 4.0, tf: 5.6, weight: 12.30, area: 15.68),
+        h: 160.0, b: 82.0, tw: 4.0, tf: 5.6, weight: 12.30, area: 15.68),
     '180': StandardProfileSpec(
-        h: 176.4, b: 91.0, tw: 4.3, tf: 6.2, weight: 14.90, area: 19.03),
+        h: 180.0, b: 91.0, tw: 4.3, tf: 6.2, weight: 14.90, area: 18.98),
     '200': StandardProfileSpec(
-        h: 196.4, b: 100.0, tw: 4.5, tf: 6.7, weight: 18.00, area: 22.87),
+        h: 200.0, b: 100.0, tw: 4.5, tf: 6.7, weight: 18.00, area: 22.87),
   };
 
   // Beams HEA (Euronorm 53-62)
