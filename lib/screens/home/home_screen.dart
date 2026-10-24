@@ -258,7 +258,15 @@ class _HomeScreenState extends State<HomeScreen> {
       // Angles
       case 'Equal Angle':
       case 'Angle Equal':
-        final double? w = StandardData.equalAngles[_selectedSize]?[_selectedThickness];
+        final String tText = _selectedThickness.trim();
+        final double? tNum = double.tryParse(tText);
+        final String tClean = tNum != null
+            ? (tNum == tNum.roundToDouble()
+                ? tNum.toInt().toString()
+                : tNum.toString())
+            : tText;
+        final double? w = StandardData.equalAngles[_selectedSize]?[tText] ??
+            StandardData.equalAngles[_selectedSize]?[tClean];
         weightKgPerM = w ?? 1.36;
         sectionAreaCm2 = weightKgPerM / 0.785;
         break;

@@ -350,11 +350,16 @@ class _CalculationScreenState extends State<CalculationScreen> {
         _thicknessController.text = availThick.isNotEmpty ? availThick.first : '5';
       }
       _selectedThickness = _thicknessController.text;
+      final String tClean = (double.tryParse(_thicknessController.text.trim()) ?? 0)
+          .toString()
+          .replaceAll(RegExp(r'\.0$'), '');
       final double? w;
       if (product.contains('Unequal')) {
-        w = StandardData.unequalAngles[size]?[_thicknessController.text];
+        w = StandardData.unequalAngles[size]?[_thicknessController.text] ??
+            StandardData.unequalAngles[size]?[tClean];
       } else {
-        w = StandardData.equalAngles[size]?[_thicknessController.text];
+        w = StandardData.equalAngles[size]?[_thicknessController.text] ??
+            StandardData.equalAngles[size]?[tClean];
       }
       if (w != null) {
         final double density = _getEffectiveDensity();
@@ -664,14 +669,27 @@ class _CalculationScreenState extends State<CalculationScreen> {
         double areaCross = 0.0;
         double unitWeightPerM = 0.0;
 
+        final String tText = _thicknessController.text.trim();
+        final double? tNum = double.tryParse(tText);
+        final String tClean = tNum != null
+            ? (tNum == tNum.roundToDouble()
+                ? tNum.toInt().toString()
+                : tNum.toString())
+            : tText;
+
         final double? angleW;
         if (_selectedProduct.contains('Unequal')) {
-          angleW = StandardData.unequalAngles[_selectedSize]?[_thicknessController.text] ??
-              StandardData.unequalAngles['${legA.round()}x${legB.round()}']?[_thicknessController.text] ??
-              StandardData.unequalAngles['${legB.round()}x${legA.round()}']?[_thicknessController.text];
+          angleW = StandardData.unequalAngles[_selectedSize]?[tText] ??
+              StandardData.unequalAngles[_selectedSize]?[tClean] ??
+              StandardData.unequalAngles['${legA.round()}x${legB.round()}']?[tText] ??
+              StandardData.unequalAngles['${legA.round()}x${legB.round()}']?[tClean] ??
+              StandardData.unequalAngles['${legB.round()}x${legA.round()}']?[tText] ??
+              StandardData.unequalAngles['${legB.round()}x${legA.round()}']?[tClean];
         } else {
-          angleW = StandardData.equalAngles[_selectedSize]?[_thicknessController.text] ??
-              StandardData.equalAngles['${legA.round()}']?[_thicknessController.text];
+          angleW = StandardData.equalAngles[_selectedSize]?[tText] ??
+              StandardData.equalAngles[_selectedSize]?[tClean] ??
+              StandardData.equalAngles['${legA.round()}']?[tText] ??
+              StandardData.equalAngles['${legA.round()}']?[tClean];
         }
 
         if (angleW != null) {
