@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:metal_weight/core/constants/app_colors.dart';
 import 'package:metal_weight/screens/navigation/main_nav_screen.dart';
@@ -13,15 +14,19 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
   late AnimationController _entranceController;
-  late AnimationController _pulseController;
+  late AnimationController _loopController;
 
-  late Animation<double> _logoFade;
   late Animation<double> _logoScale;
+  late Animation<double> _logoFade;
   late Animation<double> _titleFade;
   late Animation<Offset> _titleSlide;
+  late Animation<double> _lineExpand;
   late Animation<double> _subtitleFade;
   late Animation<Offset> _subtitleSlide;
-  late Animation<double> _pulseAnimation;
+
+  late Animation<double> _floatAnimation;
+  late Animation<double> _haloScale;
+  late Animation<double> _haloOpacity;
 
   Timer? _navigationTimer;
 
@@ -29,81 +34,98 @@ class _SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
 
-    // 1. Entrance animation (Staggered smooth entrance)
+    // 1. Entrance animation (Distinct zoom, pop-in and slide)
     _entranceController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 1400),
     );
 
     _logoFade = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _entranceController,
-        curve: const Interval(0.0, 0.60, curve: Curves.easeOut),
+        curve: const Interval(0.0, 0.40, curve: Curves.easeIn),
       ),
     );
 
-    _logoScale = Tween<double>(begin: 0.80, end: 1.0).animate(
+    _logoScale = Tween<double>(begin: 0.25, end: 1.0).animate(
       CurvedAnimation(
         parent: _entranceController,
-        curve: const Interval(0.0, 0.75, curve: Curves.easeOutBack),
+        curve: const Interval(0.0, 0.70, curve: Curves.easeOutBack),
       ),
     );
 
     _titleFade = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _entranceController,
-        curve: const Interval(0.35, 0.85, curve: Curves.easeOut),
+        curve: const Interval(0.35, 0.75, curve: Curves.easeOut),
       ),
     );
 
     _titleSlide = Tween<Offset>(
-      begin: const Offset(0, 0.35),
+      begin: const Offset(0, 0.60),
       end: Offset.zero,
     ).animate(
       CurvedAnimation(
         parent: _entranceController,
-        curve: const Interval(0.35, 0.85, curve: Curves.easeOutCubic),
+        curve: const Interval(0.35, 0.75, curve: Curves.easeOutCubic),
+      ),
+    );
+
+    _lineExpand = Tween<double>(begin: 0.0, end: 42.0).animate(
+      CurvedAnimation(
+        parent: _entranceController,
+        curve: const Interval(0.50, 0.85, curve: Curves.easeOutCubic),
       ),
     );
 
     _subtitleFade = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _entranceController,
-        curve: const Interval(0.55, 1.0, curve: Curves.easeOut),
+        curve: const Interval(0.60, 1.0, curve: Curves.easeOut),
       ),
     );
 
     _subtitleSlide = Tween<Offset>(
-      begin: const Offset(0, 0.40),
+      begin: const Offset(0, 0.60),
       end: Offset.zero,
     ).animate(
       CurvedAnimation(
         parent: _entranceController,
-        curve: const Interval(0.55, 1.0, curve: Curves.easeOutCubic),
+        curve: const Interval(0.60, 1.0, curve: Curves.easeOutCubic),
       ),
     );
 
-    // 2. Subtle continuous breathing pulse for the logo
-    _pulseController = AnimationController(
+    // 2. Visible continuous floating & halo pulse animation
+    _loopController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2200),
-    );
+      duration: const Duration(milliseconds: 1800),
+    )..repeat(reverse: true);
 
-    _pulseAnimation = Tween<double>(begin: 0.985, end: 1.015).animate(
+    _floatAnimation = Tween<double>(begin: -8.0, end: 8.0).animate(
       CurvedAnimation(
-        parent: _pulseController,
+        parent: _loopController,
         curve: Curves.easeInOutSine,
       ),
     );
 
-    _entranceController.forward().then((_) {
-      if (mounted) {
-        _pulseController.repeat(reverse: true);
-      }
-    });
+    _haloScale = Tween<double>(begin: 0.95, end: 1.25).animate(
+      CurvedAnimation(
+        parent: _loopController,
+        curve: Curves.easeInOutSine,
+      ),
+    );
 
-    // 3. Navigation to MainNavScreen with smooth fade transition
-    _navigationTimer = Timer(const Duration(milliseconds: 2800), () {
+    _haloOpacity = Tween<double>(begin: 0.30, end: 0.08).animate(
+      CurvedAnimation(
+        parent: _loopController,
+        curve: Curves.easeInOutSine,
+      ),
+    );
+
+    _entranceController.forward();
+
+    // 3. Navigation to MainNavScreen with smooth fade
+    _navigationTimer = Timer(const Duration(milliseconds: 3200), () {
       if (mounted) {
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
@@ -123,7 +145,7 @@ class _SplashScreenState extends State<SplashScreen>
   void dispose() {
     _navigationTimer?.cancel();
     _entranceController.dispose();
-    _pulseController.dispose();
+    _loopController.dispose();
     super.dispose();
   }
 
@@ -141,22 +163,37 @@ class _SplashScreenState extends State<SplashScreen>
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Animated Logo Card
+                      // Distinct Animated Logo with Floating Motion & Halo Pulse
                       FadeTransition(
                         opacity: _logoFade,
                         child: ScaleTransition(
                           scale: _logoScale,
                           child: AnimatedBuilder(
-                            animation: _pulseAnimation,
+                            animation: _loopController,
                             builder: (context, child) {
-                              return Transform.scale(
-                                scale: _pulseController.isAnimating
-                                    ? _pulseAnimation.value
-                                    : 1.0,
-                                child: child,
+                              return Transform.translate(
+                                offset: Offset(0, _floatAnimation.value),
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    // Ambient Orange Halo Pulse
+                                    Transform.scale(
+                                      scale: _haloScale.value,
+                                      child: Container(
+                                        height: 180,
+                                        width: 180,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(32),
+                                          color: AppColors.secondaryOrange
+                                              .withValues(alpha: _haloOpacity.value),
+                                        ),
+                                      ),
+                                    ),
+                                    _buildLogo(_floatAnimation.value),
+                                  ],
+                                ),
                               );
                             },
-                            child: _buildLogo(),
                           ),
                         ),
                       ),
@@ -177,7 +214,22 @@ class _SplashScreenState extends State<SplashScreen>
                           ),
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 10),
+                      // Animated Brand Accent Line
+                      AnimatedBuilder(
+                        animation: _lineExpand,
+                        builder: (context, child) {
+                          return Container(
+                            width: _lineExpand.value,
+                            height: 3,
+                            decoration: BoxDecoration(
+                              color: AppColors.secondaryOrange,
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 10),
                       // Animated Subtitle
                       FadeTransition(
                         opacity: _subtitleFade,
@@ -215,23 +267,30 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 
-  Widget _buildLogo() {
+  Widget _buildLogo(double floatOffset) {
+    final double dynamicBlur = 18.0 + (floatOffset + 8.0) * 0.7;
     return Container(
       height: 180,
       width: 180,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(22),
         color: Colors.white,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 15,
-            offset: const Offset(0, 6),
+            blurRadius: dynamicBlur,
+            offset: Offset(0, 6 + (floatOffset + 8.0) * 0.25),
+          ),
+          BoxShadow(
+            color: AppColors.secondaryOrange.withValues(alpha: 0.16),
+            blurRadius: dynamicBlur * 1.3,
+            spreadRadius: 2,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(22),
         child: Image.asset(
           'assets/images/image.png',
           fit: BoxFit.cover,
@@ -269,7 +328,7 @@ class _StaggeredPulseLoadingDotsState extends State<StaggeredPulseLoadingDots>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 1200),
     )..repeat();
   }
 
@@ -284,22 +343,19 @@ class _StaggeredPulseLoadingDotsState extends State<StaggeredPulseLoadingDots>
       animation: _controller,
       builder: (context, child) {
         final progress = (_controller.value - delay) % 1.0;
-        final scaleValue = progress < 0.5
-            ? 1.0 + (progress * 1.0)
-            : 1.5 - ((progress - 0.5) * 1.0);
-        final opacityValue = progress < 0.5
-            ? 0.3 + (progress * 1.4)
-            : 1.0 - ((progress - 0.5) * 1.4);
+        final wave = math.sin(progress * 2 * math.pi);
+        final jump = wave > 0 ? wave * 6.0 : 0.0;
+        final scaleValue = 0.9 + (wave > 0 ? wave * 0.35 : 0.0);
 
-        return Transform.scale(
-          scale: scaleValue,
-          child: Opacity(
-            opacity: opacityValue.clamp(0.3, 1.0),
+        return Transform.translate(
+          offset: Offset(0, -jump),
+          child: Transform.scale(
+            scale: scaleValue,
             child: Container(
               width: 8,
               height: 8,
               decoration: BoxDecoration(
-                color: widget.color,
+                color: widget.color.withValues(alpha: wave > 0 ? 1.0 : 0.4),
                 shape: BoxShape.circle,
               ),
             ),
@@ -316,9 +372,9 @@ class _StaggeredPulseLoadingDotsState extends State<StaggeredPulseLoadingDots>
       children: [
         _buildDot(0.0),
         const SizedBox(width: 8),
-        _buildDot(0.13),
+        _buildDot(0.18),
         const SizedBox(width: 8),
-        _buildDot(0.26),
+        _buildDot(0.36),
       ],
     );
   }
