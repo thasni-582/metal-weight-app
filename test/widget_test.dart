@@ -441,4 +441,52 @@ void main() {
     expect(find.text('272.00 kg/m'), findsWidgets);
     expect(find.text('3264.00 kg'), findsWidgets);
   });
+
+  testWidgets('CalculationScreen and Section2DDiagramWidget render full client HEB Beam 1000 with 314.00 kg/m', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: Section2DDiagramWidget(
+              shapeType: 'HEB Beam',
+              selectedSize: '1000',
+              selectedThickness: '',
+              availableSizes: ['1000'],
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('HEB BEAM'), findsOneWidget);
+
+    final settings = AppSettingsProvider();
+    settings.syncProfileFromHome(
+      material: 'Steel',
+      shape: 'HEB Beam',
+      size: '1000',
+      thickness: '',
+      variant: 'HEB',
+      lengthInM: 12.0,
+      quantity: 1,
+      weightPerM: 314.00,
+      sectionArea: 400.00,
+    );
+
+    await tester.pumpWidget(
+      ChangeNotifierProvider<AppSettingsProvider>.value(
+        value: settings,
+        child: const MaterialApp(
+          home: Scaffold(
+            body: CalculationScreen(),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('314.00 kg/m'), findsWidgets);
+    expect(find.text('3768.00 kg'), findsWidgets);
+  });
 }

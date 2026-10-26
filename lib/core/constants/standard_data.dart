@@ -221,7 +221,7 @@ class StandardData {
         h: 990, b: 300, tw: 16.5, tf: 31.0, weight: 272.00, area: 346.80),
   };
 
-  // Beams HEB (Euronorm 53-62)
+  // Beams HEB (Euronorm 53-62 & Client Catalog Full Specifications HEB 100 - HEB 1000)
   static const Map<String, StandardProfileSpec> hebBeams = {
     '100': StandardProfileSpec(
         h: 100, b: 100, tw: 6.0, tf: 10.0, weight: 20.40, area: 26.00),
@@ -245,6 +245,32 @@ class StandardData {
         h: 280, b: 280, tw: 10.5, tf: 18.0, weight: 103.00, area: 131.20),
     '300': StandardProfileSpec(
         h: 300, b: 300, tw: 11.0, tf: 19.0, weight: 117.00, area: 149.10),
+    '320': StandardProfileSpec(
+        h: 320, b: 300, tw: 11.5, tf: 20.5, weight: 127.00, area: 161.80),
+    '340': StandardProfileSpec(
+        h: 340, b: 300, tw: 12.0, tf: 21.5, weight: 134.00, area: 170.90),
+    '360': StandardProfileSpec(
+        h: 360, b: 300, tw: 12.5, tf: 22.5, weight: 142.00, area: 180.60),
+    '400': StandardProfileSpec(
+        h: 400, b: 300, tw: 13.5, tf: 24.0, weight: 155.00, area: 197.80),
+    '450': StandardProfileSpec(
+        h: 450, b: 300, tw: 14.0, tf: 26.0, weight: 171.00, area: 218.00),
+    '500': StandardProfileSpec(
+        h: 500, b: 300, tw: 14.5, tf: 28.0, weight: 187.00, area: 238.60),
+    '550': StandardProfileSpec(
+        h: 550, b: 300, tw: 15.0, tf: 29.0, weight: 199.00, area: 254.10),
+    '600': StandardProfileSpec(
+        h: 600, b: 300, tw: 15.5, tf: 30.0, weight: 212.00, area: 270.00),
+    '650': StandardProfileSpec(
+        h: 650, b: 300, tw: 16.0, tf: 31.0, weight: 225.00, area: 286.30),
+    '700': StandardProfileSpec(
+        h: 700, b: 300, tw: 17.0, tf: 32.0, weight: 241.00, area: 306.40),
+    '800': StandardProfileSpec(
+        h: 800, b: 300, tw: 17.5, tf: 33.0, weight: 262.00, area: 334.20),
+    '900': StandardProfileSpec(
+        h: 900, b: 300, tw: 18.5, tf: 35.0, weight: 291.00, area: 371.30),
+    '1000': StandardProfileSpec(
+        h: 1000, b: 300, tw: 19.0, tf: 36.0, weight: 314.00, area: 400.00),
   };
 
   // Universal Beams (UB) - BS 4-1
@@ -818,6 +844,19 @@ class StandardData {
     final clean = query.replaceAll(RegExp(r'[^0-9]'), '');
     if (heaBeams.containsKey(clean)) return heaBeams[clean];
     for (final entry in heaBeams.entries) {
+      if (query.toUpperCase().contains(entry.key)) {
+        return entry.value;
+      }
+    }
+    return null;
+  }
+
+  /// Helper to lookup HEB Beam profile spec flexibly by number or full designation (e.g. "HEB 100", "100").
+  static StandardProfileSpec? findHebBeam(String query) {
+    if (hebBeams.containsKey(query)) return hebBeams[query];
+    final clean = query.replaceAll(RegExp(r'[^0-9]'), '');
+    if (hebBeams.containsKey(clean)) return hebBeams[clean];
+    for (final entry in hebBeams.entries) {
       if (query.toUpperCase().contains(entry.key)) {
         return entry.value;
       }

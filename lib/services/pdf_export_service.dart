@@ -735,6 +735,8 @@ class PdfExportService {
             spec = StandardData.findHeaBeam(rawSize);
           } else if (StandardData.hebBeams.containsKey(rawSize)) {
             spec = StandardData.hebBeams[rawSize];
+          } else if (StandardData.findHebBeam(rawSize) != null) {
+            spec = StandardData.findHebBeam(rawSize);
           } else if (StandardData.ipeBeams.containsKey(rawSize)) {
             spec = StandardData.ipeBeams[rawSize];
           } else if (StandardData.jisBeams.containsKey(rawSize)) {
@@ -764,7 +766,9 @@ class PdfExportService {
               spec = StandardData.findWBeam(rawSize) ??
                   StandardData.findWBeam(combined) ??
                   StandardData.findHeaBeam(rawSize) ??
-                  StandardData.findHeaBeam(combined);
+                  StandardData.findHeaBeam(combined) ??
+                  StandardData.findHebBeam(rawSize) ??
+                  StandardData.findHebBeam(combined);
             }
           }
 

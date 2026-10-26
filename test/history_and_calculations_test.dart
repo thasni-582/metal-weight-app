@@ -114,6 +114,37 @@ void main() {
       expect(StandardData.findHeaBeam('HEA 1000')?.weight, equals(272.00));
       expect(StandardData.findHeaBeam('HEA 180')?.weight, equals(33.50));
       expect(StandardData.findHeaBeam('180')?.weight, equals(33.50));
+
+      // HEB Beams Complete Client Table (HEB 100 to HEB 1000)
+      expect(StandardData.hebBeams.length, equals(24));
+      expect(StandardData.hebBeams['100']?.weight, equals(20.40));
+      expect(StandardData.hebBeams['120']?.weight, equals(26.70));
+      expect(StandardData.hebBeams['140']?.weight, equals(33.70));
+      expect(StandardData.hebBeams['160']?.weight, equals(42.60));
+      expect(StandardData.hebBeams['180']?.weight, equals(51.20));
+      expect(StandardData.hebBeams['200']?.weight, equals(61.30));
+      expect(StandardData.hebBeams['220']?.weight, equals(71.50));
+      expect(StandardData.hebBeams['240']?.weight, equals(83.20));
+      expect(StandardData.hebBeams['260']?.weight, equals(93.00));
+      expect(StandardData.hebBeams['280']?.weight, equals(103.00));
+      expect(StandardData.hebBeams['300']?.weight, equals(117.00));
+      expect(StandardData.hebBeams['320']?.weight, equals(127.00));
+      expect(StandardData.hebBeams['340']?.weight, equals(134.00));
+      expect(StandardData.hebBeams['360']?.weight, equals(142.00));
+      expect(StandardData.hebBeams['400']?.weight, equals(155.00));
+      expect(StandardData.hebBeams['450']?.weight, equals(171.00));
+      expect(StandardData.hebBeams['500']?.weight, equals(187.00));
+      expect(StandardData.hebBeams['550']?.weight, equals(199.00));
+      expect(StandardData.hebBeams['600']?.weight, equals(212.00));
+      expect(StandardData.hebBeams['650']?.weight, equals(225.00));
+      expect(StandardData.hebBeams['700']?.weight, equals(241.00));
+      expect(StandardData.hebBeams['800']?.weight, equals(262.00));
+      expect(StandardData.hebBeams['900']?.weight, equals(291.00));
+      expect(StandardData.hebBeams['1000']?.weight, equals(314.00));
+
+      expect(StandardData.findHebBeam('HEB 1000')?.weight, equals(314.00));
+      expect(StandardData.findHebBeam('HEB 300')?.weight, equals(117.00));
+      expect(StandardData.findHebBeam('300')?.weight, equals(117.00));
       expect(StandardData.wBeams.length, equals(166));
       expect(StandardData.wBeams['W 8 x 8 x 31 (203 x 203 x 46.1)']?.weight, equals(46.10));
       expect(StandardData.wBeams['W 12 x 8 x 40 (305 x 203 x 60)']?.weight, equals(60.00));

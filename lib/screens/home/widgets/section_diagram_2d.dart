@@ -619,7 +619,7 @@ class DiagramData {
       } else if (effVariant == 'HEA') {
         spec = StandardData.heaBeams[sizeStr] ?? StandardData.findHeaBeam(sizeStr);
       } else if (effVariant == 'HEB') {
-        spec = StandardData.hebBeams[sizeStr];
+        spec = StandardData.hebBeams[sizeStr] ?? StandardData.findHebBeam(sizeStr);
       } else if (effVariant == 'UB') {
         spec = StandardData.ubBeams[sizeStr];
       } else if (effVariant == 'UC') {
@@ -639,6 +639,7 @@ class DiagramData {
           StandardData.heaBeams[sizeStr] ??
           StandardData.findHeaBeam(sizeStr) ??
           StandardData.hebBeams[sizeStr] ??
+          StandardData.findHebBeam(sizeStr) ??
           StandardData.jisBeams[sizeStr];
 
       if (spec != null) {
