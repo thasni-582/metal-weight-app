@@ -4,8 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:metal_weight/core/constants/app_colors.dart';
 import 'package:metal_weight/screens/navigation/main_nav_screen.dart';
 
+enum SplashTheme {
+  blueprint, // Style 1: Dark Industrial CAD Blueprint
+  metallicSlate, // Style 2: Premium Metallic Steel Slate
+}
+
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
+  /// Toggle between Style 1 (blueprint) and Style 2 (metallicSlate)
+  final SplashTheme theme;
+
+  const SplashScreen({
+    super.key,
+    this.theme = SplashTheme.metallicSlate,
+  });
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -15,6 +26,7 @@ class _SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
   late AnimationController _entranceController;
   late AnimationController _loopController;
+  late AnimationController _shimmerController;
 
   late Animation<double> _logoScale;
   late Animation<double> _logoFade;
@@ -71,7 +83,7 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
-    _lineExpand = Tween<double>(begin: 0.0, end: 42.0).animate(
+    _lineExpand = Tween<double>(begin: 0.0, end: 46.0).animate(
       CurvedAnimation(
         parent: _entranceController,
         curve: const Interval(0.50, 0.85, curve: Curves.easeOutCubic),
@@ -122,9 +134,15 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
+    // 3. Metallic Light Sweep (Gloss sheen running diagonally)
+    _shimmerController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2500),
+    )..repeat();
+
     _entranceController.forward();
 
-    // 3. Navigation to MainNavScreen with smooth fade
+    // 4. Navigation to MainNavScreen with smooth fade transition
     _navigationTimer = Timer(const Duration(milliseconds: 3200), () {
       if (mounted) {
         Navigator.of(context).pushReplacement(
@@ -146,11 +164,321 @@ class _SplashScreenState extends State<SplashScreen>
     _navigationTimer?.cancel();
     _entranceController.dispose();
     _loopController.dispose();
+    _shimmerController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (widget.theme == SplashTheme.metallicSlate) {
+      return _buildMetallicSlateTheme(context);
+    } else {
+      return _buildBlueprintTheme(context);
+    }
+  }
+
+  // ===========================================================================
+  // STYLE 2: PREMIUM METALLIC STEEL SLATE
+  // ===========================================================================
+  Widget _buildMetallicSlateTheme(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF101216),
+      body: Stack(
+        children: [
+          // 1. Brushed Charcoal / Steel Slate Radial Gradient Background
+          Positioned.fill(
+            child: Container(
+              decoration: const BoxDecoration(
+                gradient: RadialGradient(
+                  center: Alignment(0.0, -0.12),
+                  radius: 1.15,
+                  colors: [
+                    Color(0xFF242A36), // Brushed Titanium Slate core
+                    Color(0xFF161920), // Dark Charcoal
+                    Color(0xFF0C0E12), // Obsidian Shadow
+                  ],
+                  stops: [0.0, 0.60, 1.0],
+                ),
+              ),
+            ),
+          ),
+
+          // 2. Subtle Brushed Metal Texture Lines
+          const Positioned.fill(
+            child: CustomPaint(
+              painter: MetallicHairlinesPainter(),
+            ),
+          ),
+
+          // 3. Subtle Metallic Corner Pins
+          _buildMetallicCornerPin(Alignment.topLeft),
+          _buildMetallicCornerPin(Alignment.topRight),
+          _buildMetallicCornerPin(Alignment.bottomLeft),
+          _buildMetallicCornerPin(Alignment.bottomRight),
+
+          // 4. Central Animated Content
+          SafeArea(
+            child: Column(
+              children: [
+                Expanded(
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Floating Logo with Metallic Bevel Frame & Shimmer Glare
+                          FadeTransition(
+                            opacity: _logoFade,
+                            child: ScaleTransition(
+                              scale: _logoScale,
+                              child: AnimatedBuilder(
+                                animation: _loopController,
+                                builder: (context, child) {
+                                  return Transform.translate(
+                                    offset: Offset(0, _floatAnimation.value),
+                                    child: Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        // Warm Amber/Steel Rim Halo Glow
+                                        Transform.scale(
+                                          scale: _haloScale.value,
+                                          child: Container(
+                                            height: 180,
+                                            width: 180,
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(32),
+                                              color: AppColors.secondaryOrange
+                                                  .withValues(alpha: _haloOpacity.value * 0.7),
+                                            ),
+                                          ),
+                                        ),
+                                        _buildMetallicLogoCard(_floatAnimation.value),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 34),
+                          // Platinum Title with Embossed Shadow
+                          FadeTransition(
+                            opacity: _titleFade,
+                            child: SlideTransition(
+                              position: _titleSlide,
+                              child: Text(
+                                'Milen Trading',
+                                style: TextStyle(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.5,
+                                  color: Colors.white,
+                                  shadows: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.6),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          // Polished Gold/Amber Metallic Divider
+                          AnimatedBuilder(
+                            animation: _lineExpand,
+                            builder: (context, child) {
+                              return Container(
+                                width: _lineExpand.value,
+                                height: 3,
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      Colors.transparent,
+                                      Color(0xFFE67E22),
+                                      Color(0xFFFFB300),
+                                      Color(0xFFE67E22),
+                                      Colors.transparent,
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(2),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: const Color(0xFFFFB300).withValues(alpha: 0.5),
+                                      blurRadius: 8,
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 10),
+                          // Brushed Silver / Titanium Subtitle
+                          FadeTransition(
+                            opacity: _subtitleFade,
+                            child: SlideTransition(
+                              position: _subtitleSlide,
+                              child: const Text(
+                                'STRUCTURAL CALCULATOR',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 3.5,
+                                  color: Color(0xFFC0C7D5),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                // 5. Bottom Corporate Precision Indicator
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 36.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'PRECISION INDUSTRIAL METALS',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 2.5,
+                          color: Color(0xFF8A93A6),
+                        ),
+                      ),
+                      SizedBox(height: 12),
+                      StaggeredPulseLoadingDots(color: AppColors.secondaryOrange),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMetallicCornerPin(Alignment alignment) {
+    return Align(
+      alignment: alignment,
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(18.0),
+          child: Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: const Color(0xFF3A4150),
+              border: Border.all(
+                color: const Color(0xFF5A6376),
+                width: 1.0,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.5),
+                  blurRadius: 4,
+                  offset: const Offset(0, 1),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMetallicLogoCard(double floatOffset) {
+    final double dynamicBlur = 24.0 + (floatOffset + 8.0) * 0.8;
+    return Container(
+      height: 180,
+      width: 180,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        color: Colors.white,
+        border: Border.all(
+          color: const Color(0xFF6B7688).withValues(alpha: 0.45),
+          width: 1.8,
+        ),
+        boxShadow: [
+          // Deep Graphite Shadow
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.55),
+            blurRadius: dynamicBlur,
+            offset: Offset(0, 8 + (floatOffset + 8.0) * 0.3),
+          ),
+          // Warm Polished Amber Edge Glow
+          BoxShadow(
+            color: AppColors.secondaryOrange.withValues(alpha: 0.28),
+            blurRadius: dynamicBlur * 1.3,
+            spreadRadius: 2,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(22),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // The Logo Image
+            Image.asset(
+              'assets/images/image.png',
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return const Center(
+                  child: Icon(
+                    Icons.precision_manufacturing,
+                    size: 70,
+                    color: AppColors.primaryDark,
+                  ),
+                );
+              },
+            ),
+
+            // Diagonal Metallic Light Sheen / Shimmer Sweep
+            AnimatedBuilder(
+              animation: _shimmerController,
+              builder: (context, child) {
+                final double pos = _shimmerController.value * 2.8 - 0.9;
+                return ShaderMask(
+                  shaderCallback: (bounds) {
+                    return LinearGradient(
+                      begin: Alignment(pos - 0.5, -1.0),
+                      end: Alignment(pos + 0.5, 1.0),
+                      colors: [
+                        Colors.transparent,
+                        Colors.transparent,
+                        Colors.white.withValues(alpha: 0.45), // Glare peak
+                        Colors.transparent,
+                        Colors.transparent,
+                      ],
+                      stops: const [0.0, 0.40, 0.50, 0.60, 1.0],
+                    ).createShader(bounds);
+                  },
+                  blendMode: BlendMode.srcATop,
+                  child: Container(
+                    color: Colors.white.withValues(alpha: 0.01),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ===========================================================================
+  // STYLE 1: DARK INDUSTRIAL CAD BLUEPRINT
+  // ===========================================================================
+  Widget _buildBlueprintTheme(BuildContext context) {
     const Color blueprintDark = Color(0xFF0B1728);
     const Color cyanAccent = Color(0xFF00E5FF);
 
@@ -182,7 +510,6 @@ class _SplashScreenState extends State<SplashScreen>
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          // Distinct Animated Logo with Floating Motion & Blueprint Halo
                           FadeTransition(
                             opacity: _logoFade,
                             child: ScaleTransition(
@@ -195,7 +522,6 @@ class _SplashScreenState extends State<SplashScreen>
                                     child: Stack(
                                       alignment: Alignment.center,
                                       children: [
-                                        // Ambient Cyan & Orange Blueprint Halo Pulse
                                         Transform.scale(
                                           scale: _haloScale.value,
                                           child: Container(
@@ -203,11 +529,12 @@ class _SplashScreenState extends State<SplashScreen>
                                             width: 180,
                                             decoration: BoxDecoration(
                                               borderRadius: BorderRadius.circular(32),
-                                              color: cyanAccent.withValues(alpha: _haloOpacity.value * 0.6),
+                                              color: cyanAccent.withValues(
+                                                  alpha: _haloOpacity.value * 0.6),
                                             ),
                                           ),
                                         ),
-                                        _buildLogo(_floatAnimation.value, cyanAccent),
+                                        _buildBlueprintLogo(_floatAnimation.value, cyanAccent),
                                       ],
                                     ),
                                   );
@@ -216,7 +543,6 @@ class _SplashScreenState extends State<SplashScreen>
                             ),
                           ),
                           const SizedBox(height: 32),
-                          // Animated White Title
                           FadeTransition(
                             opacity: _titleFade,
                             child: SlideTransition(
@@ -233,7 +559,6 @@ class _SplashScreenState extends State<SplashScreen>
                             ),
                           ),
                           const SizedBox(height: 10),
-                          // Animated Glowing Brand Accent Line
                           AnimatedBuilder(
                             animation: _lineExpand,
                             builder: (context, child) {
@@ -254,7 +579,6 @@ class _SplashScreenState extends State<SplashScreen>
                             },
                           ),
                           const SizedBox(height: 10),
-                          // Animated Blueprint Subtitle
                           FadeTransition(
                             opacity: _subtitleFade,
                             child: SlideTransition(
@@ -275,7 +599,6 @@ class _SplashScreenState extends State<SplashScreen>
                     ),
                   ),
                 ),
-                // 4. Bottom Technical Status and Loading Wave
                 const Padding(
                   padding: EdgeInsets.only(bottom: 36.0),
                   child: Column(
@@ -334,7 +657,7 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 
-  Widget _buildLogo(double floatOffset, Color cyanAccent) {
+  Widget _buildBlueprintLogo(double floatOffset, Color cyanAccent) {
     final double dynamicBlur = 24.0 + (floatOffset + 8.0) * 0.8;
     return Container(
       height: 180,
@@ -381,7 +704,31 @@ class _SplashScreenState extends State<SplashScreen>
   }
 }
 
-/// Draws an engineering CAD blueprint grid in the background
+/// Subtle brushed metal hairlines painter for Style 2
+class MetallicHairlinesPainter extends CustomPainter {
+  const MetallicHairlinesPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.02)
+      ..strokeWidth = 1.0;
+
+    const double gap = 16.0;
+    for (double i = -size.height; i < size.width; i += gap) {
+      canvas.drawLine(
+        Offset(i, 0),
+        Offset(i + size.height * 0.8, size.height),
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+/// Technical CAD blueprint grid painter for Style 1
 class BlueprintGridPainter extends CustomPainter {
   const BlueprintGridPainter();
 
@@ -398,7 +745,6 @@ class BlueprintGridPainter extends CustomPainter {
     const double step = 24.0;
     const double majorStep = 96.0;
 
-    // Vertical grid lines
     for (double x = 0; x <= size.width; x += step) {
       final isMajor = (x % majorStep).abs() < 1.0;
       canvas.drawLine(
@@ -408,7 +754,6 @@ class BlueprintGridPainter extends CustomPainter {
       );
     }
 
-    // Horizontal grid lines
     for (double y = 0; y <= size.height; y += step) {
       final isMajor = (y % majorStep).abs() < 1.0;
       canvas.drawLine(
@@ -418,7 +763,6 @@ class BlueprintGridPainter extends CustomPainter {
       );
     }
 
-    // Small CAD crosshair markers at major intersections
     final markerPaint = Paint()
       ..color = const Color(0xFF00E5FF).withValues(alpha: 0.16)
       ..strokeWidth = 1.0;
