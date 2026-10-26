@@ -83,6 +83,37 @@ void main() {
       expect(StandardData.ubBeams['457 x 191 x 67']?.weight, equals(67.10));
       expect(StandardData.ucBeams['203 x 203 x 46']?.weight, equals(46.10));
       expect(StandardData.ucBeams['254 x 254 x 73']?.weight, equals(73.10));
+
+      // HEA Beams Complete Client Table (HEA 100 to HEA 1000)
+      expect(StandardData.heaBeams.length, equals(24));
+      expect(StandardData.heaBeams['100']?.weight, equals(16.70));
+      expect(StandardData.heaBeams['120']?.weight, equals(19.90));
+      expect(StandardData.heaBeams['140']?.weight, equals(24.70));
+      expect(StandardData.heaBeams['160']?.weight, equals(30.40));
+      expect(StandardData.heaBeams['180']?.weight, equals(33.50));
+      expect(StandardData.heaBeams['200']?.weight, equals(42.30));
+      expect(StandardData.heaBeams['220']?.weight, equals(50.50));
+      expect(StandardData.heaBeams['240']?.weight, equals(60.30));
+      expect(StandardData.heaBeams['260']?.weight, equals(68.20));
+      expect(StandardData.heaBeams['280']?.weight, equals(76.40));
+      expect(StandardData.heaBeams['300']?.weight, equals(88.30));
+      expect(StandardData.heaBeams['320']?.weight, equals(97.60));
+      expect(StandardData.heaBeams['340']?.weight, equals(105.00));
+      expect(StandardData.heaBeams['360']?.weight, equals(112.00));
+      expect(StandardData.heaBeams['400']?.weight, equals(125.00));
+      expect(StandardData.heaBeams['450']?.weight, equals(140.00));
+      expect(StandardData.heaBeams['500']?.weight, equals(155.00));
+      expect(StandardData.heaBeams['550']?.weight, equals(166.00));
+      expect(StandardData.heaBeams['600']?.weight, equals(178.00));
+      expect(StandardData.heaBeams['650']?.weight, equals(190.00));
+      expect(StandardData.heaBeams['700']?.weight, equals(204.00));
+      expect(StandardData.heaBeams['800']?.weight, equals(224.00));
+      expect(StandardData.heaBeams['900']?.weight, equals(252.00));
+      expect(StandardData.heaBeams['1000']?.weight, equals(272.00));
+
+      expect(StandardData.findHeaBeam('HEA 1000')?.weight, equals(272.00));
+      expect(StandardData.findHeaBeam('HEA 180')?.weight, equals(33.50));
+      expect(StandardData.findHeaBeam('180')?.weight, equals(33.50));
       expect(StandardData.wBeams.length, equals(166));
       expect(StandardData.wBeams['W 8 x 8 x 31 (203 x 203 x 46.1)']?.weight, equals(46.10));
       expect(StandardData.wBeams['W 12 x 8 x 40 (305 x 203 x 60)']?.weight, equals(60.00));

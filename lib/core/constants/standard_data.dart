@@ -169,7 +169,7 @@ class StandardData {
         h: 200.0, b: 100.0, tw: 4.5, tf: 6.7, weight: 18.00, area: 22.87),
   };
 
-  // Beams HEA (Euronorm 53-62)
+  // Beams HEA (Euronorm 53-62 & Client Catalog Full Specifications HEA 100 - HEA 1000)
   static const Map<String, StandardProfileSpec> heaBeams = {
     '100': StandardProfileSpec(
         h: 96, b: 100, tw: 5.0, tf: 8.0, weight: 16.70, area: 21.20),
@@ -180,7 +180,7 @@ class StandardData {
     '160': StandardProfileSpec(
         h: 152, b: 160, tw: 6.0, tf: 9.0, weight: 30.40, area: 38.80),
     '180': StandardProfileSpec(
-        h: 171, b: 180, tw: 6.0, tf: 9.5, weight: 35.50, area: 45.30),
+        h: 171, b: 180, tw: 6.0, tf: 9.5, weight: 33.50, area: 42.68),
     '200': StandardProfileSpec(
         h: 190, b: 200, tw: 6.5, tf: 10.0, weight: 42.30, area: 53.80),
     '220': StandardProfileSpec(
@@ -193,6 +193,32 @@ class StandardData {
         h: 270, b: 280, tw: 8.0, tf: 13.0, weight: 76.40, area: 97.30),
     '300': StandardProfileSpec(
         h: 290, b: 300, tw: 8.5, tf: 14.0, weight: 88.30, area: 112.50),
+    '320': StandardProfileSpec(
+        h: 310, b: 300, tw: 9.0, tf: 15.5, weight: 97.60, area: 124.40),
+    '340': StandardProfileSpec(
+        h: 330, b: 300, tw: 9.5, tf: 16.0, weight: 105.00, area: 133.50),
+    '360': StandardProfileSpec(
+        h: 350, b: 300, tw: 10.0, tf: 17.5, weight: 112.00, area: 142.80),
+    '400': StandardProfileSpec(
+        h: 390, b: 300, tw: 11.0, tf: 19.0, weight: 125.00, area: 159.00),
+    '450': StandardProfileSpec(
+        h: 440, b: 300, tw: 11.5, tf: 21.0, weight: 140.00, area: 178.00),
+    '500': StandardProfileSpec(
+        h: 490, b: 300, tw: 12.0, tf: 23.0, weight: 155.00, area: 197.50),
+    '550': StandardProfileSpec(
+        h: 540, b: 300, tw: 12.5, tf: 24.0, weight: 166.00, area: 211.80),
+    '600': StandardProfileSpec(
+        h: 590, b: 300, tw: 13.0, tf: 25.0, weight: 178.00, area: 226.50),
+    '650': StandardProfileSpec(
+        h: 640, b: 300, tw: 13.5, tf: 26.0, weight: 190.00, area: 241.60),
+    '700': StandardProfileSpec(
+        h: 690, b: 300, tw: 14.5, tf: 27.0, weight: 204.00, area: 260.00),
+    '800': StandardProfileSpec(
+        h: 790, b: 300, tw: 15.0, tf: 28.0, weight: 224.00, area: 285.80),
+    '900': StandardProfileSpec(
+        h: 890, b: 300, tw: 16.0, tf: 30.0, weight: 252.00, area: 320.50),
+    '1000': StandardProfileSpec(
+        h: 990, b: 300, tw: 16.5, tf: 31.0, weight: 272.00, area: 346.80),
   };
 
   // Beams HEB (Euronorm 53-62)
@@ -780,6 +806,19 @@ class StandardData {
           entry.key.contains(query) ||
           cleanKey.contains(cleanQuery) ||
           cleanQuery.contains(cleanKey)) {
+        return entry.value;
+      }
+    }
+    return null;
+  }
+
+  /// Helper to lookup HEA Beam profile spec flexibly by number or full designation (e.g. "HEA 100", "100").
+  static StandardProfileSpec? findHeaBeam(String query) {
+    if (heaBeams.containsKey(query)) return heaBeams[query];
+    final clean = query.replaceAll(RegExp(r'[^0-9]'), '');
+    if (heaBeams.containsKey(clean)) return heaBeams[clean];
+    for (final entry in heaBeams.entries) {
+      if (query.toUpperCase().contains(entry.key)) {
         return entry.value;
       }
     }

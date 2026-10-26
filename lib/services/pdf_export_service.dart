@@ -731,6 +731,8 @@ class PdfExportService {
             spec = StandardData.ipeAaBeams[rawSize];
           } else if (StandardData.heaBeams.containsKey(rawSize)) {
             spec = StandardData.heaBeams[rawSize];
+          } else if (StandardData.findHeaBeam(rawSize) != null) {
+            spec = StandardData.findHeaBeam(rawSize);
           } else if (StandardData.hebBeams.containsKey(rawSize)) {
             spec = StandardData.hebBeams[rawSize];
           } else if (StandardData.ipeBeams.containsKey(rawSize)) {
@@ -759,7 +761,10 @@ class PdfExportService {
               }
             }
             if (spec == null) {
-              spec = StandardData.findWBeam(rawSize) ?? StandardData.findWBeam(combined);
+              spec = StandardData.findWBeam(rawSize) ??
+                  StandardData.findWBeam(combined) ??
+                  StandardData.findHeaBeam(rawSize) ??
+                  StandardData.findHeaBeam(combined);
             }
           }
 
@@ -769,7 +774,7 @@ class PdfExportService {
             twStr = spec.tw.toStringAsFixed(1);
             tfStr = spec.tf.toStringAsFixed(1);
           } else {
-            final matchSize = RegExp(r'\b(80|100|120|140|160|180|200|220|240|270|300|330|360|400|450|500|550|600)\b')
+            final matchSize = RegExp(r'\b(80|100|120|140|160|180|200|220|240|260|280|300|320|330|340|360|400|450|500|550|600|650|700|800|900|1000)\b')
                 .firstMatch(combined);
             final sizeKey = matchSize != null ? matchSize.group(1)! : '140';
 

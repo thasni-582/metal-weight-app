@@ -590,12 +590,12 @@ class DiagramData {
         standardTag = 'EN 10365';
       } else if (effVariant == 'HEA') {
         title = 'HEA BEAM';
-        dispName = 'HEA $sizeStr';
+        dispName = sizeStr.toUpperCase().startsWith('HEA') ? sizeStr : 'HEA $sizeStr';
         variantTag = 'HEA';
         standardTag = 'EN 10025';
       } else if (effVariant == 'HEB') {
         title = 'HEB BEAM';
-        dispName = 'HEB $sizeStr';
+        dispName = sizeStr.toUpperCase().startsWith('HEB') ? sizeStr : 'HEB $sizeStr';
         variantTag = 'HEB';
         standardTag = 'EN 10025';
       } else {
@@ -617,7 +617,7 @@ class DiagramData {
       } else if (effVariant == 'IPE-AA') {
         spec = StandardData.ipeAaBeams[sizeStr];
       } else if (effVariant == 'HEA') {
-        spec = StandardData.heaBeams[sizeStr];
+        spec = StandardData.heaBeams[sizeStr] ?? StandardData.findHeaBeam(sizeStr);
       } else if (effVariant == 'HEB') {
         spec = StandardData.hebBeams[sizeStr];
       } else if (effVariant == 'UB') {
@@ -637,6 +637,7 @@ class DiagramData {
           StandardData.findWBeam(sizeStr) ??
           StandardData.ipeBeams[sizeStr] ??
           StandardData.heaBeams[sizeStr] ??
+          StandardData.findHeaBeam(sizeStr) ??
           StandardData.hebBeams[sizeStr] ??
           StandardData.jisBeams[sizeStr];
 

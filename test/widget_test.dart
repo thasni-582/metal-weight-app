@@ -393,4 +393,52 @@ void main() {
 
     expect(find.text('MS ROUND BAR'), findsOneWidget);
   });
+
+  testWidgets('CalculationScreen and Section2DDiagramWidget render full client HEA Beam 1000 with 272.00 kg/m', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: Section2DDiagramWidget(
+              shapeType: 'HEA Beam',
+              selectedSize: '1000',
+              selectedThickness: '',
+              availableSizes: ['1000'],
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('HEA BEAM'), findsOneWidget);
+
+    final settings = AppSettingsProvider();
+    settings.syncProfileFromHome(
+      material: 'Steel',
+      shape: 'HEA Beam',
+      size: '1000',
+      thickness: '',
+      variant: 'HEA',
+      lengthInM: 12.0,
+      quantity: 1,
+      weightPerM: 272.00,
+      sectionArea: 346.80,
+    );
+
+    await tester.pumpWidget(
+      ChangeNotifierProvider<AppSettingsProvider>.value(
+        value: settings,
+        child: const MaterialApp(
+          home: Scaffold(
+            body: CalculationScreen(),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('272.00 kg/m'), findsWidgets);
+    expect(find.text('3264.00 kg'), findsWidgets);
+  });
 }
