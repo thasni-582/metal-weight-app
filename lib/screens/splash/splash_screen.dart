@@ -11,37 +11,109 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _fadeController;
-  late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
+    with TickerProviderStateMixin {
+  late AnimationController _entranceController;
+  late AnimationController _pulseController;
+
+  late Animation<double> _logoFade;
+  late Animation<double> _logoScale;
+  late Animation<double> _titleFade;
+  late Animation<Offset> _titleSlide;
+  late Animation<double> _subtitleFade;
+  late Animation<Offset> _subtitleSlide;
+  late Animation<double> _pulseAnimation;
+
   Timer? _navigationTimer;
 
   @override
   void initState() {
     super.initState();
 
-    _fadeController = AnimationController(
+    // 1. Entrance animation (Staggered smooth entrance)
+    _entranceController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 1200),
     );
 
-    _fadeAnimation = CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeOut,
+    _logoFade = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _entranceController,
+        curve: const Interval(0.0, 0.60, curve: Curves.easeOut),
+      ),
     );
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.1),
+    _logoScale = Tween<double>(begin: 0.80, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _entranceController,
+        curve: const Interval(0.0, 0.75, curve: Curves.easeOutBack),
+      ),
+    );
+
+    _titleFade = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _entranceController,
+        curve: const Interval(0.35, 0.85, curve: Curves.easeOut),
+      ),
+    );
+
+    _titleSlide = Tween<Offset>(
+      begin: const Offset(0, 0.35),
       end: Offset.zero,
-    ).animate(_fadeAnimation);
+    ).animate(
+      CurvedAnimation(
+        parent: _entranceController,
+        curve: const Interval(0.35, 0.85, curve: Curves.easeOutCubic),
+      ),
+    );
 
-    _fadeController.forward();
+    _subtitleFade = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _entranceController,
+        curve: const Interval(0.55, 1.0, curve: Curves.easeOut),
+      ),
+    );
 
-    _navigationTimer = Timer(const Duration(seconds: 3), () {
+    _subtitleSlide = Tween<Offset>(
+      begin: const Offset(0, 0.40),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: _entranceController,
+        curve: const Interval(0.55, 1.0, curve: Curves.easeOutCubic),
+      ),
+    );
+
+    // 2. Subtle continuous breathing pulse for the logo
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2200),
+    );
+
+    _pulseAnimation = Tween<double>(begin: 0.985, end: 1.015).animate(
+      CurvedAnimation(
+        parent: _pulseController,
+        curve: Curves.easeInOutSine,
+      ),
+    );
+
+    _entranceController.forward().then((_) {
+      if (mounted) {
+        _pulseController.repeat(reverse: true);
+      }
+    });
+
+    // 3. Navigation to MainNavScreen with smooth fade transition
+    _navigationTimer = Timer(const Duration(milliseconds: 2800), () {
       if (mounted) {
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const MainNavScreen()),
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const MainNavScreen(),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return FadeTransition(opacity: animation, child: child);
+            },
+            transitionDuration: const Duration(milliseconds: 500),
+          ),
         );
       }
     });
@@ -50,7 +122,8 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void dispose() {
     _navigationTimer?.cancel();
-    _fadeController.dispose();
+    _entranceController.dispose();
+    _pulseController.dispose();
     super.dispose();
   }
 
@@ -65,16 +138,35 @@ class _SplashScreenState extends State<SplashScreen>
               child: Center(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                  child: FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: SlideTransition(
-                      position: _slideAnimation,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _buildLogo(),
-                          const SizedBox(height: 32),
-                          const Text(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Animated Logo Card
+                      FadeTransition(
+                        opacity: _logoFade,
+                        child: ScaleTransition(
+                          scale: _logoScale,
+                          child: AnimatedBuilder(
+                            animation: _pulseAnimation,
+                            builder: (context, child) {
+                              return Transform.scale(
+                                scale: _pulseController.isAnimating
+                                    ? _pulseAnimation.value
+                                    : 1.0,
+                                child: child,
+                              );
+                            },
+                            child: _buildLogo(),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+                      // Animated Title
+                      FadeTransition(
+                        opacity: _titleFade,
+                        child: SlideTransition(
+                          position: _titleSlide,
+                          child: const Text(
                             'Milen Trading',
                             style: TextStyle(
                               fontSize: 30,
@@ -83,8 +175,15 @@ class _SplashScreenState extends State<SplashScreen>
                               color: AppColors.primaryDark,
                             ),
                           ),
-                          const SizedBox(height: 8),
-                          const Text(
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      // Animated Subtitle
+                      FadeTransition(
+                        opacity: _subtitleFade,
+                        child: SlideTransition(
+                          position: _subtitleSlide,
+                          child: const Text(
                             'STRUCTURAL CALCULATOR',
                             style: TextStyle(
                               fontSize: 12,
@@ -93,9 +192,9 @@ class _SplashScreenState extends State<SplashScreen>
                               color: AppColors.textMuted,
                             ),
                           ),
-                        ],
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
               ),
