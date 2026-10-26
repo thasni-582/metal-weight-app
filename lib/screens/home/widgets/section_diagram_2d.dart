@@ -1233,26 +1233,7 @@ class Section2DPainter extends CustomPainter {
       data.heightVal.toStringAsFixed(0),
     );
 
-    // 3. Center Size Range Text (e.g. "20 x 20 to 200 x 200")
-    final String rangeStr = '20 x 20 to 200 x 200';
-    final TextPainter tpCenter = TextPainter(
-      text: TextSpan(
-        text: rangeStr,
-        style: const TextStyle(
-          fontSize: 13.5,
-          fontWeight: FontWeight.bold,
-          color: Color(0xFF1E293B),
-          letterSpacing: 0.3,
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
-
-    final double centerTextX = startX + thick + 12.0;
-    final double centerTextY = topY + (legH - thick) / 2 - tpCenter.height / 2;
-    tpCenter.paint(canvas, Offset(centerTextX, centerTextY));
-
-    // 4. Right Thickness Dimension (Inward-pointing arrows with boxed value, matching Image 1)
+    // 3. Right Thickness Dimension (Inward-pointing arrows with boxed value, matching Image 1)
     final double tArrowX = startX + legB + 16.0;
     final double tTopY = topY + legH - thick;
     final double tBottomY = topY + legH;

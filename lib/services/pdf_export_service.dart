@@ -1142,23 +1142,6 @@ class PdfExportService {
           if (dims['h']!.isNotEmpty) {
             badges.add(pw.Positioned(left: 46.0, top: 73.0, child: _buildPdfDimBadge(dims['h']!)));
           }
-          final String hNum = dims['h'] ?? '30';
-          final int hVal = int.tryParse(hNum) ?? 30;
-          const String rangeStr = '20x20 to 200x200';
-          badges.add(
-            pw.Positioned(
-              left: 104.0,
-              top: 55.0,
-              child: pw.Text(
-                rangeStr,
-                style: pw.TextStyle(
-                  fontSize: 10.0,
-                  fontWeight: pw.FontWeight.bold,
-                  color: PdfColor.fromHex('1E293B'),
-                ),
-              ),
-            ),
-          );
           if (dims['t']!.isNotEmpty) {
             badges.add(pw.Positioned(left: 198.0, top: 98.0, child: _buildPdfDimBadge(dims['t']!)));
           }
