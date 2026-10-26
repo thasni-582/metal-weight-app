@@ -1404,8 +1404,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 icon: const Icon(Icons.calculate_outlined, color: Colors.white, size: 20),
                 label: Text(
                   settings.isArabic
-                      ? 'فتح في الحاسبة (مزامنة تلقائية)'
-                      : 'Open in Calculator (Auto-Sync)',
+                      ? 'فتح في الحاسبة'
+                      : 'Open in Calculator',
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
