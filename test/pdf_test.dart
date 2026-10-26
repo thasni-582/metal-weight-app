@@ -81,6 +81,7 @@ void main() {
   test('PdfExportService renders 2D blueprints for all profile categories', () async {
     final testProfiles = [
       {'title': 'UPN Channel 120', 'shape': 'UPN Channel', 'icon': 'channel'},
+      {'title': 'UPN Channel 260', 'shape': 'UPN Channel', 'icon': 'channel', 'size': '260', 'variant': 'UPN'},
       {'title': 'Equal Angle 50x50x5', 'shape': 'Equal Angle', 'icon': 'angle'},
       {'title': 'Square Tube (SHS) 50x50x3.0', 'shape': 'Square Tube (SHS)', 'icon': 'tube'},
       {'title': 'Pipe Seamless 2 inch', 'shape': 'Pipe Seamless', 'icon': 'pipe'},

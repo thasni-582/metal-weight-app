@@ -1116,17 +1116,48 @@ class PdfExportService {
         break;
 
       case 'channel':
+        final rawVar = item?.details['variant']?.toString().trim().toUpperCase() ?? '';
+        final titleUpper = '${item?.title ?? ''} ${item?.subtitle ?? ''} ${item?.iconName ?? ''}'.toUpperCase();
+        String channelLabel = 'UPN';
+        if (rawVar == 'UPE' || titleUpper.contains('UPE')) {
+          channelLabel = 'UPE';
+        } else if (rawVar == 'JIS' || titleUpper.contains('JIS')) {
+          channelLabel = 'JIS';
+        } else if (rawVar.contains('CHANNEL') && !rawVar.contains('UPN') && !rawVar.contains('UPE')) {
+          channelLabel = 'U';
+        }
+
+        // Profile designation text inside channel pocket (matching App 2D blueprint)
+        badges.add(
+          pw.Positioned(
+            left: 122.0,
+            top: 66.0,
+            child: pw.Container(
+              width: 44.0,
+              alignment: pw.Alignment.center,
+              child: pw.Text(
+                channelLabel,
+                style: pw.TextStyle(
+                  fontSize: 15.0,
+                  fontWeight: pw.FontWeight.bold,
+                  color: PdfColor.fromHex('1E293B'),
+                ),
+              ),
+            ),
+          ),
+        );
+
         if (dims['h']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 170.0, top: 73.0, child: _buildPdfDimBadge(dims['h']!)));
+          badges.add(pw.Positioned(left: 176.0, top: 72.0, child: _buildPdfDimBadge(dims['h']!)));
         }
         if (dims['b']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 125.0, top: 140.0, child: _buildPdfDimBadge(dims['b']!)));
+          badges.add(pw.Positioned(left: 124.0, top: 140.0, child: _buildPdfDimBadge(dims['b']!)));
         }
         if (dims['tf']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 130.0, top: 48.0, child: _buildPdfDimBadge(dims['tf']!)));
+          badges.add(pw.Positioned(left: 126.0, top: 46.0, child: _buildPdfDimBadge(dims['tf']!)));
         }
         if (dims['tw']!.isNotEmpty) {
-          badges.add(pw.Positioned(left: 128.0, top: 88.0, child: _buildPdfDimBadge(dims['tw']!)));
+          badges.add(pw.Positioned(left: 126.0, top: 86.0, child: _buildPdfDimBadge(dims['tw']!)));
         }
         break;
 
@@ -1790,65 +1821,139 @@ class PdfExportService {
         break;
 
       case 'channel':
-        const w = 66.0;
-        const h = 110.0;
-        const tf = 12.0;
-        const tw = 9.0;
-        final left = cx - w / 2;
-        canvas.setFillColor(PdfColor.fromHex('0D5C9D'));
-        // Back web
-        canvas.drawRect(left, cy - h / 2, tw, h);
-        // Top flange
-        canvas.drawRRect(left + tw, cy + h / 2 - tf, w - tw, tf, 2, 2);
-        // Bottom flange
-        canvas.drawRRect(left + tw, cy - h / 2, w - tw, tf, 2, 2);
-        canvas.fillPath();
+        const double w = 56.0;
+        const double h = 118.0;
+        const double tf = 13.0;
+        const double tw = 10.0;
+        const double r = 7.0; // root fillet
+        const double k = r * 0.55228475; // bezier control point distance
+        final double left = cx - w / 2;
+        final double right = left + w;
+        final double yBottom = cy - h / 2;
+        final double yTop = cy + h / 2;
+        final double xWebInner = left + tw;
+        final double yTopFlangeInner = yTop - tf;
+        final double yBottomFlangeInner = yBottom + tf;
+
+        // Solid continuous UPN channel body with smooth root fillets (matching App 2D blueprint)
+        canvas
+          ..setFillColor(PdfColor.fromHex('0D5C9D'))
+          ..moveTo(left, yTop)
+          ..lineTo(right, yTop)
+          ..lineTo(right, yTopFlangeInner)
+          ..lineTo(xWebInner + r, yTopFlangeInner)
+          ..curveTo(
+            xWebInner + r - k, yTopFlangeInner,
+            xWebInner, yTopFlangeInner - r + k,
+            xWebInner, yTopFlangeInner - r,
+          )
+          ..lineTo(xWebInner, yBottomFlangeInner + r)
+          ..curveTo(
+            xWebInner, yBottomFlangeInner + r - k,
+            xWebInner + r - k, yBottomFlangeInner,
+            xWebInner + r, yBottomFlangeInner,
+          )
+          ..lineTo(right, yBottomFlangeInner)
+          ..lineTo(right, yBottom)
+          ..lineTo(left, yBottom)
+          ..closePath()
+          ..fillPath();
 
         // CAD stroke outlines
         canvas
           ..setStrokeColor(PdfColor.fromHex('BDC3C7'))
-          ..setLineWidth(0.8)
-          ..drawRect(left, cy - h / 2, tw, h)
-          ..drawRRect(left + tw, cy + h / 2 - tf, w - tw, tf, 2, 2)
-          ..drawRRect(left + tw, cy - h / 2, w - tw, tf, 2, 2)
+          ..setLineWidth(0.9)
+          ..moveTo(left, yTop)
+          ..lineTo(right, yTop)
+          ..lineTo(right, yTopFlangeInner)
+          ..lineTo(xWebInner + r, yTopFlangeInner)
+          ..curveTo(
+            xWebInner + r - k, yTopFlangeInner,
+            xWebInner, yTopFlangeInner - r + k,
+            xWebInner, yTopFlangeInner - r,
+          )
+          ..lineTo(xWebInner, yBottomFlangeInner + r)
+          ..curveTo(
+            xWebInner, yBottomFlangeInner + r - k,
+            xWebInner + r - k, yBottomFlangeInner,
+            xWebInner + r, yBottomFlangeInner,
+          )
+          ..lineTo(right, yBottomFlangeInner)
+          ..lineTo(right, yBottom)
+          ..lineTo(left, yBottom)
+          ..closePath()
           ..strokePath();
 
-        // Dimension markings matching engineering slide rule standard
-        canvas
-          ..setStrokeColor(accentColor)
-          ..setLineWidth(0.8);
+        // Technical dimension markings matching 2D Blueprint standard
+        final dimColor = PdfColor.fromHex('1E293B');
+        final extColor = PdfColor.fromHex('7F8C8D');
 
         // Height arrow on the right
-        _drawArrowV(canvas, left + w + 12, cy - h / 2, cy + h / 2);
-        _drawWitnessH(canvas, left + w, left + w + 16, cy - h / 2);
-        _drawWitnessH(canvas, left + w, left + w + 16, cy + h / 2);
+        final double hDimX = right + 16.0;
+        canvas
+          ..setStrokeColor(extColor)
+          ..setLineWidth(0.8);
+        _drawWitnessH(canvas, right, hDimX + 4.0, yBottom);
+        _drawWitnessH(canvas, right, hDimX + 4.0, yTop);
+
+        canvas
+          ..setStrokeColor(dimColor)
+          ..setLineWidth(1.0);
+        _drawArrowV(canvas, hDimX, yBottom, yTop);
 
         // Width arrow at the bottom
-        _drawArrowH(canvas, left, left + w, cy - h / 2 - 12);
-        _drawWitnessV(canvas, left, cy - h / 2 - 16, cy - h / 2);
-        _drawWitnessV(canvas, left + w, cy - h / 2 - 16, cy - h / 2);
-
-        // Flange thickness opposing arrows (top flange)
-        final double flangeX = left + tw + (w - tw) * 0.55;
+        final double bDimY = yBottom - 12.0;
         canvas
-          ..moveTo(flangeX, cy + h / 2 + 10)
-          ..lineTo(flangeX, cy + h / 2)
-          ..moveTo(flangeX - 2.5, cy + h / 2 + 3.5)
-          ..lineTo(flangeX, cy + h / 2)
-          ..lineTo(flangeX + 2.5, cy + h / 2 + 3.5)
+          ..setStrokeColor(extColor)
+          ..setLineWidth(0.8);
+        _drawWitnessV(canvas, left, bDimY - 4.0, yBottom);
+        _drawWitnessV(canvas, right, bDimY - 4.0, yBottom);
+
+        canvas
+          ..setStrokeColor(dimColor)
+          ..setLineWidth(1.0);
+        _drawArrowH(canvas, left, right, bDimY);
+
+        // Flange thickness opposing vertical arrows (top flange)
+        final double flangeX = xWebInner + (right - xWebInner) * 0.50;
+        canvas
+          ..setStrokeColor(dimColor)
+          ..setLineWidth(1.0)
+          ..moveTo(flangeX, yTop + 10)
+          ..lineTo(flangeX, yTop)
+          ..moveTo(flangeX - 2.8, yTop + 4.0)
+          ..lineTo(flangeX, yTop)
+          ..lineTo(flangeX + 2.8, yTop + 4.0)
           ..strokePath();
         canvas
-          ..moveTo(flangeX, cy + h / 2 - tf - 10)
-          ..lineTo(flangeX, cy + h / 2 - tf)
-          ..moveTo(flangeX - 2.5, cy + h / 2 - tf - 3.5)
-          ..lineTo(flangeX, cy + h / 2 - tf)
-          ..lineTo(flangeX + 2.5, cy + h / 2 - tf - 3.5)
+          ..moveTo(flangeX, yTopFlangeInner - 10)
+          ..lineTo(flangeX, yTopFlangeInner)
+          ..moveTo(flangeX - 2.8, yTopFlangeInner - 4.0)
+          ..lineTo(flangeX, yTopFlangeInner)
+          ..lineTo(flangeX + 2.8, yTopFlangeInner - 4.0)
           ..strokePath();
 
-        // Web thickness pointer (inward horizontal arrows across web)
+        // Web thickness pointer (inward horizontal arrows into pocket matching 2D blueprint)
         final double webY = cy - 14.0;
-        _drawArrowH(canvas, left - 10, left, webY);
-        _drawArrowH(canvas, left + tw + 10, left + tw, webY);
+        canvas
+          ..moveTo(left - 8.0, webY)
+          ..lineTo(left, webY)
+          ..moveTo(left - 4.0, webY - 2.8)
+          ..lineTo(left, webY)
+          ..lineTo(left - 4.0, webY + 2.8)
+          ..strokePath();
+        canvas
+          ..moveTo(xWebInner + 8.0, webY)
+          ..lineTo(xWebInner, webY)
+          ..moveTo(xWebInner + 4.0, webY - 2.8)
+          ..lineTo(xWebInner, webY)
+          ..lineTo(xWebInner + 4.0, webY + 2.8)
+          ..strokePath();
+        // Leader line into the pocket towards badge
+        canvas
+          ..moveTo(xWebInner + 8.0, webY)
+          ..lineTo(xWebInner + 14.0, webY)
+          ..strokePath();
         break;
 
       case 'angle':
