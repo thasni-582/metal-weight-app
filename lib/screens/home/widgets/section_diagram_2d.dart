@@ -753,8 +753,8 @@ class DiagramData {
         dispName = 'Copper Ø $sizeStr mm';
         w = area * 0.910;
       } else {
-        title = 'ROUND BAR';
-        dispName = 'Ø $sizeStr mm';
+        title = 'MS ROUND BAR';
+        dispName = 'MS Ø $sizeStr mm';
         w = area * 0.785;
       }
     } else if (shapeType.contains('Sheet') || shapeType.contains('Plate')) {

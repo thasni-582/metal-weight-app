@@ -5,6 +5,7 @@ import 'package:metal_weight/core/constants/standard_data.dart';
 import 'package:metal_weight/core/providers/app_settings_provider.dart';
 import 'package:metal_weight/main.dart';
 import 'package:metal_weight/screens/calculator/calculation_screen.dart';
+import 'package:metal_weight/screens/home/widgets/section_diagram_2d.dart';
 
 void main() {
   testWidgets('App launches to the splash screen', (WidgetTester tester) async {
@@ -371,5 +372,25 @@ void main() {
       await tester.pumpAndSettle();
     }
     expect(find.text('66.40 kg'), findsWidgets);
+  });
+
+  testWidgets('Section2DDiagramWidget renders MS ROUND BAR for MS Round Bar shape', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: Section2DDiagramWidget(
+              shapeType: 'MS Round Bar',
+              selectedSize: '32',
+              selectedThickness: '',
+              availableSizes: ['32'],
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('MS ROUND BAR'), findsOneWidget);
   });
 }
