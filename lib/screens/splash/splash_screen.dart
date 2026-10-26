@@ -151,141 +151,213 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    const Color blueprintDark = Color(0xFF0B1728);
+    const Color cyanAccent = Color(0xFF00E5FF);
+
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Distinct Animated Logo with Floating Motion & Halo Pulse
-                      FadeTransition(
-                        opacity: _logoFade,
-                        child: ScaleTransition(
-                          scale: _logoScale,
-                          child: AnimatedBuilder(
-                            animation: _loopController,
-                            builder: (context, child) {
-                              return Transform.translate(
-                                offset: Offset(0, _floatAnimation.value),
-                                child: Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    // Ambient Orange Halo Pulse
-                                    Transform.scale(
-                                      scale: _haloScale.value,
-                                      child: Container(
-                                        height: 180,
-                                        width: 180,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(32),
-                                          color: AppColors.secondaryOrange
-                                              .withValues(alpha: _haloOpacity.value),
+      backgroundColor: blueprintDark,
+      body: Stack(
+        children: [
+          // 1. Technical CAD Blueprint Grid Background
+          const Positioned.fill(
+            child: CustomPaint(
+              painter: BlueprintGridPainter(),
+            ),
+          ),
+
+          // 2. Technical CAD Corner Brackets
+          _buildCadCorner(Alignment.topLeft, cyanAccent),
+          _buildCadCorner(Alignment.topRight, cyanAccent),
+          _buildCadCorner(Alignment.bottomLeft, cyanAccent),
+          _buildCadCorner(Alignment.bottomRight, cyanAccent),
+
+          // 3. Central Animated Logo & Typography
+          SafeArea(
+            child: Column(
+              children: [
+                Expanded(
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Distinct Animated Logo with Floating Motion & Blueprint Halo
+                          FadeTransition(
+                            opacity: _logoFade,
+                            child: ScaleTransition(
+                              scale: _logoScale,
+                              child: AnimatedBuilder(
+                                animation: _loopController,
+                                builder: (context, child) {
+                                  return Transform.translate(
+                                    offset: Offset(0, _floatAnimation.value),
+                                    child: Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        // Ambient Cyan & Orange Blueprint Halo Pulse
+                                        Transform.scale(
+                                          scale: _haloScale.value,
+                                          child: Container(
+                                            height: 180,
+                                            width: 180,
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(32),
+                                              color: cyanAccent.withValues(alpha: _haloOpacity.value * 0.6),
+                                            ),
+                                          ),
                                         ),
-                                      ),
+                                        _buildLogo(_floatAnimation.value, cyanAccent),
+                                      ],
                                     ),
-                                    _buildLogo(_floatAnimation.value),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 32),
+                          // Animated White Title
+                          FadeTransition(
+                            opacity: _titleFade,
+                            child: SlideTransition(
+                              position: _titleSlide,
+                              child: const Text(
+                                'Milen Trading',
+                                style: TextStyle(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.5,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          // Animated Glowing Brand Accent Line
+                          AnimatedBuilder(
+                            animation: _lineExpand,
+                            builder: (context, child) {
+                              return Container(
+                                width: _lineExpand.value,
+                                height: 3,
+                                decoration: BoxDecoration(
+                                  color: AppColors.secondaryOrange,
+                                  borderRadius: BorderRadius.circular(2),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: AppColors.secondaryOrange.withValues(alpha: 0.6),
+                                      blurRadius: 6,
+                                    ),
                                   ],
                                 ),
                               );
                             },
                           ),
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-                      // Animated Title
-                      FadeTransition(
-                        opacity: _titleFade,
-                        child: SlideTransition(
-                          position: _titleSlide,
-                          child: const Text(
-                            'Milen Trading',
-                            style: TextStyle(
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: -0.5,
-                              color: AppColors.primaryDark,
+                          const SizedBox(height: 10),
+                          // Animated Blueprint Subtitle
+                          FadeTransition(
+                            opacity: _subtitleFade,
+                            child: SlideTransition(
+                              position: _subtitleSlide,
+                              child: const Text(
+                                'STRUCTURAL CALCULATOR',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 3.0,
+                                  color: cyanAccent,
+                                ),
+                              ),
                             ),
                           ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                // 4. Bottom Technical Status and Loading Wave
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 36.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'INITIALIZING SYSTEM...',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 2.5,
+                          color: Colors.white54,
                         ),
                       ),
-                      const SizedBox(height: 10),
-                      // Animated Brand Accent Line
-                      AnimatedBuilder(
-                        animation: _lineExpand,
-                        builder: (context, child) {
-                          return Container(
-                            width: _lineExpand.value,
-                            height: 3,
-                            decoration: BoxDecoration(
-                              color: AppColors.secondaryOrange,
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 10),
-                      // Animated Subtitle
-                      FadeTransition(
-                        opacity: _subtitleFade,
-                        child: SlideTransition(
-                          position: _subtitleSlide,
-                          child: const Text(
-                            'STRUCTURAL CALCULATOR',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 2.0,
-                              color: AppColors.textMuted,
-                            ),
-                          ),
-                        ),
-                      ),
+                      SizedBox(height: 12),
+                      StaggeredPulseLoadingDots(color: AppColors.secondaryOrange),
                     ],
                   ),
                 ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCadCorner(Alignment alignment, Color color) {
+    return Align(
+      alignment: alignment,
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Container(
+            width: 14,
+            height: 14,
+            decoration: BoxDecoration(
+              border: Border(
+                top: alignment == Alignment.topLeft || alignment == Alignment.topRight
+                    ? BorderSide(color: color.withValues(alpha: 0.4), width: 1.5)
+                    : BorderSide.none,
+                bottom: alignment == Alignment.bottomLeft || alignment == Alignment.bottomRight
+                    ? BorderSide(color: color.withValues(alpha: 0.4), width: 1.5)
+                    : BorderSide.none,
+                left: alignment == Alignment.topLeft || alignment == Alignment.bottomLeft
+                    ? BorderSide(color: color.withValues(alpha: 0.4), width: 1.5)
+                    : BorderSide.none,
+                right: alignment == Alignment.topRight || alignment == Alignment.bottomRight
+                    ? BorderSide(color: color.withValues(alpha: 0.4), width: 1.5)
+                    : BorderSide.none,
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.only(bottom: 48.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  StaggeredPulseLoadingDots(color: AppColors.secondaryOrange),
-                  SizedBox(height: 24),
-                ],
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildLogo(double floatOffset) {
-    final double dynamicBlur = 18.0 + (floatOffset + 8.0) * 0.7;
+  Widget _buildLogo(double floatOffset, Color cyanAccent) {
+    final double dynamicBlur = 24.0 + (floatOffset + 8.0) * 0.8;
     return Container(
       height: 180,
       width: 180,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(24),
         color: Colors.white,
+        border: Border.all(
+          color: cyanAccent.withValues(alpha: 0.35),
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
+            color: cyanAccent.withValues(alpha: 0.25),
             blurRadius: dynamicBlur,
-            offset: Offset(0, 6 + (floatOffset + 8.0) * 0.25),
+            spreadRadius: 2,
+            offset: Offset(0, 4 + (floatOffset + 8.0) * 0.25),
           ),
           BoxShadow(
-            color: AppColors.secondaryOrange.withValues(alpha: 0.16),
-            blurRadius: dynamicBlur * 1.3,
-            spreadRadius: 2,
-            offset: const Offset(0, 4),
+            color: AppColors.secondaryOrange.withValues(alpha: 0.28),
+            blurRadius: dynamicBlur * 1.4,
+            spreadRadius: 3,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -307,6 +379,60 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
   }
+}
+
+/// Draws an engineering CAD blueprint grid in the background
+class BlueprintGridPainter extends CustomPainter {
+  const BlueprintGridPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final linePaint = Paint()
+      ..color = const Color(0xFF00E5FF).withValues(alpha: 0.035)
+      ..strokeWidth = 1.0;
+
+    final majorLinePaint = Paint()
+      ..color = const Color(0xFF00E5FF).withValues(alpha: 0.08)
+      ..strokeWidth = 1.2;
+
+    const double step = 24.0;
+    const double majorStep = 96.0;
+
+    // Vertical grid lines
+    for (double x = 0; x <= size.width; x += step) {
+      final isMajor = (x % majorStep).abs() < 1.0;
+      canvas.drawLine(
+        Offset(x, 0),
+        Offset(x, size.height),
+        isMajor ? majorLinePaint : linePaint,
+      );
+    }
+
+    // Horizontal grid lines
+    for (double y = 0; y <= size.height; y += step) {
+      final isMajor = (y % majorStep).abs() < 1.0;
+      canvas.drawLine(
+        Offset(0, y),
+        Offset(size.width, y),
+        isMajor ? majorLinePaint : linePaint,
+      );
+    }
+
+    // Small CAD crosshair markers at major intersections
+    final markerPaint = Paint()
+      ..color = const Color(0xFF00E5FF).withValues(alpha: 0.16)
+      ..strokeWidth = 1.0;
+
+    for (double x = majorStep; x < size.width; x += majorStep) {
+      for (double y = majorStep; y < size.height; y += majorStep) {
+        canvas.drawLine(Offset(x - 3, y), Offset(x + 3, y), markerPaint);
+        canvas.drawLine(Offset(x, y - 3), Offset(x, y + 3), markerPaint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 class StaggeredPulseLoadingDots extends StatefulWidget {
