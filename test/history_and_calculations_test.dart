@@ -89,8 +89,17 @@ void main() {
       expect(StandardData.wBeams['W 40 x 12 x 327 (1016 x 305 x 486)']?.weight, equals(486.00));
       expect(StandardData.findWBeam('W 8 x 8 x 31')?.weight, equals(46.10));
       expect(StandardData.aluminumCheckeredWeights['3.0'], equals(9.80));
+      expect(StandardData.hrCheckeredWeights['8.0'], equals(68.00));
+      expect(StandardData.ssCheckeredWeights['8.0'], equals(66.40));
+      expect(StandardData.densities['Steel'], equals(7.85));
+      expect(StandardData.densities['Stainless Steel'], equals(8.00));
       expect(StandardData.densities['Galvanized Sheet'], equals(8.10));
       expect(StandardData.densities['HR Chequered Sheet'], equals(8.50));
+      expect(StandardData.densities['SS Chequered Sheet'], equals(8.30));
+      expect(StandardData.densities['Brass'], equals(8.60));
+      expect(StandardData.densities['Copper'], equals(9.10));
+      expect(StandardData.densities['Aluminum'], equals(2.74));
+      expect(StandardData.densities['Aluminum Chequered Sheet'], equals(3.10));
     });
 
     test('W-Beam catalog completeness and geometry proportions', () {

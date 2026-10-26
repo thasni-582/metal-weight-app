@@ -514,7 +514,7 @@ class DiagramData {
         w = baseSteelW * (8.00 / 7.85);
         area = baseSteelW / 0.785;
       } else if (isAl) {
-        w = baseSteelW * (2.70 / 7.85);
+        w = baseSteelW * (2.74 / 7.85);
         area = baseSteelW / 0.785;
       } else {
         w = baseSteelW;
@@ -743,15 +743,15 @@ class DiagramData {
       } else if (shapeType.contains('Aluminum')) {
         title = 'ALUMINUM ROUND BAR';
         dispName = 'Al Ø $sizeStr mm';
-        w = area * 0.270;
+        w = area * 0.274;
       } else if (shapeType.contains('Brass')) {
         title = 'BRASS ROUND BAR';
         dispName = 'Brass Ø $sizeStr mm';
-        w = area * 0.850;
+        w = area * 0.860;
       } else if (shapeType.contains('Copper')) {
         title = 'COPPER ROUND BAR';
         dispName = 'Copper Ø $sizeStr mm';
-        w = area * 0.896;
+        w = area * 0.910;
       } else {
         title = 'ROUND BAR';
         dispName = 'Ø $sizeStr mm';
@@ -772,13 +772,15 @@ class DiagramData {
         final bool isSS = shapeType.contains('Stainless') || shapeType.contains('SS');
         title = isSS ? 'STAINLESS STEEL CHECKERED SHEET' : 'HR CHECKERED SHEET';
         dispName = '$sizeStr mm Chequered Plate';
-        final double baseW = StandardData.hrCheckeredWeights[sizeStr] ?? ((sheetThick * 7.85) + 3.0);
-        w = isSS ? baseW * (8.00 / 7.85) : baseW;
+        final double baseW = isSS
+            ? (StandardData.ssCheckeredWeights[sizeStr] ?? (sheetThick * 8.30))
+            : (StandardData.hrCheckeredWeights[sizeStr] ?? (sheetThick * 8.50));
+        w = baseW;
         area = (sheetThick * 10.0);
       } else if (shapeType.contains('Checkered')) {
         title = 'ALUMINUM CHECKERED SHEET';
         dispName = '$sizeStr mm 5-Bar Tread Plate';
-        w = StandardData.aluminumCheckeredWeights[sizeStr] ?? ((sheetThick * 2.70) + 1.60);
+        w = StandardData.aluminumCheckeredWeights[sizeStr] ?? ((sheetThick * 2.74) + 1.60);
         area = (sheetThick * 10.0);
       } else {
         double density = 7.85;
@@ -789,15 +791,15 @@ class DiagramData {
         } else if (shapeType.contains('Aluminum') || shapeType.contains('Aloominium')) {
           title = 'ALUMINUM SHEET';
           dispName = '$sizeStr mm (Al Alloy)';
-          density = 2.70;
+          density = 2.74;
         } else if (shapeType.contains('Brass')) {
           title = 'BRASS SHEET';
           dispName = '$sizeStr mm (CuZn Alloy)';
-          density = 8.50;
+          density = 8.60;
         } else if (shapeType.contains('Copper')) {
           title = 'COPPER SHEET';
           dispName = '$sizeStr mm (Pure Copper)';
-          density = 8.96;
+          density = 9.10;
         } else if (shapeType.contains('HR') || shapeType.contains('Hot Rolled')) {
           title = 'HR SHEET / PLATE';
           dispName = '$sizeStr mm HR Sheet';

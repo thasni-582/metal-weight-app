@@ -1414,16 +1414,34 @@ class StandardData {
     },
   };
 
-  // HR Checkered Sheet weights (kg/m²) - Mild Steel teardrop pattern
+  // HR Checkered Sheet weights (kg/m²) - Density 8.50 formula: Thickness x Width x Length x 8.5
   static const Map<String, double> hrCheckeredWeights = {
-    '2.0': 17.50,
-    '2.5': 21.40,
-    '3.0': 25.40,
+    '1.5': 12.75,
+    '2.0': 17.00,
+    '2.5': 21.25,
+    '3.0': 25.50,
+    '4.0': 34.00,
+    '4.5': 38.25,
+    '5.0': 42.50,
+    '6.0': 51.00,
+    '8.0': 68.00,
+    '10.0': 85.00,
+    '12.0': 102.00,
+  };
+
+  // Stainless Steel Checkered Sheet weights (kg/m²) - Density 8.30 formula: Thickness x 8.30
+  static const Map<String, double> ssCheckeredWeights = {
+    '1.5': 12.45,
+    '2.0': 16.60,
+    '2.5': 20.75,
+    '3.0': 24.90,
     '4.0': 33.20,
-    '4.5': 37.10,
-    '5.0': 41.10,
-    '6.0': 49.00,
-    '8.0': 64.70,
+    '4.5': 37.35,
+    '5.0': 41.50,
+    '6.0': 49.80,
+    '8.0': 66.40,
+    '10.0': 83.00,
+    '12.0': 99.60,
   };
 
   // Flat Bars standard widths and thicknesses (mm)
@@ -1544,8 +1562,10 @@ class StandardData {
     'Stainless Steel': 8.00,
     'Galvanized Sheet': 8.10,
     'HR Chequered Sheet': 8.50,
-    'Aluminum': 2.70,
-    'Brass': 8.50,
-    'Copper': 8.96,
+    'SS Chequered Sheet': 8.30,
+    'Aluminum': 2.74,
+    'Aluminum Chequered Sheet': 3.10,
+    'Brass': 8.60,
+    'Copper': 9.10,
   };
 }

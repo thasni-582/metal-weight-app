@@ -69,9 +69,12 @@ class _CalculationScreenState extends State<CalculationScreen> {
     'Stainless Steel': 8.00,
     'Galvanized Sheet': 8.10,
     'HR Chequered Sheet': 8.50,
+    'SS Chequered Sheet': 8.30,
     'Aluminum': 2.70,
-    'Copper': 8.96,
-    'Brass': 8.73,
+    'Aluminum Sheet': 2.74,
+    'Aluminum Chequered Sheet': 3.10,
+    'Copper': 9.10,
+    'Brass': 8.60,
     'Bronze': 8.80,
     'Titanium': 4.51,
     'Cast Iron': 7.20,
@@ -472,10 +475,14 @@ class _CalculationScreenState extends State<CalculationScreen> {
       final double density = _getEffectiveDensity();
       if (product.contains('Checkered')) {
         if (product.contains('Aluminum')) {
-          _lastUnitWeightPerM = StandardData.aluminumCheckeredWeights[size] ?? ((t * 2.70) + 1.60);
+          _selectedMetal = 'Aluminum Chequered Sheet';
+          _lastUnitWeightPerM = StandardData.aluminumCheckeredWeights[size] ?? ((t * 2.74) + 1.60);
+        } else if (product.contains('Stainless')) {
+          _selectedMetal = 'SS Chequered Sheet';
+          _lastUnitWeightPerM = StandardData.ssCheckeredWeights[size] ?? (t * 8.30);
         } else {
-          final double baseW = StandardData.hrCheckeredWeights[size] ?? 36.5;
-          _lastUnitWeightPerM = baseW * (density / 7.85);
+          _selectedMetal = 'HR Chequered Sheet';
+          _lastUnitWeightPerM = StandardData.hrCheckeredWeights[size] ?? (t * 8.50);
         }
       } else {
         _lastUnitWeightPerM = t * density;
@@ -789,7 +796,35 @@ class _CalculationScreenState extends State<CalculationScreen> {
         surfaceArea = 2 * (l * w + l * t + w * t);
     }
 
-    if (_lastUnitWeightPerM <= 0.0 && l > 0.0) {
+    if (_selectedProduct.contains('Checkered')) {
+      double checkW = 0.0;
+      final String tClean = (double.tryParse(_thicknessController.text.trim()) ?? t).toString();
+      final String tInt = (double.tryParse(_thicknessController.text.trim()) ?? t).toInt().toString();
+      final String tFixed1 = (double.tryParse(_thicknessController.text.trim()) ?? t).toStringAsFixed(1);
+
+      if (_selectedProduct.contains('Aluminum')) {
+        checkW = StandardData.aluminumCheckeredWeights[tFixed1] ??
+            StandardData.aluminumCheckeredWeights[tClean] ??
+            StandardData.aluminumCheckeredWeights[tInt] ??
+            ((t * 2.74) + 1.60);
+        _lastUnitWeightPerM = checkW;
+      } else if (_selectedProduct.contains('Stainless')) {
+        // SS Checkered Sheet: Density 8.30 formula (Thickness x 8.3)
+        checkW = StandardData.ssCheckeredWeights[tFixed1] ??
+            StandardData.ssCheckeredWeights[tClean] ??
+            StandardData.ssCheckeredWeights[tInt] ??
+            (t * 8.30);
+        _lastUnitWeightPerM = checkW;
+      } else {
+        // HR Checkered Sheet: Density 8.50 formula (Thickness x 8.5)
+        checkW = StandardData.hrCheckeredWeights[tFixed1] ??
+            StandardData.hrCheckeredWeights[tClean] ??
+            StandardData.hrCheckeredWeights[tInt] ??
+            (t * 8.50);
+        _lastUnitWeightPerM = checkW;
+      }
+      _lastSectionAreaCm2 = (t > 0 ? t : 1.0) * 10.0;
+    } else if (_lastUnitWeightPerM <= 0.0 && l > 0.0) {
       if (_selectedShape == 'Sheet / Plate') {
         _lastUnitWeightPerM = (t > 0 ? t : 1.0) * density;
         _lastSectionAreaCm2 = (w > 0 ? w : 100.0) * (t > 0 ? t : 1.0) / 100.0;
@@ -801,7 +836,10 @@ class _CalculationScreenState extends State<CalculationScreen> {
 
     double weightPerPiece = 0.0;
     if (_isMetric) {
-      if (_selectedShape != 'Sheet / Plate' && _lastUnitWeightPerM > 0) {
+      if (_selectedProduct.contains('Checkered') && _lastUnitWeightPerM > 0) {
+        final double areaM2 = (l * w) / 1000000.0;
+        weightPerPiece = areaM2 * _lastUnitWeightPerM;
+      } else if (_selectedShape != 'Sheet / Plate' && _lastUnitWeightPerM > 0) {
         weightPerPiece = (l / 1000.0) * _lastUnitWeightPerM;
       } else {
         weightPerPiece = (volume / 1000000.0) * density;

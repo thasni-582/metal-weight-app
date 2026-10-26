@@ -300,4 +300,76 @@ void main() {
     expect(find.text('147.60 kg'), findsWidgets);
     expect(find.text('15.68 cm²'), findsWidgets);
   });
+
+  testWidgets('CalculationScreen renders HR Checkered Sheet 8mm 1x1m with 68.00 kg/m² and 68.00 kg', (WidgetTester tester) async {
+    final settings = AppSettingsProvider();
+    settings.syncProfileFromHome(
+      material: 'HR Chequered Sheet',
+      shape: 'HR Checkered Sheet',
+      size: '8.0',
+      thickness: '',
+      variant: '',
+      lengthInM: 1.0,
+      quantity: 1,
+      weightPerM: 68.00,
+      sectionArea: 80.0,
+    );
+
+    await tester.pumpWidget(
+      ChangeNotifierProvider<AppSettingsProvider>.value(
+        value: settings,
+        child: const MaterialApp(
+          home: Scaffold(
+            body: CalculationScreen(),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('68.00 kg/m²'), findsWidgets);
+
+    final widthField = find.widgetWithText(TextField, '500');
+    if (widthField.evaluate().isNotEmpty) {
+      await tester.enterText(widthField, '1000');
+      await tester.pumpAndSettle();
+    }
+    expect(find.text('68.00 kg'), findsWidgets);
+  });
+
+  testWidgets('CalculationScreen renders SS Checkered Sheet 8mm 1x1m with 66.40 kg/m² and 66.40 kg', (WidgetTester tester) async {
+    final settings = AppSettingsProvider();
+    settings.syncProfileFromHome(
+      material: 'SS Chequered Sheet',
+      shape: 'Stainless Steel Checkered Sheet',
+      size: '8.0',
+      thickness: '',
+      variant: '',
+      lengthInM: 1.0,
+      quantity: 1,
+      weightPerM: 66.40,
+      sectionArea: 80.0,
+    );
+
+    await tester.pumpWidget(
+      ChangeNotifierProvider<AppSettingsProvider>.value(
+        value: settings,
+        child: const MaterialApp(
+          home: Scaffold(
+            body: CalculationScreen(),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('66.40 kg/m²'), findsWidgets);
+
+    final widthField = find.widgetWithText(TextField, '500');
+    if (widthField.evaluate().isNotEmpty) {
+      await tester.enterText(widthField, '1000');
+      await tester.pumpAndSettle();
+    }
+    expect(find.text('66.40 kg'), findsWidgets);
+  });
 }

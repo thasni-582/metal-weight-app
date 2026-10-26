@@ -538,19 +538,19 @@ class _HomeScreenState extends State<HomeScreen> {
       case 'Aluminum Round Bar':
         final double dia = double.tryParse(_selectedSize) ?? 20.0;
         sectionAreaCm2 = (3.14159265 * dia * dia) / 400.0;
-        weightKgPerM = sectionAreaCm2 * 0.270;
+        weightKgPerM = sectionAreaCm2 * 0.274;
         break;
 
       case 'Brass Round Bar':
         final double dia = double.tryParse(_selectedSize) ?? 20.0;
         sectionAreaCm2 = (3.14159265 * dia * dia) / 400.0;
-        weightKgPerM = sectionAreaCm2 * 0.850;
+        weightKgPerM = sectionAreaCm2 * 0.860;
         break;
 
       case 'Copper Round Bar':
         final double dia = double.tryParse(_selectedSize) ?? 20.0;
         sectionAreaCm2 = (3.14159265 * dia * dia) / 400.0;
-        weightKgPerM = sectionAreaCm2 * 0.896;
+        weightKgPerM = sectionAreaCm2 * 0.910;
         break;
 
       // Sheets
@@ -563,8 +563,9 @@ class _HomeScreenState extends State<HomeScreen> {
         break;
 
       case 'HR Checkered Sheet':
-        weightKgPerM = StandardData.hrCheckeredWeights[_selectedSize] ?? 36.5;
-        sectionAreaCm2 = (double.tryParse(_selectedSize) ?? 4.5) * 10.0;
+        final double tHr = double.tryParse(_selectedSize) ?? 8.0;
+        weightKgPerM = StandardData.hrCheckeredWeights[_selectedSize] ?? (tHr * 8.50);
+        sectionAreaCm2 = tHr * 10.0;
         break;
 
       case 'Stainless Steel Sheet':
@@ -574,14 +575,14 @@ class _HomeScreenState extends State<HomeScreen> {
         break;
 
       case 'Stainless Steel Checkered Sheet':
-        final double baseW = StandardData.hrCheckeredWeights[_selectedSize] ?? 36.5;
-        weightKgPerM = baseW * (8.00 / 7.85);
-        sectionAreaCm2 = (double.tryParse(_selectedSize) ?? 4.5) * 10.0;
+        final double tSs = double.tryParse(_selectedSize) ?? 8.0;
+        weightKgPerM = StandardData.ssCheckeredWeights[_selectedSize] ?? (tSs * 8.30);
+        sectionAreaCm2 = tSs * 10.0;
         break;
 
       case 'Aluminum Sheet':
         final double t = double.tryParse(_selectedSize) ?? 2.0;
-        weightKgPerM = t * 2.70;
+        weightKgPerM = t * 2.74;
         sectionAreaCm2 = t * 10.0;
         break;
 
@@ -593,13 +594,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
       case 'Brass Sheet':
         final double t = double.tryParse(_selectedSize) ?? 2.0;
-        weightKgPerM = t * 8.50;
+        weightKgPerM = t * 8.60;
         sectionAreaCm2 = t * 10.0;
         break;
 
       case 'Copper Sheet':
         final double t = double.tryParse(_selectedSize) ?? 2.0;
-        weightKgPerM = t * 8.96;
+        weightKgPerM = t * 9.10;
         sectionAreaCm2 = t * 10.0;
         break;
     }
@@ -612,15 +613,23 @@ class _HomeScreenState extends State<HomeScreen> {
   void _syncCurrentSelectionToProvider([double? weightPerM, double? secArea]) {
     final w = weightPerM ?? (double.tryParse(_weightController.text) ?? 0.0);
     final a = secArea ?? (double.tryParse(_sectionController.text) ?? 0.0);
-    final String mat = _selectedShape.contains('Aluminum')
-        ? 'Aluminum'
-        : (_selectedShape.contains('Brass')
-            ? 'Brass'
-            : (_selectedShape.contains('Copper')
-                ? 'Copper'
-                : (_selectedShape.contains('Stainless') || _selectedShape.contains('SS')
-                    ? 'Stainless Steel'
-                    : 'Steel')));
+    final String mat = _selectedShape == 'HR Checkered Sheet'
+        ? 'HR Chequered Sheet'
+        : (_selectedShape == 'Stainless Steel Checkered Sheet'
+            ? 'SS Chequered Sheet'
+            : (_selectedShape == 'Aluminum Checkered Sheet'
+                ? 'Aluminum Chequered Sheet'
+                : (_selectedShape == 'Aluminum Sheet'
+                    ? 'Aluminum Sheet'
+                    : (_selectedShape.contains('Aluminum')
+                        ? 'Aluminum'
+                        : (_selectedShape.contains('Brass')
+                            ? 'Brass'
+                            : (_selectedShape.contains('Copper')
+                                ? 'Copper'
+                                : (_selectedShape.contains('Stainless') || _selectedShape.contains('SS')
+                                    ? 'Stainless Steel'
+                                    : 'Steel')))))));
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
