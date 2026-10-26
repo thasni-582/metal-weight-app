@@ -141,4 +141,47 @@ void main() {
       expect(pageMatches, equals(1));
     }
   });
+
+  test('Calculator screen PDF export with full commercial rows (cost, volume, area) strictly renders as 1 single page', () async {
+    final calculatorItem = CalculationModel(
+      title: 'Steel U-Channel (UPN) 260',
+      subtitle: '260 x 90 x L12000 mm | Qty: 1',
+      weight: '454.80 kg',
+      time: '26/10/2026 18:48',
+      iconName: 'channel',
+      bgColor: const Color(0xFFE8F0FE),
+      iconColor: const Color(0xFF1A73E8),
+      weightValue: 454.80,
+      details: {
+        'material': 'Steel',
+        'shape': 'UPN Channel',
+        'dimensions': '260 x 90 x L12000 mm',
+        'quantity': '1',
+        'weightPerPiece': '454.800 kg',
+        'unitWeightPerM': '37.90 kg/m',
+        'sectionArea': '48.30 cm2',
+        'variant': 'UPN',
+        'size': '260',
+        'totalWeight': '454.80 kg',
+        'totalCost': '2046.60',
+        'volume': '57960.00 cm3',
+        'surfaceArea': '10.330 m2',
+        'unitSystem': 'Metric',
+        'width': '90',
+        'height': '260',
+        'thickness': '14',
+        'length': '12000',
+        'webThickness': '10',
+        'flangeThickness': '14',
+      },
+    );
+
+    final bytes = await PdfExportService.generatePdfBytes(calculatorItem);
+    expect(bytes, isNotEmpty);
+    expect(String.fromCharCodes(bytes.sublist(0, 5)), equals('%PDF-'));
+
+    final pdfText = String.fromCharCodes(bytes);
+    final pageMatches = RegExp(r'/Type\s*/Page\b').allMatches(pdfText).length;
+    expect(pageMatches, equals(1), reason: 'Calculator screen PDF must strictly be a single page');
+  });
 }

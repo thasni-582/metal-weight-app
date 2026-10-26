@@ -63,7 +63,7 @@ class PdfExportService {
       pw.MultiPage(
         theme: theme,
         pageFormat: PdfPageFormat.a4,
-        margin: const pw.EdgeInsets.all(32),
+        margin: const pw.EdgeInsets.symmetric(horizontal: 28, vertical: 20),
         build: (pw.Context docContext) {
           return [
             // Header
@@ -76,7 +76,7 @@ class PdfExportService {
                     pw.Text(
                       CompanyData.legalName.toUpperCase(),
                       style: pw.TextStyle(
-                        fontSize: 20,
+                        fontSize: 17,
                         fontWeight: pw.FontWeight.bold,
                         color: PdfColor.fromHex('2C3E50'),
                       ),
@@ -85,7 +85,7 @@ class PdfExportService {
                     pw.Text(
                       '${CompanyData.website} | Structural Steel & Metal Quotation',
                       style: const pw.TextStyle(
-                        fontSize: 10,
+                        fontSize: 9,
                         color: PdfColors.grey700,
                       ),
                     ),
@@ -97,7 +97,7 @@ class PdfExportService {
                     pw.Text(
                       'DATE: $dateStr',
                       style: pw.TextStyle(
-                        fontSize: 10,
+                        fontSize: 9.5,
                         fontWeight: pw.FontWeight.bold,
                         color: PdfColor.fromHex('2C3E50'),
                       ),
@@ -105,7 +105,7 @@ class PdfExportService {
                     pw.Text(
                       'REF: MS-${now.millisecondsSinceEpoch.toString().substring(7)}',
                       style: const pw.TextStyle(
-                        fontSize: 10,
+                        fontSize: 9,
                         color: PdfColors.grey700,
                       ),
                     ),
@@ -113,16 +113,16 @@ class PdfExportService {
                 ),
               ],
             ),
-            pw.Divider(thickness: 1.5, color: PdfColor.fromHex('E67E22')),
-            pw.SizedBox(height: 14),
+            pw.Divider(thickness: 1.0, color: PdfColor.fromHex('E67E22')),
+            pw.SizedBox(height: 6),
 
             // Title Card
             pw.Container(
               width: double.infinity,
-              padding: const pw.EdgeInsets.all(12),
+              padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: pw.BoxDecoration(
                 color: PdfColor.fromHex('F5F6FA'),
-                borderRadius: const pw.BorderRadius.all(pw.Radius.circular(8)),
+                borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
                 border: pw.Border.all(color: PdfColor.fromHex('E1E2ED')),
               ),
               child: pw.Column(
@@ -131,37 +131,37 @@ class PdfExportService {
                   pw.Text(
                     _cleanText(item.title),
                     style: pw.TextStyle(
-                      fontSize: 16,
+                      fontSize: 13.5,
                       fontWeight: pw.FontWeight.bold,
                       color: PdfColor.fromHex('2C3E50'),
                     ),
                   ),
-                  pw.SizedBox(height: 4),
+                  pw.SizedBox(height: 2),
                   pw.Text(
                     _cleanText(item.subtitle),
                     style: const pw.TextStyle(
-                      fontSize: 11,
+                      fontSize: 9.5,
                       color: PdfColors.grey700,
                     ),
                   ),
                 ],
               ),
             ),
-            pw.SizedBox(height: 18),
+            pw.SizedBox(height: 7),
 
             // Technical Specifications Table
             pw.Text(
               'SPECIFICATIONS & PARAMETERS',
               style: pw.TextStyle(
-                fontSize: 12,
+                fontSize: 10.5,
                 fontWeight: pw.FontWeight.bold,
                 color: PdfColor.fromHex('2C3E50'),
               ),
             ),
-            pw.SizedBox(height: 8),
+            pw.SizedBox(height: 4),
 
             pw.Table(
-              border: pw.TableBorder.all(color: PdfColor.fromHex('E1E2ED'), width: 1),
+              border: pw.TableBorder.all(color: PdfColor.fromHex('E1E2ED'), width: 0.8),
               children: [
                 _buildTableRow('Material Type', _cleanText(details['material']?.toString() ?? 'Steel'), true),
                 _buildTableRow('Shape / Profile', _cleanText(details['shape']?.toString() ?? item.title), false),
@@ -179,19 +179,19 @@ class PdfExportService {
                 _buildTableRow('Calculation Time', item.time, false),
               ],
             ),
-            pw.SizedBox(height: 14),
+            pw.SizedBox(height: 7),
 
             // 2D Technical Cross-Section Blueprint Card
             _buildShapeBlueprintCard(item),
-            pw.SizedBox(height: 14),
+            pw.SizedBox(height: 7),
 
             // Summary Highlight Box
             pw.Container(
               width: double.infinity,
-              padding: const pw.EdgeInsets.all(14),
+              padding: const pw.EdgeInsets.symmetric(horizontal: 12, vertical: 7),
               decoration: pw.BoxDecoration(
                 color: PdfColor.fromHex('2C3E50'),
-                borderRadius: const pw.BorderRadius.all(pw.Radius.circular(8)),
+                borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
               ),
               child: pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
@@ -202,14 +202,14 @@ class PdfExportService {
                       pw.Text(
                         'TOTAL NET WEIGHT',
                         style: const pw.TextStyle(
-                          fontSize: 10,
+                          fontSize: 9,
                           color: PdfColors.white,
                         ),
                       ),
                       pw.Text(
                         _cleanText(item.weight),
                         style: pw.TextStyle(
-                          fontSize: 18,
+                          fontSize: 16,
                           fontWeight: pw.FontWeight.bold,
                           color: PdfColor.fromHex('E67E22'),
                         ),
@@ -223,14 +223,14 @@ class PdfExportService {
                         pw.Text(
                           'ESTIMATED TOTAL COST',
                           style: const pw.TextStyle(
-                            fontSize: 10,
+                            fontSize: 9,
                             color: PdfColors.white,
                           ),
                         ),
                         pw.Text(
                           '${details['totalCost']} SAR',
                           style: const pw.TextStyle(
-                            fontSize: 18,
+                            fontSize: 16,
                             fontWeight: pw.FontWeight.bold,
                             color: PdfColors.white,
                           ),
@@ -240,12 +240,12 @@ class PdfExportService {
                 ],
               ),
             ),
-            pw.SizedBox(height: 18),
+            pw.SizedBox(height: 7),
 
             // Branch Offices Information Block
             pw.Container(
               width: double.infinity,
-              padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 5),
               decoration: pw.BoxDecoration(
                 color: PdfColor.fromHex('F8FAFC'),
                 borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
@@ -259,9 +259,9 @@ class PdfExportService {
                     children: [
                       pw.Text('WESTERN REGION (JEDDAH)',
                           style: pw.TextStyle(fontSize: 7.5, fontWeight: pw.FontWeight.bold, color: PdfColor.fromHex('2C3E50'))),
-                      pw.SizedBox(height: 2),
-                      pw.Text('Tel: +966 597 67 87 97', style: const pw.TextStyle(fontSize: 7, color: PdfColors.grey700)),
-                      pw.Text('info@milantrades.com', style: const pw.TextStyle(fontSize: 7, color: PdfColors.grey700)),
+                      pw.SizedBox(height: 1.5),
+                      pw.Text('Tel: +966 597 67 87 97', style: const pw.TextStyle(fontSize: 6.5, color: PdfColors.grey700)),
+                      pw.Text('info@milantrades.com', style: const pw.TextStyle(fontSize: 6.5, color: PdfColors.grey700)),
                     ],
                   ),
                   pw.Column(
@@ -269,9 +269,9 @@ class PdfExportService {
                     children: [
                       pw.Text('CENTRAL REGION (RIYADH)',
                           style: pw.TextStyle(fontSize: 7.5, fontWeight: pw.FontWeight.bold, color: PdfColor.fromHex('2C3E50'))),
-                      pw.SizedBox(height: 2),
-                      pw.Text('Tel: +966 569 79 49 71', style: const pw.TextStyle(fontSize: 7, color: PdfColors.grey700)),
-                      pw.Text('sales@milantrades.com', style: const pw.TextStyle(fontSize: 7, color: PdfColors.grey700)),
+                      pw.SizedBox(height: 1.5),
+                      pw.Text('Tel: +966 569 79 49 71', style: const pw.TextStyle(fontSize: 6.5, color: PdfColors.grey700)),
+                      pw.Text('sales@milantrades.com', style: const pw.TextStyle(fontSize: 6.5, color: PdfColors.grey700)),
                     ],
                   ),
                   pw.Column(
@@ -279,15 +279,15 @@ class PdfExportService {
                     children: [
                       pw.Text('EASTERN REGION (DAMMAM)',
                           style: pw.TextStyle(fontSize: 7.5, fontWeight: pw.FontWeight.bold, color: PdfColor.fromHex('2C3E50'))),
-                      pw.SizedBox(height: 2),
-                      pw.Text('Tel: +966 566 51 28 99', style: const pw.TextStyle(fontSize: 7, color: PdfColors.grey700)),
-                      pw.Text('sales@milantrades.com', style: const pw.TextStyle(fontSize: 7, color: PdfColors.grey700)),
+                      pw.SizedBox(height: 1.5),
+                      pw.Text('Tel: +966 566 51 28 99', style: const pw.TextStyle(fontSize: 6.5, color: PdfColors.grey700)),
+                      pw.Text('sales@milantrades.com', style: const pw.TextStyle(fontSize: 6.5, color: PdfColors.grey700)),
                     ],
                   ),
                 ],
               ),
             ),
-            pw.SizedBox(height: 12),
+            pw.SizedBox(height: 8),
 
             // Footer Note
             pw.Divider(thickness: 1, color: PdfColors.grey300),
@@ -635,19 +635,19 @@ class PdfExportService {
       ),
       children: [
         pw.Padding(
-          padding: const pw.EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+          padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 3.2),
           child: pw.Text(
             label,
-            style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey800),
+            style: const pw.TextStyle(fontSize: 8.5, color: PdfColors.grey800),
           ),
         ),
         pw.Padding(
-          padding: const pw.EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+          padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 3.2),
           child: pw.Text(
             value,
             textAlign: pw.TextAlign.right,
             style: pw.TextStyle(
-              fontSize: 10,
+              fontSize: 8.5,
               fontWeight: isHighlight || isCost ? pw.FontWeight.bold : pw.FontWeight.normal,
               color: isHighlight
                   ? PdfColor.fromHex('E67E22')
@@ -1505,10 +1505,10 @@ class PdfExportService {
         children: [
           // Blueprint Card Header
           pw.Container(
-            padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: pw.BoxDecoration(
               color: PdfColor.fromHex('2C3E50'),
-              borderRadius: const pw.BorderRadius.vertical(top: pw.Radius.circular(7)),
+              borderRadius: const pw.BorderRadius.vertical(top: pw.Radius.circular(6)),
             ),
             child: pw.Row(
               mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
@@ -1516,18 +1516,18 @@ class PdfExportService {
                 pw.Row(
                   children: [
                     pw.Container(
-                      width: 6,
-                      height: 6,
+                      width: 5,
+                      height: 5,
                       decoration: pw.BoxDecoration(
                         color: PdfColor.fromHex('E67E22'),
                         shape: pw.BoxShape.circle,
                       ),
                     ),
-                    pw.SizedBox(width: 6),
+                    pw.SizedBox(width: 5),
                     pw.Text(
                       'TECHNICAL 2D CROSS-SECTION BLUEPRINT',
                       style: const pw.TextStyle(
-                        fontSize: 8.5,
+                        fontSize: 8.0,
                         fontWeight: pw.FontWeight.bold,
                         color: PdfColors.white,
                         letterSpacing: 0.5,
@@ -1536,7 +1536,7 @@ class PdfExportService {
                   ],
                 ),
                 pw.Container(
-                  padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const pw.EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
                   decoration: pw.BoxDecoration(
                     color: PdfColor.fromHex('FDF2E9'),
                     borderRadius: const pw.BorderRadius.all(pw.Radius.circular(4)),
@@ -1545,7 +1545,7 @@ class PdfExportService {
                   child: pw.Text(
                     cleanTitle.toUpperCase(),
                     style: pw.TextStyle(
-                      fontSize: 7.5,
+                      fontSize: 7.0,
                       fontWeight: pw.FontWeight.bold,
                       color: PdfColor.fromHex('E67E22'),
                     ),
@@ -1557,7 +1557,7 @@ class PdfExportService {
 
           // Blueprint Drawing & Parameter Details
           pw.Padding(
-            padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 5),
             child: pw.Row(
               crossAxisAlignment: pw.CrossAxisAlignment.center,
               children: [
