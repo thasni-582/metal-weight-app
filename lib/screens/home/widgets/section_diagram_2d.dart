@@ -575,7 +575,7 @@ class DiagramData {
         standardTag = 'BS 4-1';
       } else if (effVariant == 'W-Beam') {
         title = 'W-BEAM';
-        dispName = 'W-Beam $sizeStr';
+        dispName = sizeStr.toUpperCase().startsWith('W') ? sizeStr : 'W-Beam $sizeStr';
         variantTag = 'W-Beam';
         standardTag = 'ASTM A6';
       } else if (effVariant == 'IPE-AA') {

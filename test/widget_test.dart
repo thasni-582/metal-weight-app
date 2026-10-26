@@ -489,4 +489,53 @@ void main() {
     expect(find.text('314.00 kg/m'), findsWidgets);
     expect(find.text('3768.00 kg'), findsWidgets);
   });
+
+  testWidgets('CalculationScreen and Section2DDiagramWidget render client W-Beam W 4 x 4 x 13 with 19.30 kg/m', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: Section2DDiagramWidget(
+              shapeType: 'W-Beam (Wide Flange)',
+              selectedSize: 'W 4 x 4 x 13 (102 x 102 x 19.3)',
+              selectedThickness: '',
+              availableSizes: ['W 4 x 4 x 13 (102 x 102 x 19.3)'],
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('W-BEAM'), findsOneWidget);
+
+    final settings = AppSettingsProvider();
+    settings.syncProfileFromHome(
+      material: 'Steel',
+      shape: 'W-Beam (Wide Flange)',
+      size: 'W 4 x 4 x 13 (102 x 102 x 19.3)',
+      thickness: '',
+      variant: 'W-Beam',
+      lengthInM: 12.0,
+      quantity: 1,
+      weightPerM: 19.30,
+      sectionArea: 24.70,
+    );
+
+    await tester.pumpWidget(
+      ChangeNotifierProvider<AppSettingsProvider>.value(
+        value: settings,
+        child: const MaterialApp(
+          home: Scaffold(
+            body: CalculationScreen(),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('19.30 kg/m'), findsWidgets);
+    expect(find.text('231.60 kg'), findsWidgets);
+    expect(find.text('24.70 cm²'), findsWidgets);
+  });
 }

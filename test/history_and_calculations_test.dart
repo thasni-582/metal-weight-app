@@ -145,10 +145,31 @@ void main() {
       expect(StandardData.findHebBeam('HEB 1000')?.weight, equals(314.00));
       expect(StandardData.findHebBeam('HEB 300')?.weight, equals(117.00));
       expect(StandardData.findHebBeam('300')?.weight, equals(117.00));
-      expect(StandardData.wBeams.length, equals(166));
+      expect(StandardData.wBeams.length, equals(183));
+      expect(StandardData.wBeams['W 4 x 4 x 13 (102 x 102 x 19.3)']?.weight, equals(19.30));
+      expect(StandardData.wBeams['W 5 x 5 x 16 (127 x 127 x 23.8)']?.weight, equals(23.80));
+      expect(StandardData.wBeams['W 5 x 5 x 19 (127 x 127 x 28.1)']?.weight, equals(28.10));
+      expect(StandardData.wBeams['W 6 x 4 x 9 (152 x 102 x 13.5)']?.weight, equals(13.50));
+      expect(StandardData.wBeams['W 6 x 4 x 12 (152 x 102 x 18)']?.weight, equals(18.00));
+      expect(StandardData.wBeams['W 6 x 4 x 16 (152 x 102 x 24)']?.weight, equals(24.00));
+      expect(StandardData.wBeams['W 6 x 6 x 15 (152 x 152 x 22.5)']?.weight, equals(22.50));
+      expect(StandardData.wBeams['W 6 x 6 x 20 (152 x 152 x 29.8)']?.weight, equals(29.80));
+      expect(StandardData.wBeams['W 6 x 6 x 25 (152 x 152 x 37.1)']?.weight, equals(37.10));
+      expect(StandardData.wBeams['W 8 x 4 x 10 (203 x 102 x 15)']?.weight, equals(15.00));
+      expect(StandardData.wBeams['W 8 x 4 x 13 (203 x 102 x 19.3)']?.weight, equals(19.30));
+      expect(StandardData.wBeams['W 8 x 4 x 15 (203 x 102 x 22.5)']?.weight, equals(22.50));
+      expect(StandardData.wBeams['W 8 x 5.25 x 14 (203 x 133 x 21)']?.weight, equals(21.00));
+      expect(StandardData.wBeams['W 8 x 5.25 x 18 (203 x 133 x 26.6)']?.weight, equals(26.60));
+      expect(StandardData.wBeams['W 8 x 5.25 x 21 (203 x 133 x 31.3)']?.weight, equals(31.30));
+      expect(StandardData.wBeams['W 8 x 6.5 x 24 (203 x 165 x 35.9)']?.weight, equals(35.90));
+      expect(StandardData.wBeams['W 8 x 6.5 x 28 (203 x 165 x 41.7)']?.weight, equals(41.70));
       expect(StandardData.wBeams['W 8 x 8 x 31 (203 x 203 x 46.1)']?.weight, equals(46.10));
       expect(StandardData.wBeams['W 12 x 8 x 40 (305 x 203 x 60)']?.weight, equals(60.00));
       expect(StandardData.wBeams['W 40 x 12 x 327 (1016 x 305 x 486)']?.weight, equals(486.00));
+      expect(StandardData.findWBeam('W 4 x 4 x 13')?.weight, equals(19.30));
+      expect(StandardData.findWBeam('106 x 103')?.weight, equals(19.30));
+      expect(StandardData.findWBeam('W 8 x 5 1/4 x 14')?.weight, equals(21.00));
+      expect(StandardData.findWBeam('W 8 x 6 1/2 x 28')?.weight, equals(41.70));
       expect(StandardData.findWBeam('W 8 x 8 x 31')?.weight, equals(46.10));
       expect(StandardData.aluminumCheckeredWeights['3.0'], equals(9.80));
       expect(StandardData.hrCheckeredWeights['8.0'], equals(68.00));
@@ -165,7 +186,7 @@ void main() {
     });
 
     test('W-Beam catalog completeness and geometry proportions', () {
-      expect(StandardData.wBeams.length, equals(166));
+      expect(StandardData.wBeams.length, equals(183));
       for (final entry in StandardData.wBeams.entries) {
         final spec = entry.value;
         expect(spec.h, greaterThan(0));

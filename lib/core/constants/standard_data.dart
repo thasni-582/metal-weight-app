@@ -485,8 +485,43 @@ class StandardData {
         h: 474.6, b: 424.0, tw: 47.6, tf: 77.0, weight: 633.90, area: 808.00),
   };
 
-  // ASTM A6 / Commercial W-Beams (Wide Flange) - Total: 166 standard sizes
+  // ASTM A6 / Commercial W-Beams (Wide Flange) - Total: 183 standard sizes
   static const Map<String, StandardProfileSpec> wBeams = {
+    // ASTM A6 / A6M-03 Wide Flange Beams (W4 - W8 from Client Specification)
+    'W 4 x 4 x 13 (102 x 102 x 19.3)': StandardProfileSpec(
+        h: 106.0, b: 103.0, tw: 7.1, tf: 8.8, weight: 19.30, area: 24.70),
+    'W 5 x 5 x 16 (127 x 127 x 23.8)': StandardProfileSpec(
+        h: 127.0, b: 127.0, tw: 6.1, tf: 9.1, weight: 23.80, area: 30.40),
+    'W 5 x 5 x 19 (127 x 127 x 28.1)': StandardProfileSpec(
+        h: 131.0, b: 128.0, tw: 6.9, tf: 10.9, weight: 28.10, area: 35.90),
+    'W 6 x 4 x 9 (152 x 102 x 13.5)': StandardProfileSpec(
+        h: 150.0, b: 100.0, tw: 4.3, tf: 5.5, weight: 13.50, area: 17.30),
+    'W 6 x 4 x 12 (152 x 102 x 18)': StandardProfileSpec(
+        h: 153.0, b: 102.0, tw: 5.8, tf: 7.1, weight: 18.00, area: 22.90),
+    'W 6 x 4 x 16 (152 x 102 x 24)': StandardProfileSpec(
+        h: 160.0, b: 102.0, tw: 6.6, tf: 10.3, weight: 24.00, area: 30.60),
+    'W 6 x 6 x 15 (152 x 152 x 22.5)': StandardProfileSpec(
+        h: 152.0, b: 152.0, tw: 5.8, tf: 6.6, weight: 22.50, area: 28.60),
+    'W 6 x 6 x 20 (152 x 152 x 29.8)': StandardProfileSpec(
+        h: 157.0, b: 153.0, tw: 6.6, tf: 9.3, weight: 29.80, area: 37.90),
+    'W 6 x 6 x 25 (152 x 152 x 37.1)': StandardProfileSpec(
+        h: 162.0, b: 154.0, tw: 8.1, tf: 11.6, weight: 37.10, area: 47.40),
+    'W 8 x 4 x 10 (203 x 102 x 15)': StandardProfileSpec(
+        h: 200.0, b: 100.0, tw: 4.3, tf: 5.2, weight: 15.00, area: 19.10),
+    'W 8 x 4 x 13 (203 x 102 x 19.3)': StandardProfileSpec(
+        h: 203.0, b: 102.0, tw: 5.8, tf: 6.5, weight: 19.30, area: 24.80),
+    'W 8 x 4 x 15 (203 x 102 x 22.5)': StandardProfileSpec(
+        h: 205.0, b: 102.0, tw: 6.2, tf: 8.0, weight: 22.50, area: 28.60),
+    'W 8 x 5.25 x 14 (203 x 133 x 21)': StandardProfileSpec(
+        h: 203.0, b: 133.0, tw: 5.0, tf: 6.4, weight: 21.00, area: 27.08),
+    'W 8 x 5.25 x 18 (203 x 133 x 26.6)': StandardProfileSpec(
+        h: 207.0, b: 133.0, tw: 5.8, tf: 8.4, weight: 26.60, area: 33.90),
+    'W 8 x 5.25 x 21 (203 x 133 x 31.3)': StandardProfileSpec(
+        h: 210.0, b: 134.0, tw: 6.4, tf: 10.2, weight: 31.30, area: 39.70),
+    'W 8 x 6.5 x 24 (203 x 165 x 35.9)': StandardProfileSpec(
+        h: 201.0, b: 165.0, tw: 6.2, tf: 10.2, weight: 35.90, area: 45.70),
+    'W 8 x 6.5 x 28 (203 x 165 x 41.7)': StandardProfileSpec(
+        h: 205.0, b: 166.0, tw: 7.2, tf: 11.8, weight: 41.70, area: 53.20),
     'W 8 x 8 x 31 (203 x 203 x 46.1)': StandardProfileSpec(
         h: 203.0, b: 203.0, tw: 7.2, tf: 11.0, weight: 46.1, area: 58.73),
     'W 8 x 8 x 35 (203 x 203 x 52)': StandardProfileSpec(
@@ -824,15 +859,34 @@ class StandardData {
   /// Helper to lookup W-Beam profile spec flexibly by full designation, inch size, metric size, or without spaces.
   static StandardProfileSpec? findWBeam(String query) {
     if (wBeams.containsKey(query)) return wBeams[query];
-    final cleanQuery = query.replaceAll(' ', '').toUpperCase();
+    final normalized = query
+        .replaceAll(' ', '')
+        .toUpperCase()
+        .replaceAll('1/4', '.25')
+        .replaceAll('1/2', '.5')
+        .replaceAll('3/4', '.75');
     for (final entry in wBeams.entries) {
-      final cleanKey = entry.key.replaceAll(' ', '').toUpperCase();
+      final cleanKey = entry.key
+          .replaceAll(' ', '')
+          .toUpperCase()
+          .replaceAll('1/4', '.25')
+          .replaceAll('1/2', '.5')
+          .replaceAll('3/4', '.75');
       if (entry.key == query ||
           entry.key.startsWith(query) ||
           entry.key.contains(query) ||
-          cleanKey.contains(cleanQuery) ||
-          cleanQuery.contains(cleanKey)) {
+          cleanKey.contains(normalized) ||
+          normalized.contains(cleanKey)) {
         return entry.value;
+      }
+    }
+    // Also try matching by exact cross-section dimensions (e.g. "106x103", "150x100", "200x100")
+    for (final entry in wBeams.entries) {
+      final spec = entry.value;
+      final dimInt = '${spec.h.toInt()}X${spec.b.toInt()}';
+      final dimDbl = '${spec.h}X${spec.b}'.toUpperCase();
+      if (normalized.contains(dimInt) || normalized.contains(dimDbl)) {
+        return spec;
       }
     }
     return null;
