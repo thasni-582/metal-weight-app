@@ -701,117 +701,121 @@ class PdfExportService {
 
     switch (shapeCategory) {
       case 'beam':
-        if (directH.isNotEmpty && directW.isNotEmpty) {
+        final rawSize = item?.details['size']?.toString().trim() ?? '';
+        final rawVariant = item?.details['variant']?.toString().trim().toUpperCase() ?? '';
+        final shapeUpper = (item?.details['shape']?.toString() ?? '').toUpperCase();
+        final prodUpper = (item?.details['product']?.toString() ?? '').toUpperCase();
+        final titleUpper = '${item?.title ?? ''} ${item?.subtitle ?? ''} $shapeUpper $prodUpper'.toUpperCase();
+
+        StandardProfileSpec? spec;
+
+        // 1. Prioritize specific profiles by explicit variant, product, or title first
+        if (rawVariant == 'HEA' || titleUpper.contains('HEA')) {
+          spec = StandardData.heaBeams[rawSize] ??
+              StandardData.findHeaBeam(rawSize) ??
+              StandardData.findHeaBeam(combined);
+        } else if (rawVariant == 'HEB' || titleUpper.contains('HEB')) {
+          spec = StandardData.hebBeams[rawSize] ??
+              StandardData.findHebBeam(rawSize) ??
+              StandardData.findHebBeam(combined);
+        } else if (rawVariant == 'IPE-AA' || titleUpper.contains('IPE-AA')) {
+          spec = StandardData.ipeAaBeams[rawSize] ??
+              StandardData.ipeAaBeams[RegExp(r'\d+').firstMatch(rawSize)?.group(0) ?? ''];
+        } else if (rawVariant == 'IPE' || (titleUpper.contains('IPE') && !titleUpper.contains('IPE-AA') && !titleUpper.contains('I-BEAM'))) {
+          spec = StandardData.ipeBeams[rawSize] ??
+              StandardData.ipeBeams[RegExp(r'\d+').firstMatch(rawSize)?.group(0) ?? ''];
+        } else if (rawVariant == 'UC' || titleUpper.contains(' UC ') || titleUpper.endsWith(' UC')) {
+          spec = StandardData.ucBeams[rawSize];
+        } else if (rawVariant == 'UB' || titleUpper.contains(' UB ') || titleUpper.endsWith(' UB')) {
+          spec = StandardData.ubBeams[rawSize];
+        } else if (rawVariant == 'W-BEAM' || rawVariant == 'W' || titleUpper.contains('W-BEAM') || titleUpper.contains('WIDE FLANGE')) {
+          spec = StandardData.wBeams[rawSize] ?? StandardData.findWBeam(rawSize) ?? StandardData.findWBeam(combined);
+        } else if (rawVariant == 'H' || titleUpper.contains('H-BEAM') || titleUpper.contains('JIS')) {
+          spec = StandardData.clientHBeams[rawSize] ?? StandardData.jisBeams[rawSize];
+        } else if (rawVariant == 'I' || titleUpper.contains('I-BEAM')) {
+          spec = StandardData.clientIBeams[rawSize] ?? StandardData.jisBeams[rawSize];
+        }
+
+        // 2. Direct exact catalog key lookups if not resolved yet
+        spec ??= StandardData.heaBeams[rawSize] ??
+            StandardData.hebBeams[rawSize] ??
+            StandardData.ipeBeams[rawSize] ??
+            StandardData.ipeAaBeams[rawSize] ??
+            StandardData.clientHBeams[rawSize] ??
+            StandardData.clientIBeams[rawSize] ??
+            StandardData.wBeams[rawSize] ??
+            StandardData.ucBeams[rawSize] ??
+            StandardData.ubBeams[rawSize] ??
+            StandardData.jisBeams[rawSize];
+
+        // 3. Fallback lookups
+        if (spec == null) {
+          final isUB = combined.toUpperCase().contains('UB') && !combined.toUpperCase().contains('UC');
+          final isUC = combined.toUpperCase().contains('UC') && !combined.toUpperCase().contains('UB');
+          if (isUC) {
+            for (final entry in StandardData.ucBeams.entries) {
+              if (combined.contains(entry.key)) { spec = entry.value; break; }
+            }
+          } else if (isUB) {
+            for (final entry in StandardData.ubBeams.entries) {
+              if (combined.contains(entry.key)) { spec = entry.value; break; }
+            }
+          }
+        }
+        spec ??= StandardData.findHeaBeam(rawSize) ??
+            StandardData.findHeaBeam(combined) ??
+            StandardData.findHebBeam(rawSize) ??
+            StandardData.findHebBeam(combined);
+
+        // Only search W-Beam if not HEA / HEB / IPE profile
+        if (spec == null && !titleUpper.contains('HEA') && !titleUpper.contains('HEB') && !rawVariant.contains('HE')) {
+          spec = StandardData.findWBeam(rawSize) ?? StandardData.findWBeam(combined);
+        }
+
+        if (spec != null) {
+          hStr = spec.h.toStringAsFixed(spec.h % 1 == 0 ? 0 : 1);
+          bStr = spec.b.toStringAsFixed(spec.b % 1 == 0 ? 0 : 1);
+          twStr = spec.tw.toStringAsFixed(1);
+          tfStr = spec.tf.toStringAsFixed(1);
+        } else if (directH.isNotEmpty && directW.isNotEmpty) {
           hStr = directH;
           bStr = directW;
           twStr = directTw.isNotEmpty ? directTw : '6.0';
           tfStr = directTf.isNotEmpty ? directTf : '10.0';
         } else {
-          final rawSize = item?.details['size']?.toString().trim() ?? '';
-          final rawVariant = item?.details['variant']?.toString().trim().toUpperCase() ?? '';
+          final matchSize = RegExp(r'\b(80|100|120|140|160|180|200|220|240|260|280|300|320|330|340|360|400|450|500|550|600|650|700|800|900|1000)\b')
+              .firstMatch(combined);
+          final sizeKey = matchSize != null ? matchSize.group(1)! : '140';
 
-          StandardProfileSpec? spec;
-          if (rawVariant == 'UC' && StandardData.ucBeams.containsKey(rawSize)) {
-            spec = StandardData.ucBeams[rawSize];
-          } else if (rawVariant == 'UB' && StandardData.ubBeams.containsKey(rawSize)) {
-            spec = StandardData.ubBeams[rawSize];
-          } else if (StandardData.clientIBeams.containsKey(rawSize)) {
-            spec = StandardData.clientIBeams[rawSize];
-          } else if (StandardData.clientHBeams.containsKey(rawSize)) {
-            spec = StandardData.clientHBeams[rawSize];
-          } else if (StandardData.wBeams.containsKey(rawSize)) {
-            spec = StandardData.wBeams[rawSize];
-          } else if (StandardData.findWBeam(rawSize) != null) {
-            spec = StandardData.findWBeam(rawSize);
-          } else if (StandardData.ucBeams.containsKey(rawSize)) {
-            spec = StandardData.ucBeams[rawSize];
-          } else if (StandardData.ubBeams.containsKey(rawSize)) {
-            spec = StandardData.ubBeams[rawSize];
-          } else if (StandardData.ipeAaBeams.containsKey(rawSize)) {
-            spec = StandardData.ipeAaBeams[rawSize];
-          } else if (StandardData.heaBeams.containsKey(rawSize)) {
-            spec = StandardData.heaBeams[rawSize];
-          } else if (StandardData.findHeaBeam(rawSize) != null) {
-            spec = StandardData.findHeaBeam(rawSize);
-          } else if (StandardData.hebBeams.containsKey(rawSize)) {
-            spec = StandardData.hebBeams[rawSize];
-          } else if (StandardData.findHebBeam(rawSize) != null) {
-            spec = StandardData.findHebBeam(rawSize);
-          } else if (StandardData.ipeBeams.containsKey(rawSize)) {
-            spec = StandardData.ipeBeams[rawSize];
-          } else if (StandardData.jisBeams.containsKey(rawSize)) {
-            spec = StandardData.jisBeams[rawSize];
-          }
-
-          // Search in catalogs if not directly matched by rawSize
-          if (spec == null) {
-            final isUB = combined.toUpperCase().contains('UB') && !combined.toUpperCase().contains('UC');
-            final isUC = combined.toUpperCase().contains('UC') && !combined.toUpperCase().contains('UB');
-            if (isUC) {
-              for (final entry in StandardData.ucBeams.entries) {
-                if (combined.contains(entry.key)) {
-                  spec = entry.value;
-                  break;
-                }
-              }
-            } else if (isUB) {
-              for (final entry in StandardData.ubBeams.entries) {
-                if (combined.contains(entry.key)) {
-                  spec = entry.value;
-                  break;
-                }
-              }
-            }
-            if (spec == null) {
-              spec = StandardData.findWBeam(rawSize) ??
-                  StandardData.findWBeam(combined) ??
-                  StandardData.findHeaBeam(rawSize) ??
-                  StandardData.findHeaBeam(combined) ??
-                  StandardData.findHebBeam(rawSize) ??
-                  StandardData.findHebBeam(combined);
-            }
-          }
-
-          if (spec != null) {
-            hStr = spec.h.toStringAsFixed(spec.h % 1 == 0 ? 0 : 1);
-            bStr = spec.b.toStringAsFixed(spec.b % 1 == 0 ? 0 : 1);
-            twStr = spec.tw.toStringAsFixed(1);
-            tfStr = spec.tf.toStringAsFixed(1);
+          if (combined.toLowerCase().contains('hea') && StandardData.heaBeams.containsKey(sizeKey)) {
+            final s = StandardData.heaBeams[sizeKey]!;
+            hStr = s.h.toStringAsFixed(0);
+            bStr = s.b.toStringAsFixed(0);
+            twStr = s.tw.toStringAsFixed(1);
+            tfStr = s.tf.toStringAsFixed(1);
+          } else if (combined.toLowerCase().contains('heb') && StandardData.hebBeams.containsKey(sizeKey)) {
+            final s = StandardData.hebBeams[sizeKey]!;
+            hStr = s.h.toStringAsFixed(0);
+            bStr = s.b.toStringAsFixed(0);
+            twStr = s.tw.toStringAsFixed(1);
+            tfStr = s.tf.toStringAsFixed(1);
+          } else if (combined.toLowerCase().contains('ipe-aa') && StandardData.ipeAaBeams.containsKey(sizeKey)) {
+            final s = StandardData.ipeAaBeams[sizeKey]!;
+            hStr = s.h.toStringAsFixed(0);
+            bStr = s.b.toStringAsFixed(0);
+            twStr = s.tw.toStringAsFixed(1);
+            tfStr = s.tf.toStringAsFixed(1);
+          } else if (StandardData.ipeBeams.containsKey(sizeKey)) {
+            final s = StandardData.ipeBeams[sizeKey]!;
+            hStr = s.h.toStringAsFixed(0);
+            bStr = s.b.toStringAsFixed(0);
+            twStr = s.tw.toStringAsFixed(1);
+            tfStr = s.tf.toStringAsFixed(1);
           } else {
-            final matchSize = RegExp(r'\b(80|100|120|140|160|180|200|220|240|260|280|300|320|330|340|360|400|450|500|550|600|650|700|800|900|1000)\b')
-                .firstMatch(combined);
-            final sizeKey = matchSize != null ? matchSize.group(1)! : '140';
-
-            if (combined.toLowerCase().contains('ipe-aa') && StandardData.ipeAaBeams.containsKey(sizeKey)) {
-              final s = StandardData.ipeAaBeams[sizeKey]!;
-              hStr = s.h.toStringAsFixed(0);
-              bStr = s.b.toStringAsFixed(0);
-              twStr = s.tw.toStringAsFixed(1);
-              tfStr = s.tf.toStringAsFixed(1);
-            } else if (combined.toLowerCase().contains('hea') && StandardData.heaBeams.containsKey(sizeKey)) {
-              final s = StandardData.heaBeams[sizeKey]!;
-              hStr = s.h.toStringAsFixed(0);
-              bStr = s.b.toStringAsFixed(0);
-              twStr = s.tw.toStringAsFixed(1);
-              tfStr = s.tf.toStringAsFixed(1);
-            } else if (combined.toLowerCase().contains('heb') && StandardData.hebBeams.containsKey(sizeKey)) {
-              final s = StandardData.hebBeams[sizeKey]!;
-              hStr = s.h.toStringAsFixed(0);
-              bStr = s.b.toStringAsFixed(0);
-              twStr = s.tw.toStringAsFixed(1);
-              tfStr = s.tf.toStringAsFixed(1);
-            } else if (StandardData.ipeBeams.containsKey(sizeKey)) {
-              final s = StandardData.ipeBeams[sizeKey]!;
-              hStr = s.h.toStringAsFixed(0);
-              bStr = s.b.toStringAsFixed(0);
-              twStr = s.tw.toStringAsFixed(1);
-              tfStr = s.tf.toStringAsFixed(1);
-            } else {
-              hStr = sizeKey;
-              bStr = '73';
-              twStr = '4.7';
-              tfStr = '6.9';
-            }
+            hStr = sizeKey;
+            bStr = '73';
+            twStr = '4.7';
+            tfStr = '6.9';
           }
         }
         break;
@@ -1039,13 +1043,11 @@ class PdfExportService {
     switch (shapeCategory) {
       case 'beam':
         final rawVar = item?.details['variant']?.toString().trim().toUpperCase() ?? '';
-        final titleUpper = '${item?.title ?? ''} ${item?.subtitle ?? ''}'.toUpperCase();
+        final shapeUpper = (item?.details['shape']?.toString() ?? '').toUpperCase();
+        final prodUpper = (item?.details['product']?.toString() ?? '').toUpperCase();
+        final titleUpper = '${item?.title ?? ''} ${item?.subtitle ?? ''} $shapeUpper $prodUpper'.toUpperCase();
         String beamVariant = 'I';
-        if (rawVar == 'UC' || titleUpper.contains(' UC ') || titleUpper.endsWith(' UC')) {
-          beamVariant = 'UC';
-        } else if (rawVar == 'UB' || titleUpper.contains(' UB ') || titleUpper.endsWith(' UB')) {
-          beamVariant = 'UB';
-        } else if (rawVar == 'HEA' || titleUpper.contains('HEA')) {
+        if (rawVar == 'HEA' || titleUpper.contains('HEA')) {
           beamVariant = 'HEA';
         } else if (rawVar == 'HEB' || titleUpper.contains('HEB')) {
           beamVariant = 'HEB';
@@ -1053,12 +1055,16 @@ class PdfExportService {
           beamVariant = 'IPE-AA';
         } else if (rawVar == 'IPE' || (titleUpper.contains('IPE') && !titleUpper.contains('IPE-AA') && !titleUpper.contains('I-BEAM'))) {
           beamVariant = 'IPE';
-        } else if (rawVar == 'I' || titleUpper.contains('I-BEAM')) {
-          beamVariant = 'I';
+        } else if (rawVar == 'UC' || titleUpper.contains(' UC ') || titleUpper.endsWith(' UC')) {
+          beamVariant = 'UC';
+        } else if (rawVar == 'UB' || titleUpper.contains(' UB ') || titleUpper.endsWith(' UB')) {
+          beamVariant = 'UB';
+        } else if (rawVar == 'W-BEAM' || rawVar == 'W' || titleUpper.contains('W-BEAM') || titleUpper.contains('WIDE FLANGE')) {
+          beamVariant = 'W-BEAM';
         } else if (rawVar == 'H' || titleUpper.contains('H-BEAM') || titleUpper.contains('JIS')) {
           beamVariant = 'H';
-        } else if (titleUpper.contains('W-BEAM') || titleUpper.contains('WIDE FLANGE')) {
-          beamVariant = 'W-BEAM';
+        } else if (rawVar == 'I' || titleUpper.contains('I-BEAM')) {
+          beamVariant = 'I';
         } else {
           final double hCheck = double.tryParse(dims['h'] ?? '') ?? 0.0;
           final double bCheck = double.tryParse(dims['b'] ?? '') ?? 0.0;
@@ -1069,7 +1075,7 @@ class PdfExportService {
         final double bParsed = double.tryParse(dims['b'] ?? '') ?? 0.0;
         final double beamAspect = (hParsed > 0 && bParsed > 0)
             ? (bParsed / hParsed)
-            : ((beamVariant == 'UC' || beamVariant == 'HEA' || beamVariant == 'HEB') ? 1.0 : 0.55);
+            : ((beamVariant == 'UC' || beamVariant == 'HEA' || beamVariant == 'HEB' || beamVariant == 'H') ? 1.0 : 0.55);
         final isHBeam = beamAspect >= 0.70;
 
         // Profile label inside left pocket (matching App 2D blueprint)
@@ -1265,28 +1271,28 @@ class PdfExportService {
       variantStr = 'PIPE';
     } else if (shapeCategory == 'beam') {
       final rawVar = details['variant']?.toString().trim().toUpperCase() ?? '';
-      if (rawVar == 'UC') {
-        variantStr = 'UC';
-      } else if (rawVar == 'UB') {
-        variantStr = 'UB';
-      } else if (rawVar == 'I' || shape.contains('I-BEAM')) {
-        variantStr = 'I-Beam (JIS)';
-      } else if (rawVar == 'H' || shape.contains('H-BEAM') || shape.contains('JIS')) {
-        variantStr = 'H-Beam (JIS)';
-      } else if (shape.contains('HEA')) {
+      final shapeUpper = (details['shape']?.toString() ?? '').toUpperCase();
+      final prodUpper = (details['product']?.toString() ?? '').toUpperCase();
+      final titleUpper = '${item.title} ${item.subtitle} $shapeUpper $prodUpper'.toUpperCase();
+
+      if (rawVar == 'HEA' || titleUpper.contains('HEA')) {
         variantStr = 'HEA';
-      } else if (shape.contains('HEB')) {
+      } else if (rawVar == 'HEB' || titleUpper.contains('HEB')) {
         variantStr = 'HEB';
-      } else if (shape.contains('IPE-AA')) {
+      } else if (rawVar == 'IPE-AA' || titleUpper.contains('IPE-AA')) {
         variantStr = 'IPE-AA';
-      } else if (shape.contains('IPE')) {
+      } else if (rawVar == 'IPE' || (titleUpper.contains('IPE') && !titleUpper.contains('IPE-AA') && !titleUpper.contains('I-BEAM'))) {
         variantStr = 'IPE';
-      } else if (shape.contains('W-BEAM') || shape.contains('WIDE FLANGE')) {
-        variantStr = 'W-BEAM';
-      } else if (shape.contains('UC') && !shape.contains('UB')) {
+      } else if (rawVar == 'UC' || titleUpper.contains(' UC ') || titleUpper.endsWith(' UC')) {
         variantStr = 'UC';
-      } else if (shape.contains('UB') && !shape.contains('UC')) {
+      } else if (rawVar == 'UB' || titleUpper.contains(' UB ') || titleUpper.endsWith(' UB')) {
         variantStr = 'UB';
+      } else if (rawVar == 'W-BEAM' || rawVar == 'W' || titleUpper.contains('W-BEAM') || titleUpper.contains('WIDE FLANGE')) {
+        variantStr = 'W-BEAM';
+      } else if (rawVar == 'H' || titleUpper.contains('H-BEAM') || titleUpper.contains('JIS')) {
+        variantStr = 'H-Beam (JIS)';
+      } else if (rawVar == 'I' || titleUpper.contains('I-BEAM')) {
+        variantStr = 'I-Beam (JIS)';
       } else {
         variantStr = 'BEAM';
       }
@@ -1766,7 +1772,9 @@ class PdfExportService {
     switch (category) {
       case 'beam':
         final rawVar = item?.details['variant']?.toString().trim().toUpperCase() ?? '';
-        final titleUpper = '${item?.title ?? ''} ${item?.subtitle ?? ''} ${item?.iconName ?? ''}'.toUpperCase();
+        final shapeUpper = (item?.details['shape']?.toString() ?? '').toUpperCase();
+        final prodUpper = (item?.details['product']?.toString() ?? '').toUpperCase();
+        final titleUpper = '${item?.title ?? ''} ${item?.subtitle ?? ''} ${item?.iconName ?? ''} $shapeUpper $prodUpper'.toUpperCase();
         final double hVal = (item?.details['height'] is num)
             ? (item!.details['height'] as num).toDouble()
             : (double.tryParse(item?.details['height']?.toString() ?? '') ?? 0.0);
@@ -1775,28 +1783,58 @@ class PdfExportService {
             : (double.tryParse(item?.details['width']?.toString() ?? '') ?? 0.0);
         final double rawAspect = (hVal > 0 && bVal > 0)
             ? (bVal / hVal)
-            : ((rawVar == 'UC' || rawVar == 'HEA' || rawVar == 'HEB') ? 1.0 : 0.55);
+            : ((rawVar == 'UC' || rawVar == 'HEA' || rawVar == 'HEB' || titleUpper.contains('HEA') || titleUpper.contains('HEB')) ? 1.0 : 0.55);
         final isHBeam = rawAspect >= 0.70;
         final double w = isHBeam ? 100.0 : 76.0;
         final double h = isHBeam ? 100.0 : 110.0;
         final double tf = isHBeam ? 14.0 : 12.0;
         final double tw = isHBeam ? 10.0 : 8.5;
-        canvas.setFillColor(PdfColor.fromHex('0D5C9D'));
-        // Top flange
-        canvas.drawRRect(cx - w / 2, cy + h / 2 - tf, w, tf, 2, 2);
-        // Web
-        canvas.drawRect(cx - tw / 2, cy - h / 2 + tf, tw, h - 2 * tf);
-        // Bottom flange
-        canvas.drawRRect(cx - w / 2, cy - h / 2, w, tf, 2, 2);
-        canvas.fillPath();
+        final double r = isHBeam ? 7.0 : 5.0; // root fillet radius
+        final double k = r * 0.55228475; // Bezier control point offset
+
+        // Unified continuous I/H-Beam path with authentic cubic Bezier root fillets
+        canvas
+          ..setFillColor(PdfColor.fromHex('0D5C9D'))
+          ..moveTo(cx - w / 2, cy + h / 2)
+          ..lineTo(cx + w / 2, cy + h / 2)
+          ..lineTo(cx + w / 2, cy + h / 2 - tf)
+          ..lineTo(cx + tw / 2 + r, cy + h / 2 - tf)
+          ..curveTo(cx + tw / 2 + r - k, cy + h / 2 - tf, cx + tw / 2, cy + h / 2 - tf - r + k, cx + tw / 2, cy + h / 2 - tf - r)
+          ..lineTo(cx + tw / 2, cy - h / 2 + tf + r)
+          ..curveTo(cx + tw / 2, cy - h / 2 + tf + r - k, cx + tw / 2 + r - k, cy - h / 2 + tf, cx + tw / 2 + r, cy - h / 2 + tf)
+          ..lineTo(cx + w / 2, cy - h / 2 + tf)
+          ..lineTo(cx + w / 2, cy - h / 2)
+          ..lineTo(cx - w / 2, cy - h / 2)
+          ..lineTo(cx - w / 2, cy - h / 2 + tf)
+          ..lineTo(cx - tw / 2 - r, cy - h / 2 + tf)
+          ..curveTo(cx - tw / 2 - r + k, cy - h / 2 + tf, cx - tw / 2, cy - h / 2 + tf + r - k, cx - tw / 2, cy - h / 2 + tf + r)
+          ..lineTo(cx - tw / 2, cy + h / 2 - tf - r)
+          ..curveTo(cx - tw / 2, cy + h / 2 - tf - r + k, cx - tw / 2 - r + k, cy + h / 2 - tf, cx - tw / 2 - r, cy + h / 2 - tf)
+          ..lineTo(cx - w / 2, cy + h / 2 - tf)
+          ..closePath()
+          ..fillPath();
 
         // CAD stroke outlines
         canvas
           ..setStrokeColor(PdfColor.fromHex('BDC3C7'))
           ..setLineWidth(0.8)
-          ..drawRRect(cx - w / 2, cy + h / 2 - tf, w, tf, 2, 2)
-          ..drawRect(cx - tw / 2, cy - h / 2 + tf, tw, h - 2 * tf)
-          ..drawRRect(cx - w / 2, cy - h / 2, w, tf, 2, 2)
+          ..moveTo(cx - w / 2, cy + h / 2)
+          ..lineTo(cx + w / 2, cy + h / 2)
+          ..lineTo(cx + w / 2, cy + h / 2 - tf)
+          ..lineTo(cx + tw / 2 + r, cy + h / 2 - tf)
+          ..curveTo(cx + tw / 2 + r - k, cy + h / 2 - tf, cx + tw / 2, cy + h / 2 - tf - r + k, cx + tw / 2, cy + h / 2 - tf - r)
+          ..lineTo(cx + tw / 2, cy - h / 2 + tf + r)
+          ..curveTo(cx + tw / 2, cy - h / 2 + tf + r - k, cx + tw / 2 + r - k, cy - h / 2 + tf, cx + tw / 2 + r, cy - h / 2 + tf)
+          ..lineTo(cx + w / 2, cy - h / 2 + tf)
+          ..lineTo(cx + w / 2, cy - h / 2)
+          ..lineTo(cx - w / 2, cy - h / 2)
+          ..lineTo(cx - w / 2, cy - h / 2 + tf)
+          ..lineTo(cx - tw / 2 - r, cy - h / 2 + tf)
+          ..curveTo(cx - tw / 2 - r + k, cy - h / 2 + tf, cx - tw / 2, cy - h / 2 + tf + r - k, cx - tw / 2, cy - h / 2 + tf + r)
+          ..lineTo(cx - tw / 2, cy + h / 2 - tf - r)
+          ..curveTo(cx - tw / 2, cy + h / 2 - tf - r + k, cx - tw / 2 - r + k, cy + h / 2 - tf, cx - tw / 2 - r, cy + h / 2 - tf)
+          ..lineTo(cx - w / 2, cy + h / 2 - tf)
+          ..closePath()
           ..strokePath();
 
         // Dimension markings

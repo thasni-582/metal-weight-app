@@ -509,11 +509,11 @@ class _CalculationScreenState extends State<CalculationScreen> {
         isH = false;
         _selectedShape = 'I-Beam';
       } else if (product.contains('HEA')) {
-        spec = StandardData.heaBeams[size];
+        spec = StandardData.heaBeams[size] ?? StandardData.findHeaBeam(size);
         isH = true;
         _selectedShape = 'H-Beam';
       } else if (product.contains('HEB')) {
-        spec = StandardData.hebBeams[size];
+        spec = StandardData.hebBeams[size] ?? StandardData.findHebBeam(size);
         isH = true;
         _selectedShape = 'H-Beam';
       } else if (product.contains('UB') || product.contains('Universal Beam')) {
@@ -874,8 +874,12 @@ class _CalculationScreenState extends State<CalculationScreen> {
     final String dimSummary = _getDimensionsSummary(unitDim);
     final String iconName = _getIconNameForShape(_selectedShape);
 
+    final String prodTitle = _selectedProduct.isNotEmpty ? _selectedProduct : _selectedShape;
+    final String chosenSize = _selectedSize.isNotEmpty ? _selectedSize : _selectedBeamPreset;
+    final String fullTitle = '$_selectedMetal $prodTitle${chosenSize.isNotEmpty ? ' $chosenSize' : ''}'.trim();
+
     return CalculationModel(
-      title: '$_selectedMetal $_selectedShape',
+      title: fullTitle,
       subtitle: '$dimSummary | Qty: ${_quantityController.text}',
       weight: weightStr,
       time: _getFormattedTime(),
@@ -886,15 +890,19 @@ class _CalculationScreenState extends State<CalculationScreen> {
       details: {
         'material': _selectedMetal,
         'shape': _selectedShape,
+        'product': _selectedProduct,
+        'size': chosenSize,
         'dimensions': dimSummary,
         'quantity': _quantityController.text,
         'weightPerPiece':
             '${_calculatedWeightPerPiece.toStringAsFixed(3)} $unitWeight',
         'unitWeightPerM': '${_lastUnitWeightPerM.toStringAsFixed(2)} kg/m',
         'sectionArea': '${_lastSectionAreaCm2.toStringAsFixed(2)} cm2',
-        'variant': _selectedShape == 'H-Beam'
-            ? 'H'
-            : (_selectedShape == 'I-Beam' ? 'I' : null),
+        'variant': _activeVariant.isNotEmpty
+            ? _activeVariant
+            : (_selectedShape == 'H-Beam'
+                ? 'H'
+                : (_selectedShape == 'I-Beam' ? 'I' : null)),
         'totalWeight': weightStr,
         'totalCost':
             _calculatedCost > 0 ? _calculatedCost.toStringAsFixed(2) : null,

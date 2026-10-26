@@ -675,8 +675,13 @@ class _HomeScreenState extends State<HomeScreen> {
     final dimStr =
         '$_selectedSize${_selectedThickness.isNotEmpty ? ' x $_selectedThickness' : ''} | L=${_pieceLength.toStringAsFixed(1)}m x $_quantity pcs';
 
+    String titleShape = _selectedShape;
+    if (_activeVariant.isNotEmpty && _selectedShape.contains('(')) {
+      titleShape = '$_activeVariant Beam';
+    }
+
     return CalculationModel(
-      title: '$_selectedShape $_selectedSize',
+      title: '$titleShape $_selectedSize'.trim(),
       subtitle: dimStr,
       weight: '${totalKg.toStringAsFixed(2)} kg',
       time: timeStr,

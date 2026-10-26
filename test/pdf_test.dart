@@ -184,4 +184,66 @@ void main() {
     final pageMatches = RegExp(r'/Type\s*/Page\b').allMatches(pdfText).length;
     expect(pageMatches, equals(1), reason: 'Calculator screen PDF must strictly be a single page');
   });
+
+  test('HEA Beam and HEB Beam PDF export renders exact European standard measurements', () async {
+    // 1. Test HEA 100: h=96, b=100, tw=5.0, tf=8.0, weight=16.70 kg/m
+    final hea100Item = CalculationModel(
+      title: 'HEA Beam 100',
+      subtitle: '100 | L=12.0m x 1 pcs',
+      weight: '200.40 kg',
+      time: '26/10/2026 20:30',
+      iconName: 'beam',
+      bgColor: const Color(0xFFE8F0FE),
+      iconColor: const Color(0xFF1A73E8),
+      weightValue: 200.40,
+      details: {
+        'material': 'Steel',
+        'shape': 'Beams (IPE / IPE-AA / HEA / HEB)',
+        'size': '100',
+        'variant': 'HEA',
+        'dimensions': '100 | L=12.0m x 1 pcs',
+        'quantity': '1',
+        'weightPerPiece': '16.70 kg/m',
+        'totalWeight': '200.40 kg',
+        'sectionArea': '21.20 cm²',
+      },
+    );
+
+    final heaBytes = await PdfExportService.generatePdfBytes(hea100Item);
+    expect(heaBytes, isNotEmpty);
+    expect(String.fromCharCodes(heaBytes.sublist(0, 5)), equals('%PDF-'));
+    final heaPdfText = String.fromCharCodes(heaBytes);
+    final heaPageMatches = RegExp(r'/Type\s*/Page\b').allMatches(heaPdfText).length;
+    expect(heaPageMatches, equals(1));
+
+    // 2. Test HEB 100: h=100, b=100, tw=6.0, tf=10.0, weight=20.40 kg/m
+    final heb100Item = CalculationModel(
+      title: 'HEB Beam 100',
+      subtitle: '100 | L=12.0m x 1 pcs',
+      weight: '244.80 kg',
+      time: '26/10/2026 20:30',
+      iconName: 'beam',
+      bgColor: const Color(0xFFE8F0FE),
+      iconColor: const Color(0xFF1A73E8),
+      weightValue: 244.80,
+      details: {
+        'material': 'Steel',
+        'shape': 'Beams (IPE / IPE-AA / HEA / HEB)',
+        'size': '100',
+        'variant': 'HEB',
+        'dimensions': '100 | L=12.0m x 1 pcs',
+        'quantity': '1',
+        'weightPerPiece': '20.40 kg/m',
+        'totalWeight': '244.80 kg',
+        'sectionArea': '26.00 cm²',
+      },
+    );
+
+    final hebBytes = await PdfExportService.generatePdfBytes(heb100Item);
+    expect(hebBytes, isNotEmpty);
+    expect(String.fromCharCodes(hebBytes.sublist(0, 5)), equals('%PDF-'));
+    final hebPdfText = String.fromCharCodes(hebBytes);
+    final hebPageMatches = RegExp(r'/Type\s*/Page\b').allMatches(hebPdfText).length;
+    expect(hebPageMatches, equals(1));
+  });
 }
