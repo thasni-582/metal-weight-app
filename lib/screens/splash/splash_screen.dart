@@ -15,7 +15,7 @@ class SplashScreen extends StatefulWidget {
 
   const SplashScreen({
     super.key,
-    this.theme = SplashTheme.metallicSlate,
+    this.theme = SplashTheme.blueprint,
   });
 
   @override
@@ -479,7 +479,7 @@ class _SplashScreenState extends State<SplashScreen>
   // STYLE 1: DARK INDUSTRIAL CAD BLUEPRINT
   // ===========================================================================
   Widget _buildBlueprintTheme(BuildContext context) {
-    const Color blueprintDark = Color(0xFF0B1728);
+    const Color blueprintDark = Color(0xFF0F1D38);
     const Color cyanAccent = Color(0xFF00E5FF);
 
     return Scaffold(
@@ -666,16 +666,18 @@ class _SplashScreenState extends State<SplashScreen>
         borderRadius: BorderRadius.circular(24),
         color: Colors.white,
         border: Border.all(
-          color: cyanAccent.withValues(alpha: 0.35),
-          width: 1.5,
+          color: cyanAccent.withValues(alpha: 0.45),
+          width: 1.8,
         ),
         boxShadow: [
+          // Luminous Blueprint Cyan Neon Glow
           BoxShadow(
-            color: cyanAccent.withValues(alpha: 0.25),
-            blurRadius: dynamicBlur,
+            color: cyanAccent.withValues(alpha: 0.35),
+            blurRadius: dynamicBlur * 1.2,
             spreadRadius: 2,
             offset: Offset(0, 4 + (floatOffset + 8.0) * 0.25),
           ),
+          // Ambient Warm Edge Glow
           BoxShadow(
             color: AppColors.secondaryOrange.withValues(alpha: 0.28),
             blurRadius: dynamicBlur * 1.4,
@@ -686,18 +688,48 @@ class _SplashScreenState extends State<SplashScreen>
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(22),
-        child: Image.asset(
-          'assets/images/image.png',
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) {
-            return const Center(
-              child: Icon(
-                Icons.precision_manufacturing,
-                size: 70,
-                color: AppColors.primaryDark,
-              ),
-            );
-          },
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Image.asset(
+              'assets/images/image.png',
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return const Center(
+                  child: Icon(
+                    Icons.precision_manufacturing,
+                    size: 70,
+                    color: AppColors.primaryDark,
+                  ),
+                );
+              },
+            ),
+            // Light sheen shimmer sweep
+            AnimatedBuilder(
+              animation: _shimmerController,
+              builder: (context, child) {
+                final double pos = _shimmerController.value * 2.8 - 0.9;
+                return ShaderMask(
+                  shaderCallback: (bounds) {
+                    return LinearGradient(
+                      begin: Alignment(pos - 0.5, -1.0),
+                      end: Alignment(pos + 0.5, 1.0),
+                      colors: [
+                        Colors.transparent,
+                        Colors.transparent,
+                        Colors.white.withValues(alpha: 0.35),
+                        Colors.transparent,
+                        Colors.transparent,
+                      ],
+                      stops: const [0.0, 0.40, 0.50, 0.60, 1.0],
+                    ).createShader(bounds);
+                  },
+                  blendMode: BlendMode.srcATop,
+                  child: Container(color: Colors.white.withValues(alpha: 0.01)),
+                );
+              },
+            ),
+          ],
         ),
       ),
     );
