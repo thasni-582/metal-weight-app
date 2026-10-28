@@ -181,10 +181,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
               // Loading / Empty / List State
               if (_isLoading)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 60.0),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 60.0),
                   child: Center(
-                    child: CircularProgressIndicator(color: AppColors.primaryDark),
+                    child: CircularProgressIndicator(
+                      color: isDark ? AppColors.secondaryOrange : AppColors.primaryDark,
+                    ),
                   ),
                 )
               else if (filteredItems.isEmpty)
@@ -193,14 +195,18 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   child: Center(
                     child: Column(
                       children: [
-                        Icon(Icons.history_toggle_off, size: 72, color: Colors.grey[400]),
+                        Icon(
+                          Icons.history_toggle_off,
+                          size: 72,
+                          color: isDark ? Colors.white38 : Colors.grey[400],
+                        ),
                         const SizedBox(height: 16),
                         Text(
                           _searchQuery.isNotEmpty
                               ? 'No calculations found matching "$_searchQuery"'
                               : 'No saved calculations yet',
-                          style: const TextStyle(
-                            color: AppColors.textMuted,
+                          style: TextStyle(
+                            color: isDark ? Colors.white70 : AppColors.textMuted,
                             fontSize: 15,
                             fontWeight: FontWeight.w500,
                           ),
@@ -316,10 +322,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   children: [
                     Text(
                       item.weight,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.primaryDark,
+                        color: isDark ? Colors.white : AppColors.primaryDark,
                       ),
                     ),
                     IconButton(
@@ -340,14 +346,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   void _showItemDetails(CalculationModel item) {
     final details = item.details;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) {
+      builder: (sheetContext) {
         return Padding(
           padding: const EdgeInsets.all(20.0),
           child: Column(
@@ -357,39 +364,48 @@ class _HistoryScreenState extends State<HistoryScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    item.title,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.primaryDark),
+                  Expanded(
+                    child: Text(
+                      item.title,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.white : AppColors.primaryDark,
+                      ),
+                    ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.pop(context),
+                    icon: Icon(
+                      Icons.close,
+                      color: isDark ? Colors.white70 : AppColors.primaryDark,
+                    ),
+                    onPressed: () => Navigator.pop(sheetContext),
                   ),
                 ],
               ),
-              const Divider(),
+              Divider(color: isDark ? Colors.white12 : Colors.grey.shade200),
               const SizedBox(height: 8),
-              _buildDetailRow('Material', details['material'] ?? 'N/A'),
-              _buildDetailRow('Shape', details['shape'] ?? 'N/A'),
-              _buildDetailRow('Dimensions', details['dimensions'] ?? item.subtitle),
-              _buildDetailRow('Quantity', '${details['quantity'] ?? '1'} pcs'),
+              _buildDetailRow('Material', details['material'] ?? 'N/A', isDark),
+              _buildDetailRow('Shape', details['shape'] ?? 'N/A', isDark),
+              _buildDetailRow('Dimensions', details['dimensions'] ?? item.subtitle, isDark),
+              _buildDetailRow('Quantity', '${details['quantity'] ?? '1'} pcs', isDark),
               if (details['weightPerPiece'] != null)
-                _buildDetailRow('Weight / Piece', details['weightPerPiece']),
-              _buildDetailRow('Total Weight', item.weight),
+                _buildDetailRow('Weight / Piece', details['weightPerPiece'], isDark),
+              _buildDetailRow('Total Weight', item.weight, isDark),
               if (details['totalCost'] != null)
-                _buildDetailRow('Total Cost', '\$${details['totalCost']}'),
+                _buildDetailRow('Total Cost', '\$${details['totalCost']}', isDark),
               if (details['volume'] != null)
-                _buildDetailRow('Volume', details['volume']),
+                _buildDetailRow('Volume', details['volume'], isDark),
               if (details['surfaceArea'] != null)
-                _buildDetailRow('Surface Area', details['surfaceArea']),
-              _buildDetailRow('Calculated On', item.time),
+                _buildDetailRow('Surface Area', details['surfaceArea'], isDark),
+              _buildDetailRow('Calculated On', item.time, isDark),
               const SizedBox(height: 20),
               Row(
                 children: [
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: () async {
-                        Navigator.pop(context);
+                        Navigator.pop(sheetContext);
                         await PdfExportService.exportSingleCalculation(item, context: context);
                       },
                       icon: const Icon(Icons.picture_as_pdf_outlined, color: AppColors.secondaryOrange),
@@ -408,7 +424,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: () {
-                        Navigator.pop(context);
+                        Navigator.pop(sheetContext);
                         _shareCalculation(item);
                       },
                       icon: const Icon(Icons.share, color: Colors.white),
@@ -417,7 +433,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryDark,
+                        backgroundColor: isDark ? AppColors.blueprintBlue : AppColors.primaryDark,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
@@ -448,17 +464,27 @@ Calculated with Milen Trading Calculator
     Share.share(text, subject: 'Milen Trading - ${item.title}');
   }
 
-  Widget _buildDetailRow(String label, String value) {
+  Widget _buildDetailRow(String label, String value, bool isDark) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 14,
+              color: isDark ? Colors.white70 : Colors.grey.shade600,
+            ),
+          ),
           Flexible(
             child: Text(
               value,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.primaryDark),
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : AppColors.primaryDark,
+              ),
               textAlign: TextAlign.end,
             ),
           ),
@@ -468,15 +494,26 @@ Calculated with Milen Trading Calculator
   }
 
   void _showDeleteConfirmation(CalculationModel item) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Calculation'),
-        content: Text('Are you sure you want to delete "${item.title}"?'),
+        backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+        title: Text(
+          'Delete Calculation',
+          style: TextStyle(color: isDark ? Colors.white : AppColors.primaryDark),
+        ),
+        content: Text(
+          'Are you sure you want to delete "${item.title}"?',
+          style: TextStyle(color: isDark ? Colors.white70 : AppColors.textDark),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: isDark ? Colors.white70 : AppColors.primaryDark),
+            ),
           ),
           TextButton(
             onPressed: () async {
@@ -494,15 +531,26 @@ Calculated with Milen Trading Calculator
   }
 
   void _showClearAllDialog() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Clear History'),
-        content: const Text('Are you sure you want to delete all saved calculations?'),
+        backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+        title: Text(
+          'Clear History',
+          style: TextStyle(color: isDark ? Colors.white : AppColors.primaryDark),
+        ),
+        content: Text(
+          'Are you sure you want to delete all saved calculations?',
+          style: TextStyle(color: isDark ? Colors.white70 : AppColors.textDark),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: isDark ? Colors.white70 : AppColors.primaryDark),
+            ),
           ),
           TextButton(
             onPressed: () async {
