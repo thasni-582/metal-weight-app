@@ -475,12 +475,12 @@ class PdfExportService {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Quotation PDF Export',
                             style: TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.bold,
-                              color: AppColors.primaryDark,
+                              color: isDark ? Colors.white : AppColors.primaryDark,
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -527,7 +527,7 @@ class PdfExportService {
                           child: const Icon(Icons.visibility, color: Colors.white, size: 20),
                         ),
                         const SizedBox(width: 14),
-                        const Expanded(
+                        Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -536,13 +536,16 @@ class PdfExportService {
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
-                                  color: AppColors.primaryDark,
+                                  color: isDark ? Colors.white : AppColors.primaryDark,
                                 ),
                               ),
-                              SizedBox(height: 2),
+                              const SizedBox(height: 2),
                               Text(
                                 'View quotation, print, or save directly to device',
-                                style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: isDark ? Colors.white70 : AppColors.textMuted,
+                                ),
                               ),
                             ],
                           ),
@@ -564,10 +567,14 @@ class PdfExportService {
                   child: Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: AppColors.primaryDark.withValues(alpha: 0.06),
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.05)
+                          : AppColors.primaryDark.withValues(alpha: 0.06),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: AppColors.primaryDark.withValues(alpha: 0.25),
+                        color: isDark
+                            ? Colors.white24
+                            : AppColors.primaryDark.withValues(alpha: 0.25),
                       ),
                     ),
                     child: Row(
@@ -575,13 +582,13 @@ class PdfExportService {
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: AppColors.primaryDark,
+                            color: isDark ? AppColors.blueprintBlue : AppColors.primaryDark,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Icon(Icons.share, color: Colors.white, size: 20),
                         ),
                         const SizedBox(width: 14),
-                        const Expanded(
+                        Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -590,18 +597,25 @@ class PdfExportService {
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
-                                  color: AppColors.primaryDark,
+                                  color: isDark ? Colors.white : AppColors.primaryDark,
                                 ),
                               ),
-                              SizedBox(height: 2),
+                              const SizedBox(height: 2),
                               Text(
                                 'Send PDF directly to customers via WhatsApp, Email, etc.',
-                                style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: isDark ? Colors.white70 : AppColors.textMuted,
+                                ),
                               ),
                             ],
                           ),
                         ),
-                        const Icon(Icons.arrow_forward_ios, size: 14, color: AppColors.primaryDark),
+                        Icon(
+                          Icons.arrow_forward_ios,
+                          size: 14,
+                          color: isDark ? Colors.white70 : AppColors.primaryDark,
+                        ),
                       ],
                     ),
                   ),

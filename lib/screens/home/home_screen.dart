@@ -1432,12 +1432,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildPropertiesInfoCard(AppSettingsProvider settings) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.blueprintBlue.withValues(alpha: 0.04),
+        color: isDark ? const Color(0xFF1E293B) : AppColors.blueprintBlue.withValues(alpha: 0.04),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.blueprintBlue.withValues(alpha: 0.15)),
+        border: Border.all(
+          color: isDark ? Colors.white12 : AppColors.blueprintBlue.withValues(alpha: 0.15),
+        ),
       ),
       child: Row(
         children: [
@@ -1454,18 +1457,21 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Standard Engineering Profile Properties',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 13,
-                    color: AppColors.primaryDark,
+                    color: isDark ? Colors.white : AppColors.primaryDark,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   'Selected: $_selectedShape ($_selectedSize mm${_selectedThickness.isNotEmpty ? ' x $_selectedThickness' : ''})',
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? Colors.white70 : Colors.grey.shade700,
+                  ),
                 ),
                 Text(
                   '${settings.strings.get('section_area')}: ${_sectionController.text} cm²',

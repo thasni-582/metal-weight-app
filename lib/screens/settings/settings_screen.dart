@@ -259,19 +259,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _showLanguageSelectionDialog(AppSettingsProvider settings) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(settings.strings.get('language')),
+        backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+        title: Text(
+          settings.strings.get('language'),
+          style: TextStyle(color: isDark ? Colors.white : AppColors.primaryDark),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: _languageOptions.map((lang) {
             final isSelected = lang['code'] == settings.languageCode;
             return ListTile(
-              title: Text(lang['name']!),
+              title: Text(
+                lang['name']!,
+                style: TextStyle(
+                  color: isDark ? Colors.white : AppColors.textDark,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                ),
+              ),
               trailing: isSelected
                   ? const Icon(Icons.check_circle, color: AppColors.secondaryOrange)
-                  : const Icon(Icons.circle_outlined, color: Colors.grey),
+                  : Icon(Icons.circle_outlined, color: isDark ? Colors.white38 : Colors.grey),
               onTap: () {
                 settings.setLanguage(lang['code']!);
                 Navigator.pop(context);
@@ -283,7 +294,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(settings.strings.get('cancel')),
+            child: Text(
+              settings.strings.get('cancel'),
+              style: TextStyle(color: isDark ? Colors.white70 : AppColors.primaryDark),
+            ),
           ),
         ],
       ),
@@ -553,7 +567,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.shield_outlined, color: AppColors.primaryDark),
+                        Icon(
+                          Icons.shield_outlined,
+                          color: isDark ? AppColors.secondaryOrange : AppColors.primaryDark,
+                        ),
                         const SizedBox(width: 8),
                         Text(
                           'Privacy Policy',
@@ -566,52 +583,64 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ],
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close),
+                      icon: Icon(
+                        Icons.close,
+                        color: isDark ? Colors.white70 : AppColors.primaryDark,
+                      ),
                       onPressed: () => Navigator.pop(context),
                     ),
                   ],
                 ),
               ),
-              const Divider(height: 1),
+              Divider(height: 1, color: isDark ? Colors.white12 : Colors.grey.shade200),
               Expanded(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Last updated: October 2026',
                         style: TextStyle(
                           fontSize: 12,
-                          color: AppColors.textMuted,
+                          color: isDark ? Colors.white60 : AppColors.textMuted,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
                       const SizedBox(height: 12),
-                      const Text(
+                      Text(
                         'Milen Trading values your privacy. This application is designed as an industrial calculation tool prioritizing user privacy and offline reliability.',
-                        style: TextStyle(fontSize: 13.5, height: 1.5),
+                        style: TextStyle(
+                          fontSize: 13.5,
+                          height: 1.5,
+                          color: isDark ? Colors.white : AppColors.textDark,
+                        ),
                       ),
                       const SizedBox(height: 16),
                       _buildPolicySection(
                         '1. Local Data Storage & History',
                         'All calculations, custom profile dimensions, and calculation history records are stored strictly on your local device. We do not transmit or store your calculation records on any external cloud servers.',
+                        isDark,
                       ),
                       _buildPolicySection(
                         '2. Permissions Used',
                         '• Storage / Media: Used exclusively to generate, save, and export quotation PDFs or share them via WhatsApp/Email upon your request.\n• Internet Access: Used exclusively to open official communication channels (Website, WhatsApp inquiry).',
+                        isDark,
                       ),
                       _buildPolicySection(
                         '3. No Personal Data Collection',
                         'The app does not require account creation, login, or personal profile details. We do not collect, sell, or rent your private information or business data to third parties or advertising networks.',
+                        isDark,
                       ),
                       _buildPolicySection(
                         '4. Third-Party Sharing',
                         'No behavioral tracking or background analytics services profile your calculations. Inquiries sent via WhatsApp or email are initiated solely by your explicit user action.',
+                        isDark,
                       ),
                       _buildPolicySection(
                         '5. Contact Information',
                         'For any privacy inquiries or product quotations, contact us:\n• Milen Trading\n• Headquarters: Jeddah (Souq-7), Saudi Arabia\n• Email: info@milantrades.com\n• Phone: +966 597 67 87 97\n• Website: www.milantrades.com',
+                        isDark,
                       ),
                       const SizedBox(height: 16),
                     ],
@@ -625,7 +654,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildPolicySection(String heading, String content) {
+  Widget _buildPolicySection(String heading, String content, bool isDark) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 14.0),
       child: Column(
@@ -633,19 +662,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
           Text(
             heading,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
-              color: AppColors.primaryDark,
+              color: isDark ? AppColors.secondaryOrange : AppColors.primaryDark,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             content,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12.5,
               height: 1.45,
-              color: Color(0xFF334155),
+              color: isDark ? Colors.white70 : const Color(0xFF334155),
             ),
           ),
         ],
