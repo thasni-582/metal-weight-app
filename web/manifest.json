@@ -1,11 +1,11 @@
 {
-    "name": "metal_weight",
-    "short_name": "metal_weight",
+    "name": "Milen Trading",
+    "short_name": "Milen Trading",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Milen Trading - Structural Steel & Metal Weight Calculator",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

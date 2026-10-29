@@ -696,12 +696,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _rateApp() {
-    _launchURL('https://play.google.com/store/apps/details?id=com.milensteel.calculator');
+    _launchURL('https://play.google.com/store/apps/details?id=com.milentrading.metal_weight');
   }
 
   void _shareApp() {
     Share.share(
-      'Check out Milen Trading Calculator - Professional metal weight & engineering profile calculator!\nDownload now: https://play.google.com/store/apps/details?id=com.milensteel.calculator',
+      'Check out Milen Trading Calculator - Professional metal weight & engineering profile calculator!\nDownload now: https://play.google.com/store/apps/details?id=com.milentrading.metal_weight',
       subject: 'Milen Trading Calculator',
     );
   }

@@ -19,7 +19,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.milensteel.metal_weight"
+        applicationId = "com.milentrading.metal_weight"
         minSdk = flutter.minSdkVersion
         targetSdk = 36
         versionCode = flutter.versionCode
